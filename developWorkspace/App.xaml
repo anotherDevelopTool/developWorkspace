@@ -1,0 +1,51 @@
+﻿<Application x:Class="DevelopWorkspace.Main.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             StartupUri="SplashWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources\GradientButtonWithStyleSetters.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="Resources\GradientConfirmButtonWithStyleSetters.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="Resources\GradientToolButtonWithStyleSetters.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="Resources\TextEditor.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="Resources\ZoomScrollViewer.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/office2013/generic.xaml" />
+                <!--<ResourceDictionary Source="Themes\Skins\ExpressionDark.xaml"/>
+                <ResourceDictionary Source="Themes\WindowStyle.xaml"/>
+                <ResourceDictionary Source="Themes\Skins\WhistlerBlue.xaml"/>
+                <ResourceDictionary Source="Resources\ListBox.xaml"></ResourceDictionary>-->
+            </ResourceDictionary.MergedDictionaries>
+
+            <system:String x:Key="mainwindow.lang.tools">ツール</system:String>
+            <system:String x:Key="mainwindow.lang.tools.dbsupport">DB開発支援</system:String>
+            <system:String x:Key="mainwindow.lang.tools.script">スクリプト</system:String>
+            <system:String x:Key="mainwindow.lang.tools.common">共通</system:String>
+            <system:String x:Key="mainwindow.lang.tools.setting">設定</system:String>
+            <system:String x:Key="dbsupport.lang.tools.select">選択</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.select">データベース接続情報を選択してから、スキーマロードボタンを押下し、DBからスキーマ情報を読み込んでください</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.load">スキーマ情報をロードする</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.load">スキーマロード</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.export">選択したテーブルをExcelにエクスポートする</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.export">エクスポート</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.sync">ExcelにあるデータをDBへ反映する、主キーと照らし合わせて、一致するものがあれば、更新する、そうでない場合、挿入する。削除処理がデフォルトでは行わない</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.sync">反映</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.diff">最新DBとの差分を作成する</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.diff">差分作成</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.setting">設定</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.executesql">SQL文を実行して結果をOutputViewに出力する</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.formatsql">SQL文をフォーマットする</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.previoussubsql">前の入れ子のSQL文</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.nextsubsql">次の入れ子のSQL文</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.exportresult">SQL文の実行結果をExcelにエクスポートする</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hintdata">補助データ作成</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.schema">表Schema</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.schema">テーブルスキーマを表示する箇所、まずリボンにあるロードボタンを押下してロードする必要がある</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.whereclause">DBデータをエクスポートする際にテーブルの絞り込み条件をカスタマイズできる。特定した更新ユーザー、更新タイムスタンプなどがよく利用される、またそれらの組み合わせも</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.deleteclause">ExcelシートにあるデータをDBへ反映する前にDbデータを削除する条件をカスタマイズできる。デフォルトは1 =0であり、削除処理を行わないである</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.sql">SQL文</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.sql">直接SQL文を入力するか、スキーマのコンテクストメニューから取得入力できる</system:String>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

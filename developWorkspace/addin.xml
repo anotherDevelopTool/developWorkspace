@@ -1,0 +1,21 @@
+<?xml version="1.0" standalone="yes"?>
+<DocumentElement>
+  <AddinsTable>
+    <AssemblyFullName>DevelopWorkspace.CodeGeneratorAddin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</AssemblyFullName>
+    <AssemblyLocation>C:\Users\husband\Desktop\Workspace\developWorkspace_prototype\developWorkspace\bin\Debug\addins\DevelopWorkspace.CodeGeneratorAddin.dll</AssemblyLocation>
+    <AddinType>DevelopWorkspace.CodeGeneratorAddin.ViewModel</AddinType>
+    <Description>代码自动生成工具插件</Description>
+  </AddinsTable>
+  <AddinsTable>
+    <AssemblyFullName>DevelopWorkspace.CodeGeneratorAddin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</AssemblyFullName>
+    <AssemblyLocation>C:\Users\husband\Desktop\Workspace\developWorkspace_prototype\developWorkspace\bin\Debug\addins\DevelopWorkspace.CodeGeneratorAddin.dll</AssemblyLocation>
+    <AddinType>DevelopWorkspace.CodeGeneratorAddin.XslViewModel</AddinType>
+    <Description>XSL代码自动生成工具插件</Description>
+  </AddinsTable>
+  <AddinsTable>
+    <AssemblyFullName>DevelopWorkspace.DataCreateAddin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</AssemblyFullName>
+    <AssemblyLocation>C:\Users\husband\Desktop\Workspace\developWorkspace_prototype\developWorkspace\bin\Debug\addins\DevelopWorkspace.DataCreateAddin.dll</AssemblyLocation>
+    <AddinType>DevelopWorkspace.DataCreateAddin.ViewModel</AddinType>
+    <Description>单体测试数据生成辅助工具插件</Description>
+  </AddinsTable>
+</DocumentElement>

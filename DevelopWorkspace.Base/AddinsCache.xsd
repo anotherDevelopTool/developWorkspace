@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="AddinsCache" targetNamespace="http://tempuri.org/AddinsCache.xsd" xmlns:mstns="http://tempuri.org/AddinsCache.xsd" xmlns="http://tempuri.org/AddinsCache.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="AddinsCache" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="AddinsCache" msprop:Generator_UserDSName="AddinsCache">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="AddinsTable" msprop:Generator_TableClassName="AddinsTableDataTable" msprop:Generator_TableVarName="tableAddinsTable" msprop:Generator_TablePropName="AddinsTable" msprop:Generator_RowDeletingName="AddinsTableRowDeleting" msprop:Generator_RowChangingName="AddinsTableRowChanging" msprop:Generator_RowEvHandlerName="AddinsTableRowChangeEventHandler" msprop:Generator_RowDeletedName="AddinsTableRowDeleted" msprop:Generator_UserTableName="AddinsTable" msprop:Generator_RowChangedName="AddinsTableRowChanged" msprop:Generator_RowEvArgName="AddinsTableRowChangeEvent" msprop:Generator_RowClassName="AddinsTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="AssemblyFullName" msprop:Generator_ColumnVarNameInTable="columnAssemblyFullName" msprop:Generator_ColumnPropNameInRow="AssemblyFullName" msprop:Generator_ColumnPropNameInTable="AssemblyFullNameColumn" msprop:Generator_UserColumnName="AssemblyFullName" type="xs:string" minOccurs="0" />
+              <xs:element name="AssemblyLocation" msprop:Generator_ColumnVarNameInTable="columnAssemblyLocation" msprop:Generator_ColumnPropNameInRow="AssemblyLocation" msprop:Generator_ColumnPropNameInTable="AssemblyLocationColumn" msprop:Generator_UserColumnName="AssemblyLocation" type="xs:string" minOccurs="0" />
+              <xs:element name="AddinType" msprop:Generator_ColumnVarNameInTable="columnAddinType" msprop:Generator_ColumnPropNameInRow="AddinType" msprop:Generator_ColumnPropNameInTable="AddinTypeColumn" msprop:Generator_UserColumnName="AddinType" type="xs:string" minOccurs="0" />
+              <xs:element name="Description" msprop:Generator_ColumnVarNameInTable="columnDescription" msprop:Generator_ColumnPropNameInRow="Description" msprop:Generator_ColumnPropNameInTable="DescriptionColumn" msprop:Generator_UserColumnName="Description" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,42 @@
+﻿<Fluent:RibbonWindow x:Class="DevelopWorkspace.Main.AboutDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DevelopWorkspace.Base.Utils"
+        mc:Ignorable="d"
+        Title="About developWorkspace" Height="300" Width="636.124" ResizeMode="NoResize">
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="375"/>
+            <ColumnDefinition Width="53*"/>
+            <ColumnDefinition Width="92*"/>
+            <ColumnDefinition Width="110*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="10*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontSize="35" TextWrapping="Wrap" Text="developWorkspace1.1" VerticalAlignment="Center" HorizontalAlignment="Left" Height="44" Margin="0,12" Width="418"/>
+        <TextBlock Grid.Column="0" Grid.Row="1"  FontSize="20" Grid.ColumnSpan="2" TextWrapping="Wrap" FontWeight="Bold" Foreground="Red" Text="     Speed up your copy/paste routine work" VerticalAlignment="Center" HorizontalAlignment="Left" Height="26" Margin="0,4" Width="450"/>
+        <TextBlock  Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="198" Margin="0,35,10,0"><Run Text="© "/><Run Text="2019  xujingjiang@outlook.com"/></TextBlock>
+        <Image   Grid.Column="1" Grid.Row="3" Source="Images/about.png" Margin="0,10"/>
+        <Image Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2"  Grid.RowSpan="3" Margin="0,15" Source="Images/author_wechat.png"/>
+        <Image Grid.Column="0" Grid.Row="4"  Source="Images/images-help.png" HorizontalAlignment="Left" Margin="0,10,0,0" Width="15" MouseLeftButtonDown="Image_MouseLeftButtonDown"/>
+        <Button Style="{StaticResource BlueButton}" Grid.Column="2" Grid.Row="4" x:Name="button" Content="OK"  HorizontalAlignment="Right" Width="192" Click="button_Click" Height="23" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="0,10,10,0" />
+        <!--<StackPanel>
+            <TextBlock FontSize="35" TextWrapping="Wrap" Text="developWorkspace1.0" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="10,20,0,10"/>
+            <TextBlock FontSize="20" TextWrapping="Wrap" FontWeight="Bold" Foreground="Red" Text="as a friend with programmer" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="40,10,10,10"/>
+            <TextBlock HorizontalAlignment="Right"  Margin="10,80,10,10"><Run Text="© "/><Run Text="2019  xujingjiang@outlook.com"/></TextBlock>
+            <Image Height="49" Source="Images/about.png"/>
+            <Image Height="49" Source="Images/author_wechat.png"/>
+        </StackPanel>
+        <Button x:Name="button" Content="OK" HorizontalAlignment="Left" Height="22" Margin="522,240,0,0" VerticalAlignment="Top" Width="96" Click="button_Click"/>-->
+
+    </Grid>
+</Fluent:RibbonWindow>
+

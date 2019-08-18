@@ -1,0 +1,18 @@
+﻿<Window x:Class="DevelopWorkspace.Base.Utils.AboutDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DevelopWorkspace.Base.Utils"
+        mc:Ignorable="d"
+        Title="About developWorkspace" Height="300" Width="636.124" ResizeMode="NoResize">
+    <Grid >
+        <StackPanel>
+            <TextBlock FontSize="20" Height="199" TextWrapping="Wrap" Text="消灭程序员的日常作业中的重复作业是这个工具的终极目标。                                                                            目前提供的正式功能为                                                                            （1）数据做成辅助工具                                                                            （2）代码自动生成工具                                                                            "/>
+            <TextBlock HorizontalAlignment="Right" Height="32" Width="389"><Run Text="© "/><Run Text="2016-"/><Run Text="201"/><Run Text="7"/><Run Text=" xujingjiang"/><Run Text="@outlook.com"/><Run Text=" "/><Run Text="/"/><Run Text=" keikou.jyo@gmail.com"/><LineBreak/><Run Text=""/></TextBlock>
+        </StackPanel>
+        <Button x:Name="button" Content="OK" HorizontalAlignment="Left" Height="22" Margin="522,240,0,0" VerticalAlignment="Top" Width="96" Click="button_Click"/>
+
+    </Grid>
+</Window>
+

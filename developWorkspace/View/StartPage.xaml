@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="DevelopWorkspace.Main.View.StartPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             
+             xmlns:behav="clr-namespace:DevelopWorkspace.Main.Behaviour"
+             xmlns:cmd="clr-namespace:DevelopWorkspace.Main"
+             xmlns:view="clr-namespace:DevelopWorkspace.Main.View"
+             
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="900" d:DesignWidth="900" Background="White"
+
+             Focusable="True"
+             KeyboardNavigation.IsTabStop="True"
+             Name="StartPageView"
+             >
+  <UserControl.Resources>
+        <BitmapImage UriSource="pack://application:,,,/DevelopWorkspace;component/Images/App/Edi100.png" x:Key="Logo" />
+
+        <BitmapImage UriSource="pack://application:,,,/DevelopWorkspace;component/Images/App/File_Open64.png" x:Key="FileOpenImage" />
+
+        <BitmapImage UriSource="pack://application:,,,/DevelopWorkspace;component/Images/App/File_New64.png" x:Key="NewFileImage" />
+
+    <LinearGradientBrush x:Key="ThemeAero_BaseColor16"
+                         StartPoint="0,0" EndPoint="0,1">
+      <GradientStop Color="#B7CAE0" Offset="0" />
+      <GradientStop Color="#58F0FF" Offset="1" />
+    </LinearGradientBrush>
+  </UserControl.Resources>
+  <!--<Grid VerticalAlignment="Center" HorizontalAlignment="Center" Height="600" Width="600">
+
+    <Border BorderBrush="{StaticResource ThemeAero_BaseColor16}" BorderThickness="2" Height="400" Width="600" Padding="50"
+            Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,0"> 
+
+    <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      --><!-- Project Name --><!--
+      <TextBlock Text="Edi" FontSize="64" Background="White"
+              Margin="20,-100" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+      --><!-- Logo --><!--
+      <TextBlock Grid.Column="1" Grid.Row="0" Background="White" Margin="20,-90" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Hyperlink TextDecorations="None" Command="cmd:AppCommand.BrowseURL">
+          <Image Source="{StaticResource Logo}" Width="100" />
+        </Hyperlink>
+      </TextBlock>
+
+        <TextBlock Grid.Column="1" Grid.Row="0" Background="White" Margin="-120,-80" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+        <Hyperlink TextDecorations="None" Command="New">
+          <Image Source="{StaticResource NewFileImage}" Width="100" />
+        </Hyperlink>
+        </TextBlock>
+
+        <TextBlock Grid.Column="1" Grid.Row="0" Background="White" Margin="-120,-280" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+        <Hyperlink TextDecorations="None" Command="Open">
+          <Image Source="{StaticResource FileOpenImage}" Width="100" />
+        </Hyperlink>
+        </TextBlock>
+
+        <Label Content="Recent Files:" Grid.Row="0" />
+        <Canvas Grid.Row="1" Height="10"
+                    Width="500"
+                    SnapsToDevicePixels="True"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Line X1="10" Y1="5" X2="398" Y2="5" Stroke="Gray" StrokeThickness="1"
+                  HorizontalAlignment="Stretch" Margin="0,3" Opacity="0.3">
+          </Line>
+        </Canvas>
+      <view:RecentFilesView Grid.Row="2" />
+    </Grid>
+   </Border>
+  </Grid>-->
+</UserControl>

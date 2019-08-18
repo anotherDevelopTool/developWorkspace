@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:local="clr-namespace:DevelopWorkspace.DataCreateAddin;assembly=DevelopWorkspace.DataCreateAddin"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataTemplate x:Key="addin">
+        <StackPanel>
+            <local:UserControl1 DataContext="{Binding}" ></local:UserControl1>
+
+        </StackPanel>
+    </DataTemplate>
+
+</ResourceDictionary>

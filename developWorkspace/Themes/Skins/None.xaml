@@ -1,0 +1,19 @@
+﻿<!--
+// Tech42 (c) 2010 Copyright.
+-->
+
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    mc:Ignorable="d">
+
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="White" />
+
+    <LinearGradientBrush x:Key="TitleBarBackgroundBrush" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="White" Offset="0.0"/>
+        <GradientStop Color="LightGray" Offset="0.9942"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>

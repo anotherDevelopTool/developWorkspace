@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:local="clr-namespace:DevelopWorkspace.CodeGeneratorAddin;assembly=DevelopWorkspace.CodeGeneratorAddin"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataTemplate x:Key="addin">
+        <StackPanel>
+            <local:UserControl1 DataContext="{Binding}" ></local:UserControl1>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="addin1">
+        <StackPanel>
+            <local:UserControl2 DataContext="{Binding}" ></local:UserControl2>
+        </StackPanel>
+    </DataTemplate>
+
+</ResourceDictionary>

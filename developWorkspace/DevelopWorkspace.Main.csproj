@@ -1,0 +1,629 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E6DA1D06-0BB8-47B9-8FA5-7D88B24B0AB1}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DevelopWorkspace.Main</RootNamespace>
+    <AssemblyName>DevelopWorkspace</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup>
+    <Reference Include="CSScriptLibrary">
+      <HintPath>..\lib\CSScriptLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\lib\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Fluent, Version=3.0.3.0, Culture=neutral, PublicKeyToken=3e436e32a8c5546f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Fluent.dll</HintPath>
+    </Reference>
+    <Reference Include="Laan.Sql.Parser, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38381f803377176d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Laan.Sql.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\..\dbtools_proto\dbtools_proto\Microsoft.Office.Interop.Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Windows.Shell">
+      <HintPath>..\lib\Microsoft.Windows.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.SQLite, Version=1.0.99.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.99.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq">
+      <HintPath>..\lib\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Activation" />
+    <Reference Include="System.ServiceModel.Activities" />
+    <Reference Include="System.ServiceModel.Channels" />
+    <Reference Include="System.ServiceModel.Discovery" />
+    <Reference Include="System.ServiceModel.Routing" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Windows.Controls.Ribbon" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="Xceed.Wpf.Toolkit, Version=3.5.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="AppConfig.cs" />
+    <Compile Include="Model\PropertiesToolViewModel.cs" />
+    <Compile Include="SplashWindow.xaml.cs">
+      <DependentUpon>SplashWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AboutDialog.xaml.cs">
+      <DependentUpon>AboutDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Behaviour\DropFileCommand.cs" />
+    <Compile Include="Behaviour\KeyboardFocus.cs" />
+    <Resource Include="addin.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Compile Include="CollapsiblePanel.cs" />
+    <Compile Include="Command\AppCommand.cs" />
+    <Compile Include="Command\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Converter\ActiveDocumentConverter.cs" />
+    <Compile Include="Converter\BindingChangedConverter.cs" />
+    <Compile Include="Converter\ZeroToVisibilityConverter.cs" />
+    <Compile Include="DbSettingEngine.cs" />
+    <Compile Include="Model\ThirdPartyToolModel.cs" />
+    <Compile Include="RestfulService\RestfulService.cs" />
+    <Compile Include="Themes\WindowStyle.xaml.cs">
+      <DependentUpon>WindowStyle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PropertiesToolView.xaml.cs">
+      <DependentUpon>PropertiesToolView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ThirdPartyToolView.xaml.cs">
+      <DependentUpon>ThirdPartyToolView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WsdLogger.cs" />
+    <Compile Include="XlApp.cs" />
+    <Compile Include="Model\DataExcelUtilModel.cs" />
+    <Compile Include="Model\CSScriptRunModel.cs" />
+    <Compile Include="Model\OutputToolViewModel.cs" />
+    <Compile Include="Model\FileViewModel.cs" />
+    <Compile Include="Model\RecentFilesViewModel.cs" />
+    <Compile Include="Model\StartPageViewModel.cs" />
+    <Compile Include="Model\ToolViewModel.cs" />
+    <Compile Include="Resources\GradientButton.xaml.cs">
+      <DependentUpon>GradientButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\GradientButtonVariant.xaml.cs">
+      <DependentUpon>GradientButtonVariant.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Themes\WindowResizer.cs" />
+    <Compile Include="View\CSScriptRunView.xaml.cs">
+      <DependentUpon>CSScriptRunView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\DataExcelUtilView.xaml.cs">
+      <DependentUpon>DataExcelUtilView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\DocumentView.xaml.cs">
+      <DependentUpon>DocumentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\OutputToolView.xaml.cs">
+      <DependentUpon>OutputToolView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LayoutInitializer.cs" />
+    <Compile Include="View\PanesStyleSelector.cs" />
+    <Compile Include="View\PanesTemplateSelector.cs" />
+    <Compile Include="Model\Workspace.cs" />
+    <Compile Include="View\RecentFilesView.xaml.cs">
+      <DependentUpon>RecentFilesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\StartPage.xaml.cs">
+      <DependentUpon>StartPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ZoomButtons.cs" />
+    <Compile Include="ZoomScrollViewer.cs" />
+    <Resource Include="Images\Go.png" />
+    <Resource Include="Images\next.png" />
+    <Resource Include="Images\previous.png" />
+    <Resource Include="Images\sql.png" />
+    <Resource Include="Images\run_sql.png" />
+    <Resource Include="Images\mysql.jpg" />
+    <Resource Include="Images\mysql.png" />
+    <Resource Include="Images\oracle.png" />
+    <Resource Include="Images\postgressql.jpg" />
+    <Resource Include="Images\sqlite.jpg" />
+    <None Include="Images\2398-106.jpg" />
+    <None Include="Images\324dbf0767a120b370c50306eeace679.gif" />
+    <Resource Include="Images\images-help.png" />
+    <Resource Include="Images\error.png" />
+    <Resource Include="Images\compare.png" />
+    <Resource Include="Images\export.png" />
+    <Resource Include="Images\import.png" />
+    <Resource Include="Images\load.png" />
+    <Resource Include="Images\sqlite.png" />
+    <Resource Include="Images\postgressql.png" />
+    <Resource Include="Images\dbtool.png" />
+    <Resource Include="Images\setting.png" />
+    <Resource Include="develop.ico" />
+    <Resource Include="icon.ico" />
+    <Page Include="SplashWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="AboutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Resources\GradientButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\GradientButtonVariant.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\GradientToolButtonWithStyleSetters.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\GradientConfirmButtonWithStyleSetters.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\GradientButtonWithStyleSetters.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\ListBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\TextEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\ZoomScrollViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\BureauBlack.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\BureauBlue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\ExpressionDark.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\ExpressionLight.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\None.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\ShinyBlue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\ShinyRed.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Skins\WhistlerBlue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\WindowStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\WindowStyleWin7.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\WindowStyleXP.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PropertiesToolView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ThirdPartyToolView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\CSScriptRunView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\DataExcelUtilView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\DocumentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OutputToolView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\RecentFilesView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\StartPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Command\Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="AvalonEdit\Highlighting\00_XmlDoc.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\01_XML-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\02_CSharp-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\03_JavaScript-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\04_HTML-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\AS3.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\ASPX.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Boo.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Coco-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\CPP-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\CSS-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\DOSBATCH.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\FSharp-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\HLSL.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\INI.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Java-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\lisp.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Log.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\MarkDown-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Pascal.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Patch-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\PHP-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\PLSQL.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\PowerShell.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Python.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Ruby.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\scheme.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\SQL.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\squirrel.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\Tex.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\TXT.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\VBNET-Mode.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Highlighting\vtl.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\HighLighting_Themes\BrightStandard.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\HighLighting_Themes\DeepBlack.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\HighLighting_Themes\TrueBlue.xshd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DevelopWorkspace.Base\DevelopWorkspace.Base.csproj">
+      <Project>{cbe0eddb-0a7a-42ca-a67f-e7bebfcad08e}</Project>
+      <Name>DevelopWorkspace.Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib\ExcelDna.Integration\ExcelDna.Integration.csproj">
+      <Project>{196735bc-5a5c-4a21-9fe4-ec01cb7f3de9}</Project>
+      <Name>ExcelDna.Integration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib\ICSharpCode.AvalonEdit\ICSharpCode.AvalonEdit.csproj">
+      <Project>{6c55b776-26d4-4db3-a6ab-87e783b2f3d1}</Project>
+      <Name>ICSharpCode.AvalonEdit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib\WPFBackgroundProgressIndicator\WPFBackgroundProgressIndicator.csproj">
+      <Project>{351af063-8ee7-4baf-b34d-5c499b3b736e}</Project>
+      <Name>WPFBackgroundProgressIndicator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib\Xceed.Wpf.AvalonDock\Xceed.Wpf.AvalonDock.csproj">
+      <Project>{db81988f-e0f2-45a0-a1fd-8c37f3d35244}</Project>
+      <Name>Xceed.Wpf.AvalonDock</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\column.png" />
+    <Resource Include="Images\data_apply.png" />
+    <Resource Include="Images\diff.png" />
+    <Resource Include="Images\excel_export.png" />
+    <Resource Include="Images\schema.png" />
+    <Resource Include="Images\table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\App\Edi100.png" />
+    <Resource Include="Images\App\File_New64.png" />
+    <Resource Include="Images\App\File_Open64.png" />
+    <Resource Include="Images\document.png" />
+    <Resource Include="Images\property-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\App\Edit_Copy32.png" />
+    <Resource Include="Images\App\Edit_Cut32.png" />
+    <Resource Include="Images\App\Edit_Delete32.png" />
+    <Resource Include="Images\App\Edit_Find16.ico" />
+    <Resource Include="Images\App\Edit_Find32.png" />
+    <Resource Include="Images\App\Edit_Find_Replace32.png" />
+    <Resource Include="Images\App\Edit_Paste32.png" />
+    <Resource Include="Images\App\Edit_Redo32.png" />
+    <Resource Include="Images\App\Edit_Undo32.png" />
+    <Resource Include="Images\App\File_New32.png" />
+    <Resource Include="Images\App\File_Open32.png" />
+    <Resource Include="Images\App\File_Save16.png" />
+    <Resource Include="Images\App\File_Save32.png" />
+    <Resource Include="Images\App\File_Save64.png" />
+    <Resource Include="Images\App\File_Save_All32.png" />
+    <Resource Include="Images\App\Help_About32.png" />
+    <Resource Include="Images\App\Help_Hint32.png" />
+    <Resource Include="Images\App\ShowEnter32.png" />
+    <Resource Include="Images\App\ShowLineNumbers32.png" />
+    <Resource Include="Images\App\ShowSpaces32.png" />
+    <Resource Include="Images\App\ShowTab32.png" />
+    <Resource Include="Images\App\ShowWordWrap32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\App\DocTab\Lock-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Images\highlighted close.png" />
+    <Resource Include="Themes\Images\highlighted maximize.bmp" />
+    <Resource Include="Themes\Images\highlighted minimize.bmp" />
+    <Resource Include="Themes\Images\normal close.png" />
+    <Resource Include="Themes\Images\normal maximize.bmp" />
+    <Resource Include="Themes\Images\normal minimize.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="AvalonEdit\Intellisense\Keywords\keywords_csharp.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="AvalonEdit\Intellisense\Keywords\keywords_sql.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="AvalonEdit\Intellisense\Keywords\options.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\excel _export.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\excel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\run.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\csscript.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\about.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\script_setting.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\author_wechat.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

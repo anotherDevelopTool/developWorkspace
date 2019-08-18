@@ -1,0 +1,25 @@
+2016/03/07	可用性を高めるために、Tableスキーマ情報をロード時でなく、必要時、初めて取得する
+2016/03/09	SqlParser初版作成（SELECTの複合検索対応 各種パターンのテスト未実施）
+2016/03/11	XlApp.DoAccordingActivedSheet数据库更新逻辑refactor,
+		根据主键的存在性判断是应该UPDATE还是INSERT，提高程序可用性
+		大量使用了LINQ的功能，针对大数量数据时也许需要优化？
+2016/03/12	SqlParser bugfix，SQL格式化整理（未完待完善）
+2016/03/13	ConfirmDialog的列动态绑定变更以及居中显示调整
+		In WPF how to change a DataTemplate's Textblock's text binding in code?
+		http://stackoverflow.com/questions/3143024/in-wpf-how-to-change-a-datatemplates-textblocks-text-binding-in-code
+		需要进一步了解的课题：如何动态改变数据绑定的内容，还有就是xaml内完成的动作如何在code级别实现（了解一些机制）
+2016/03/15	XlApp.DoAccordingActivedSheet针对BLOB，CLOB这样二进制流的字段不予以更新，在UPDATE文中剔除以保证其他工具插入的数据不被更新
+2016/03/17	代码移管至https://developworkspace.visualstudio.com
+2016/03/20	内嵌webserver引入（Spark Mvc）以及jUI前台js框架,为日后的工具应用的对外公开以及excel台账web化提供基础
+2016/03/24	http://www.newtonsoft.com/json的json.net引入，为日后websever和前台的js应用提供数据交互机制
+2016/06/01	导入SqlParser，通过SQL解析结果做成提示用数据辅助用户快速生成符合条件的数据
+
+
+TODO
+		DevelopWorkspace.Main.RestfulService
+2016/04/29	SqlParser第三方部品导入（https://github.com/benlaan/sqlformat），这个部品同时有不错的format功能
+		虽然不是很成熟的产品，但对于项目开发来讲可能够用？
+2016/05/06	由于正则表现针对复杂文字类型时的可读性不足等理由，引入lex/yacc类的部品（antlr/sprache/irony）		
+
+2017/01/24	UI改写
+		利用RibbonUI对各个插件的按钮重新整理，Data这个插件左右切换更加自然	

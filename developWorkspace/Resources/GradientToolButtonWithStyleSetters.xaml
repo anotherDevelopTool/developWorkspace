@@ -1,0 +1,74 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+    <!-- Resources used by the template. -->
+    <RadialGradientBrush RadiusX="1" RadiusY="5" GradientOrigin="0.5,0.3"
+     x:Key="HighlightBackground_tool">
+      <GradientStop Color="White" Offset="0" />
+        <GradientStop Color="Yellow" Offset=".4" />
+    </RadialGradientBrush>
+
+    <RadialGradientBrush RadiusX="1" RadiusY="5" GradientOrigin="0.5,0.3"
+     x:Key="PressedBackground_tool">
+      <GradientStop Color="White" Offset="0" />
+        <GradientStop Color="Yellow" Offset="1" />
+    </RadialGradientBrush>
+
+    <SolidColorBrush Color="Yellow" x:Key="DefaultBackground_tool"></SolidColorBrush>
+    <SolidColorBrush Color="LightGray" x:Key="DisabledBackground_tool"></SolidColorBrush>
+
+    <RadialGradientBrush RadiusX="1" RadiusY="5" GradientOrigin="0.5,0.3"
+     x:Key="Border_tool">
+      <GradientStop Color="White" Offset="0" />
+        <GradientStop Color="Yellow" Offset="1" />
+    </RadialGradientBrush>
+
+    <!-- The button control template. -->
+    <ControlTemplate x:Key="GradientButtonTemplate" TargetType="{x:Type Button}">
+      <Border Name="Border" BorderThickness="2" CornerRadius="2"
+              Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+        <Grid>
+          <Rectangle Name="FocusCue" Visibility="Hidden" Stroke="Black"
+           StrokeThickness="1" StrokeDashArray="1 2" SnapsToDevicePixels="True">
+          </Rectangle>
+          <ContentPresenter Margin="{TemplateBinding Padding}"
+           RecognizesAccessKey="True"></ContentPresenter>
+        </Grid>
+      </Border>
+      <ControlTemplate.Triggers>        
+        <Trigger Property="IsKeyboardFocused" Value="True">
+          <Setter TargetName="FocusCue" Property="Visibility"
+            Value="Visible"></Setter>
+        </Trigger>
+      </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- The style that applies the button control template. -->
+    <Style TargetType="{x:Type Button}" x:Key="ToolButton">
+      <Setter Property="Control.Template"
+       Value="{StaticResource GradientButtonTemplate}"></Setter>
+      <Setter Property="BorderBrush"
+       Value="{StaticResource Border_tool}"></Setter>
+      <Setter Property="Background"
+         Value="{StaticResource DefaultBackground_tool}"></Setter>
+          <Setter Property="TextBlock.Foreground"
+           Value="White"></Setter>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background"
+           Value="{StaticResource HighlightBackground_tool}" />
+        </Trigger>
+        <Trigger Property="IsPressed" Value="True">
+          <Setter Property="Background"
+           Value="{StaticResource PressedBackground_tool}" />
+        </Trigger>
+        <Trigger Property="IsEnabled" Value="False">
+          <Setter Property="Background"
+           Value="{StaticResource DisabledBackground_tool}"></Setter>
+        </Trigger>
+      </Style.Triggers>          
+    </Style>
+
+
+</ResourceDictionary>
