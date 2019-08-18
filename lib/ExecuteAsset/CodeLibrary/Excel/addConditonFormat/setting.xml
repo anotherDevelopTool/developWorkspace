@@ -1,0 +1,12 @@
+<Script>
+  <run>
+    <title>add condition format</title>
+    <description>add condition format</description>
+  </run>
+  <codeBlock>
+    <row>2</row>
+    <col>1</col>
+    <type>c#</type>
+    <file>csscript.cs</file>
+  </codeBlock>
+</Script>

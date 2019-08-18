@@ -1,0 +1,24 @@
+<Script>
+  <run>
+    <title>velocity使用入门</title>
+    <description>velocity使用入门</description>
+  </run>
+  <codeBlock>
+    <row>1</row>
+    <col>1</col>
+    <type>xml</type>
+    <file>input_xml.xml</file>
+  </codeBlock>
+  <codeBlock>
+    <row>1</row>
+    <col>2</col>
+    <type>xml</type>
+    <file>input_xslt.xsl</file>
+  </codeBlock>
+  <codeBlock>
+    <row>2</row>
+    <col>1</col>
+    <type>c#</type>
+    <file>csscript.cs</file>
+  </codeBlock>
+</Script>

@@ -1,0 +1,43 @@
+﻿﻿<?xml version="1.0" encoding="utf-8"?>
+<TableInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TableName>ProjectKeywords</TableName>
+  <Remark>ProjectKeywords</Remark>
+  <Columns>
+    <ColumnInfo>
+      <ColumnName>ProjectKeywordID</ColumnName>
+      <ColumnType>System.Int64</ColumnType>
+      <Age>0</Age>
+      <Schemas>
+        <string>*</string>
+        <string>ProjectKeywordID</string>
+        <string>PROJECTKEYWORDID</string>
+        <string>System.Int64</string>
+        <string>8</string>
+      </Schemas>
+    </ColumnInfo>
+    <ColumnInfo>
+      <ColumnName>ProjectKeywordName</ColumnName>
+      <ColumnType>System.String</ColumnType>
+      <Age>0</Age>
+      <Schemas>
+        <string />
+        <string>ProjectKeywordName</string>
+        <string>PROJECTKEYWORDNAME</string>
+        <string>System.String</string>
+        <string>60</string>
+      </Schemas>
+    </ColumnInfo>
+    <ColumnInfo>
+      <ColumnName>ProjectKeywordRemark</ColumnName>
+      <ColumnType>System.String</ColumnType>
+      <Age>0</Age>
+      <Schemas>
+        <string />
+        <string>ProjectKeywordRemark</string>
+        <string>PROJECTKEYWORDREMARK</string>
+        <string>System.String</string>
+        <string>250</string>
+      </Schemas>
+    </ColumnInfo>
+  </Columns>
+</TableInfo>

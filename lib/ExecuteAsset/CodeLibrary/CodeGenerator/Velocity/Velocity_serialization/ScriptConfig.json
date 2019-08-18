@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "velocity使用XML序列化",
+  "Description": "velocity使用XML序列化",
+  "Path": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Velocity\\Velocity_serialization",
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Velocity\\Velocity_serialization\\ScriptConfig.json"
+}

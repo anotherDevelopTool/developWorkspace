@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "velocity使用入门",
+  "Description": "velocity使用入门",
+  "Path": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Velocity\\Velocity",
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Velocity\\Velocity\\ScriptConfig.json"
+}

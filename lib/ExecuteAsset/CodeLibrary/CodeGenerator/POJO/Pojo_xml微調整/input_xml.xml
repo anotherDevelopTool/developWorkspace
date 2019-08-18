@@ -1,0 +1,23 @@
+﻿<Table TableName="TableSchemas">
+  <Column>
+    <IsKey>True</IsKey>
+    <ColumnName>TableSchemaID</ColumnName>
+    <Remark></Remark>
+    <DataType>System.Int64</DataType>
+    <ColumnSize>8</ColumnSize>
+  </Column>
+  <Column>
+    <IsKey>False</IsKey>
+    <ColumnName>ProviderID</ColumnName>
+    <Remark></Remark>
+    <DataType>System.Int64</DataType>
+    <ColumnSize>8</ColumnSize>
+  </Column>
+  <Column>
+    <IsKey>False</IsKey>
+    <ColumnName>SchemaName</ColumnName>
+    <Remark></Remark>
+    <DataType>System.String</DataType>
+    <ColumnSize>30</ColumnSize>
+  </Column>
+</Table>

@@ -1,0 +1,649 @@
+https://msdn.microsoft.com/en-us/library/bs2twtah(v=vs.110).aspx
+
+Character Escapes
+Character Classes
+Anchors
+	Anchor	Description
+	^	The match must occur at the beginning of the string or line. 
+		For more information, see Start of String or Line.
+	$	The match must occur at the end of the string or line, 
+		or before \n at the end of the string or line. 
+		For more information, see End of String or Line.
+	\A	The match must occur at the beginning of the string only 
+		(no multiline support). For more information, see Start of String Only.
+	\Z	The match must occur at the end of the string, or before \n at the end of the string. 
+		For more information, see End of String or Before Ending Newline.
+	\z	The match must occur at the end of the string only. 
+		For more information, see End of String Only.
+	\G	The match must start at the position where the previous match ended. 
+		For more information, see Contiguous Matches.
+	\b	The match must occur on a word boundary. 
+		For more information, see Word Boundary.
+	\B	The match must not occur on a word boundary. 
+		For more information, see Non-Word Boundary.
+Grouping Constructs
+	Grouping construct	Capturing or noncapturing
+	Matched subexpressions	Capturing
+	Named matched subexpressions	Capturing
+	Balancing group definitions	Capturing
+	Noncapturing groups	Noncapturing
+	Group options	Noncapturing
+	Zero-width positive lookahead assertions	Noncapturing
+	Zero-width negative lookahead assertions	Noncapturing
+	Zero-width positive lookbehind assertions	Noncapturing
+	Zero-width negative lookbehind assertions	Noncapturing
+	Nonbacktracking subexpressions	Noncapturing
+
+	Pattern	Description
+	(\w+)	Match one or more word characters. 
+		This is the first capturing group.
+	\s	Match a white-space character.
+	(¥1)	Match the string in the first captured group. 
+		This is the second capturing group. 
+		The example assigns it to a captured group so that 
+		the starting position of the duplicate word can be retrieved from the Match.Index property.
+	\W	Match a non-word character, including white space and punctuation. 
+		This prevents the regular expression pattern from matching a word that 
+		starts with the word from the first captured group.
+
+	Named Matched Subexpressions
+	The following grouping construct captures a matched subexpression and 
+	lets you access it by name or by number:
+
+	(?<name>subexpression)
+	or:
+	(?'name'subexpression)
+
+	Number	Name			Pattern
+	0	0 (default name)	((?<One>abc)\d+)?(?<Two>xyz)(.*)
+	1	1 (default name)	((?<One>abc)\d+)
+	2	2 (default name)	(.*)
+	3	One			(?<One>abc)
+	4	Two			(?<Two>xyz)
+
+
+	The regular expression pattern is as follows:	
+	(?<duplicateWord>\w+)\s\k<duplicateWord>\W(?<nextWord>\w+)	
+	The following table shows how the regular expression is interpreted.	
+	Pattern			Description
+	(?<duplicateWord>\w+)	Match one or more word characters. Name this capturing group duplicateWord.
+	\s			Match a white-space character.
+	\k<duplicateWord>	Match the string from the captured group that is named duplicateWord.
+	\W			Match a non-word character, including white space and punctuation. 
+				This prevents the regular expression pattern from matching a word that 
+				starts with the word from the first captured group.
+	(?<nextWord>\w+)	Match one or more word characters. Name this capturing group nextWord.
+
+
+
+Quantifiers
+	Greedy quantifier	Lazy quantifier	Description
+	*	*?		Match zero or more times.
+	+	+?		Match one or more times.
+	?	??		Match zero or one time.
+	{n}	{n}?		Match exactly n times.
+	{n,}	{n,}?		Match at least n times.
+	{n,m}	{n,m}?		Match from n to m times.
+
+Backreference Constructs
+	Numbered Backreferences
+	A numbered backreference uses the following syntax:
+	\number
+
+	Named Backreferences
+	A named backreference is defined by using the following syntax:
+	\k<name>
+	or:
+	\k'name'
+
+Alternation Constructs
+Substitutions
+Regular Expression Options
+Miscellaneous Constructs
+
+
+記號	說明
+字元	代表該字元, 例如輸入 a 就代表那個地方應該出現 a 這個字元。
+^	限制字串必須出現於行首(但是在某些語言中會受單行/多行模式所影響), 
+	例如 ^a 表這串字必須以 a 開頭; 如果 a 出現在其它地方, 都不算數。
+$	限制字串必須出現於行末(但是在某些語言中會受單行/多行模式所影響), 
+	例如 a$ 表這串字必須以 a 結尾; 如果 a 出現在其它地方, 都不算數。
+	請特別注意 ^ 和 $ 的使用時機; 使用 [0-9]+ 和使用 ^[0-9]+$ 可能檢測出極為不同的結果。
+\A	限制字串必須出現於整個字串的最前面, 這不受多行模式所影響
+\G	Specifies that the matches must be consecutive, without any intervening non-matching characters.
+\z	限制字串必須出現於整個字串的最後面, 這不受多行模式所影響
+\	將特殊字元還原成字面意義的字元, 我們說這種動作叫做「逸出」(Escape), 
+	例如 \( 代表 ( 這個符號, \\ 代表 \ 這個符號; 這種表示法適用於 (, ), [, ] 等等在 Regex 式子中具有特殊意義的字元。
+^	某字元以外的任何字元, 必須包在中括號裡面。
+	例如 [^a] 表示 a 除外的任何字元或符號, [^a\t] 表示 a 和 tab 除外的任何字元或符號。
+-	字元集合中可使用 - 來指定字元的區間, 必須包在中括號裡面。
+	例如 [a-z] 表示從 a 到 z 的英文小寫字元, [1-3] 表示從 1 到 3 這三個數字之一。
+ 	 
++	其前的字元或字元集合出現一次或一次以上, 例如 a+。
+?	其前的字元或字元集合可出現一次或不出現, 例如 a?。
+*	其前的字元或字元集合可出現任何次數或不出現, 例如 a*。
+(...)	用以括住一群字元,且將之視成一個集合, 通常用來集合表示多個檢核式。
+{n}	重複 n 次。
+{n,m}	重複 n 到 m 次。
+{n,}	至少重複 n 次。
+[]	其中之一字元可出現可不出現, 例如 [abc] 表示不論出現 a 或 b 或 c 都算符合。
+[-]	.Net 獨有的集合內排除表示式, 例如 [[0-9]-[135]] 表示在 0 ~ 9 這十個字元中排除 1, 3 與 5 這三個字元
+|	代表「或」, 例如 (Sun|Mon|Tue|Wed|Thu|Fri|Sat), (日|一|二|三|四|五|六) ; 必須以左右括號括住。
+	Character Class Subtraction: [base_group - [excluded_group]]
+
+
+ 	 
+. (句點符號)	代表除了換行符號 (\n) 以外的任一字元。如果要包括換行符號, 請使用 [\s\S]。
+\w (\W)	代表任何英文(以外的) 字元 - 請注意, 數字字元也被承認。
+	Non-Word Character: \W
+	\W matches any non-word character. The \W language element is equivalent to the following character class:
+	[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Pc}\p{Lm}]
+
+	In other words, it matches any character except for those listed in the following table.
+		Category	Description
+		Ll	Letter, Lowercase
+		Lu	Letter, Uppercase
+		Lt	Letter, Titlecase
+		Lo	Letter, Other
+		Lm	Letter, Modifier
+		Nd	Number, Decimal Digit
+		Pc	Punctuation, Connector. This category includes ten characters, 
+			the most commonly used of which is the LOWLINE character (_), u+005F.
+
+	Element	Description
+	\b	Begin the match at a word boundary.
+	(\w+)	Match one or more word characters. This is the first capturing group.
+	(\W){1,2}	Match a non-word character either one or two times. 
+			This is the second capturing group.
+
+\s (\S)	代表空白 (以外的) 字元。
+	Category	Description
+	\f	The form feed character, \u000C.
+	\n	The newline character, \u000A.
+	\r	The carriage return character, \u000D.
+	\t	The tab character, \u0009.
+	\v	The vertical tab character, \u000B.
+	\x85	The ellipsis or NEXT LINE (NEL) character (…), \u0085.
+	\p{Z}	Matches any separator character.
+
+
+	Element	Description
+	\b	Begin the match at a word boundary.
+	\w+	Match one or more word characters.
+	(e)?	Match an "e" either zero or one time.
+	s	Match an "s".
+	(\s|$)	Match either a whitespace character or the end of the input string.
+
+	Element	Description
+	\b	Begin the match at a word boundary.
+	(\S+)	Match one or more non-white-space characters. This is the first capturing group.
+	\s?	Match zero or one white-space character.
+
+
+\d (\D)	代表數字 (以外的) 字元, 在 .Net 中也包括中文的全形數字 (其它語言如 Ruby 則不一定)。
+	如果你只想檢測 0~9 這十個字元, 你應該使用 [0-9] 而不是 \d (\D)。不過為了節省篇幅, 本文中一律使用 \d(\D)。
+	Element	Description
+	^	Begin the match at the beginning of the input string.
+	\(?	Match zero or one literal "(" character.
+	\d{3}	Match three decimal digits.
+	\)?	Match zero or one literal ")" character.
+	[\s-]	Match a hyphen or a white-space character.
+	(\(?\d{3}\)?[\s-])?	Match an optional opening parenthesis followed by three decimal digits, 
+	an optional closing parenthesis, and either a white-space character or a hyphen zero or one time. 
+	This is the first capturing group.
+	\d{3}-\d{4}	Match three decimal digits followed by a hyphen and four more decimal digits.
+	$	Match the end of the input string.
+
+	Element	Description
+	^	Begin the match at the beginning of the input string.
+	\D	Match a non-digit character.
+	\d{1,5}	Match from one to five decimal digits.
+	\D*	Match zero, one, or more non-decimal characters.
+	$	Match the end of the input string.
+
+\b (\B)	代表位於文字邊界的 (以外的) 字元, 例如 \bA 可以檢核出 AB, A\b 可以檢核出 BA, \bAA\b 可以檢核出 AA。
+\a	代表 Bell 字元。可以以 \u0007 取代。
+\v	代表 Vertical Tab 字元。可以以 \u000B 取代。
+\b	代表倒退字元 (Backspace); 不要跟上面的 \b 搞混。雖然這個字元很少用到, 但如果真的要使用的話, 
+	建議以 [\b] 取代(用中括號包住), 或者以 \u0008 取代。
+\r	代表換行字元 (或稱 CR, Carriage Return)。
+\n	代表換行字元 (或稱 LF, Line Feed; 通常和 \r 一同出現, 所以一般以 \r\n 代表換行, 但根據我的測試, 
+	無論使用 \r 或 \n 或 \r\n 都會得到相同的結果, 但唯獨不能寫成 \n\r, 但建議使用 \r?\n)。
+\t	代表 TAB 字元 (或稱 HT, Horizontal Tab)。
+\(	代表左括號。
+\)	代表右括號。
+\nn 或 \nnn	代表以八進位方式表示的字元。例如 \101 等於英文字母 a。
+\xnn	以十六進位字元碼代表某個字元; 例如 [\x21-\x7E] 可代表所有看得到的字元 ([\x20-\x7E] 則包括空白字元)。
+	不過注意 \x 之後要使用兩個數字, 不足兩個數字者請補 0, 例如 \x01
+\unnnn	代表以四個數字的 Unicode 所表示的字元。例如 \u6587 等於中文的「文」。
+	在 .Net 下可以透過 Encoding.Unicode.GetBytes 方法將中文文字轉成 Unicode。
+ 	 
+\1, \2...	(Backreference Constructs) 表示出現過的群組; 例如 "(\d)(\D)" 樣式中有兩個群組, 
+		若使用 "(\d)(\D)\1" 可檢出 "2A2"; 若使用 "(\d)(\D)\2+" 則可檢出 "2AA"; 餘此類推。
+		請注意, 反向參考所參考的是實際的字元, 而不是樣式本身。所以第一個樣式無法檢出 "2A3", 第二個無法檢出 "2AB"。
+\k<name>	同上, 但適用於命名的群組; 例如 "(?<Digit>\d)(?<NonDigit>\D)\k<Digit>" 亦可檢出 "2A2"。
+		同樣的, 它反向參考的是實際字元而不是樣式本身。
+
+\p{}	Unicode Category or Unicode Block
+　　　Category	Description
+	Lu	Letter, Uppercase
+	Ll	Letter, Lowercase
+	Lt	Letter, Titlecase
+	Lm	Letter, Modifier
+	Lo	Letter, Other
+	L	All letter characters. This includes the Lu, Ll, Lt, Lm, and Lo characters.
+	Mn	Mark, Nonspacing
+	Mc	Mark, Spacing Combining
+	Me	Mark, Enclosing
+	M	All diacritic marks. This includes the Mn, Mc, and Me categories.
+	Nd	Number, Decimal Digit
+	Nl	Number, Letter
+	No	Number, Other
+	N	All numbers. This includes the Nd, Nl, and No categories.
+	Pc	Punctuation, Connector
+	Pd	Punctuation, Dash
+	Ps	Punctuation, Open
+	Pe	Punctuation, Close
+	Pi	Punctuation, Initial quote (may behave like Ps or Pe depending on usage)
+	Pf	Punctuation, Final quote (may behave like Ps or Pe depending on usage)
+	Po	Punctuation, Other
+	P	All punctuation characters. This includes the Pc, Pd, Ps, Pe, Pi, Pf, and Po categories.
+	Sm	Symbol, Math
+	Sc	Symbol, Currency
+	Sk	Symbol, Modifier
+	So	Symbol, Other
+	S	All symbols. This includes the Sm, Sc, Sk, and So categories.
+	Zs	Separator, Space
+	Zl	Separator, Line
+	Zp	Separator, Paragraph
+	Z	All separator characters. This includes the Zs, Zl, and Zp categories.
+	Cc	Other, Control
+	Cf	Other, Format
+	Cs	Other, Surrogate
+	Co	Other, Private Use
+	Cn	Other, Not Assigned (no characters have this property)
+	C	All control characters. This includes the Cc, Cf, Cs, Co, and Cn categories.
+
+	Supported Named Blocks
+	The .NET Framework provides the named blocks listed in the following table. 
+	The set of supported named blocks is based on Unicode 4.0 and Perl 5.6.
+
+	Code point range	Block name
+	0000 - 007F	IsBasicLatin
+	0080 - 00FF	IsLatin-1Supplement
+	0100 - 017F	IsLatinExtended-A
+	0180 - 024F	IsLatinExtended-B
+	0250 - 02AF	IsIPAExtensions
+	02B0 - 02FF	IsSpacingModifierLetters
+	0300 - 036F	IsCombiningDiacriticalMarks
+	0370 - 03FF	IsGreek
+		-or-
+		IsGreekandCoptic
+	0400 - 04FF	IsCyrillic
+	0500 - 052F	IsCyrillicSupplement
+	0530 - 058F	IsArmenian
+	0590 - 05FF	IsHebrew
+	0600 - 06FF	IsArabic
+	0700 - 074F	IsSyriac
+	0780 - 07BF	IsThaana
+	0900 - 097F	IsDevanagari
+	0980 - 09FF	IsBengali
+	0A00 - 0A7F	IsGurmukhi
+	0A80 - 0AFF	IsGujarati
+	0B00 - 0B7F	IsOriya
+	0B80 - 0BFF	IsTamil
+	0C00 - 0C7F	IsTelugu
+	0C80 - 0CFF	IsKannada
+	0D00 - 0D7F	IsMalayalam
+	0D80 - 0DFF	IsSinhala
+	0E00 - 0E7F	IsThai
+	0E80 - 0EFF	IsLao
+	0F00 - 0FFF	IsTibetan
+	1000 - 109F	IsMyanmar
+	10A0 - 10FF	IsGeorgian
+	1100 - 11FF	IsHangulJamo
+	1200 - 137F	IsEthiopic
+	13A0 - 13FF	IsCherokee
+	1400 - 167F	IsUnifiedCanadianAboriginalSyllabics
+	1680 - 169F	IsOgham
+	16A0 - 16FF	IsRunic
+	1700 - 171F	IsTagalog
+	1720 - 173F	IsHanunoo
+	1740 - 175F	IsBuhid
+	1760 - 177F	IsTagbanwa
+	1780 - 17FF	IsKhmer
+	1800 - 18AF	IsMongolian
+	1900 - 194F	IsLimbu
+	1950 - 197F	IsTaiLe
+	19E0 - 19FF	IsKhmerSymbols
+	1D00 - 1D7F	IsPhoneticExtensions
+	1E00 - 1EFF	IsLatinExtendedAdditional
+	1F00 - 1FFF	IsGreekExtended
+	2000 - 206F	IsGeneralPunctuation
+	2070 - 209F	IsSuperscriptsandSubscripts
+	20A0 - 20CF	IsCurrencySymbols
+	20D0 - 20FF	IsCombiningDiacriticalMarksforSymbols
+		-or-
+		IsCombiningMarksforSymbols
+	2100 - 214F	IsLetterlikeSymbols
+	2150 - 218F	IsNumberForms
+	2190 - 21FF	IsArrows
+	2200 - 22FF	IsMathematicalOperators
+	2300 - 23FF	IsMiscellaneousTechnical
+	2400 - 243F	IsControlPictures
+	2440 - 245F	IsOpticalCharacterRecognition
+	2460 - 24FF	IsEnclosedAlphanumerics
+	2500 - 257F	IsBoxDrawing
+	2580 - 259F	IsBlockElements
+	25A0 - 25FF	IsGeometricShapes
+	2600 - 26FF	IsMiscellaneousSymbols
+	2700 - 27BF	IsDingbats
+	27C0 - 27EF	IsMiscellaneousMathematicalSymbols-A
+	27F0 - 27FF	IsSupplementalArrows-A
+	2800 - 28FF	IsBraillePatterns
+	2900 - 297F	IsSupplementalArrows-B
+	2980 - 29FF	IsMiscellaneousMathematicalSymbols-B
+	2A00 - 2AFF	IsSupplementalMathematicalOperators
+	2B00 - 2BFF	IsMiscellaneousSymbolsandArrows
+	2E80 - 2EFF	IsCJKRadicalsSupplement
+	2F00 - 2FDF	IsKangxiRadicals
+	2FF0 - 2FFF	IsIdeographicDescriptionCharacters
+	3000 - 303F	IsCJKSymbolsandPunctuation
+	3040 - 309F	IsHiragana
+	30A0 - 30FF	IsKatakana
+	3100 - 312F	IsBopomofo
+	3130 - 318F	IsHangulCompatibilityJamo
+	3190 - 319F	IsKanbun
+	31A0 - 31BF	IsBopomofoExtended
+	31F0 - 31FF	IsKatakanaPhoneticExtensions
+	3200 - 32FF	IsEnclosedCJKLettersandMonths
+	3300 - 33FF	IsCJKCompatibility
+	3400 - 4DBF	IsCJKUnifiedIdeographsExtensionA
+	4DC0 - 4DFF	IsYijingHexagramSymbols
+	4E00 - 9FFF	IsCJKUnifiedIdeographs
+	A000 - A48F	IsYiSyllables
+	A490 - A4CF	IsYiRadicals
+	AC00 - D7AF	IsHangulSyllables
+	D800 - DB7F	IsHighSurrogates
+	DB80 - DBFF	IsHighPrivateUseSurrogates
+	DC00 - DFFF	IsLowSurrogates
+	E000 - F8FF	IsPrivateUse or IsPrivateUseArea
+	F900 - FAFF	IsCJKCompatibilityIdeographs
+	FB00 - FB4F	IsAlphabeticPresentationForms
+	FB50 - FDFF	IsArabicPresentationForms-A
+	FE00 - FE0F	IsVariationSelectors
+	FE20 - FE2F	IsCombiningHalfMarks
+	FE30 - FE4F	IsCJKCompatibilityForms
+	FE50 - FE6F	IsSmallFormVariants
+	FE70 - FEFF	IsArabicPresentationForms-B
+	FF00 - FFEF	IsHalfwidthandFullwidthForms
+	FFF0 - FFFF	IsSpecials
+
+\p{Lu} 	(\P{Lu})	檢出大寫(非大寫)的字母, 例如 (?-i:\p{Lu}) 可檢出字串中所有大寫字母, 
+	而 (?-i:\P{Lu}) 可檢出所有非大寫 (包括數字、空白等) 的字母。
+\p{IsCJKUnifiedIdeographs}	檢出中文文字。而且, 雖然代表字中有 CJK, 其實無法檢出日文或韓文。
+ 	 
+$n	不使用於 Regex 樣式中, 而是用於字串的取代 (Regex.Replace() 方法)。
+	$1 代表第一個 Matched Groups, $2 代表第二個, 依此類推。
+${name}	不使用於 Regex 樣式中, 而是用於字串的取代 (Regex.Replace() 方法)。
+	name 代表具名群組的群組名稱。
+
+
+c#正则表达式用法大全 
+只能输入数字："^[0-9]*$"。
+只能输入n位的数字："^\d{n}$"。
+只能输入至少n位的数字："^\d{n,}$"。
+只能输入m~n位的数字：。"^\d{m,n}$"
+只能输入零和非零开头的数字："^(0|[1-9][0-9]*)$"。
+只能输入有两位小数的正实数："^[0-9]+(.[0-9]{2})?$"。
+只能输入有1~3位小数的正实数："^[0-9]+(.[0-9]{1,3})?$"。
+只能输入非零的正整数："^\+?[1-9][0-9]*$"。
+只能输入非零的负整数："^\-[1-9][]0-9"*$。
+只能输入长度为3的字符："^.{3}$"。
+只能输入由26个英文字母组成的字符串："^[A-Za-z]+$"。
+只能输入由26个大写英文字母组成的字符串："^[A-Z]+$"。
+只能输入由26个小写英文字母组成的字符串："^[a-z]+$"。
+只能输入由数字和26个英文字母组成的字符串："^[A-Za-z0-9]+$"。
+只能输入由数字、26个英文字母或者下划线组成的字符串："^\w+$"。
+验证用户密码："^[a-zA-Z]\w{5,17}$"正确格式为：以字母开头，长度在6~18之间，只能包含字符、数字和下划线。
+验证是否含有^%&',;=?$\"等字符："[^%&',;=?$\x22]+"。
+只能输入汉字："^[\u4e00-\u9fa5]{0,}$"
+验证Email地址："^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"。
+验证InternetURL："^http://([\w-]+\.)+[\w-]+(/[\w-./?%&=]*)?$"。
+验证电话号码："^(\(\d{3,4}-)|\d{3.4}-)?\d{7,8}$"
+		正确格式为："XXX-XXXXXXX"、"XXXX-XXXXXXXX"、"XXX-XXXXXXX"、"XXX-XXXXXXXX"、"XXXXXXX"和"XXXXXXXX"。
+验证身份证号（15位或18位数字）："^\d{15}|\d{18}$"。
+验证一年的12个月："^(0?[1-9]|1[0-2])$"正确格式为："01"～"09"和"1"～"12"。
+验证一个月的31天："^((0?[1-9])|((1|2)[0-9])|30|31)$"正确格式为；"01"～"09"和"1"～"31"。 
+利用正则表达式限制网页表单里的文本框输入内容：
+用正则表达式限制只能输入中文： 
+用正则表达式限制只能输入全角字符： 
+用正则表达式限制只能输入数字：
+用正则表达式限制只能输入数字和英文：
+得用正则表达式从URL地址中提取文件名的javascript程序，如下结果为page1
+s="http://hi.baidu.com/accpandsvse"
+s=s.replace(/(.*\/){0,}([^\.]+).*/ig,"$2")
+alert(s)
+匹配双字节字符(包括汉字在内)：[^\x00-\xff]
+应用：计算字符串的长度（一个双字节字符长度计2，ASCII字符计1）
+String.prototype.len=function(){return this.replace([^\x00-\xff]/g,"aa").length;}
+匹配空行的正则表达式：\n[\s| ]*\r
+匹配HTML标记的正则表达式：/<(.*)>.*<\/\1>|<(.*) \/>/
+匹配首尾空格的正则表达式：(^\s*)|(\s*$)
+String.prototype.trim = function()
+{
+    return this.replace(/(^\s*)|(\s*$)/g, "");
+}
+利用正则表达式分解和转换IP地址：
+下面是利用正则表达式匹配IP地址，并将IP地址转换成对应数值的Javascript程序：
+function IP2V(ip)
+{
+re=/(\d+)\.(\d+)\.(\d+)\.(\d+)/g //匹配IP地址的正则表达式 
+if(re.test(ip))
+{
+returnRegExp.$1*Math.pow(255,3))+RegExp.$2*Math.pow(255,2))+RegExp.$3*255+RegExp.$4*1
+}
+else
+{
+throw new Error( "Not a valid IP address!")
+}
+}
+不过上面的程序如果不用正则表达式，而直接用split函数来分解可能更简单，程序如下：
+var ip="10.100.20.168"
+ip=ip.split(".")
+alert("IP值是："+(ip[0]*255*255*255+ip[1]*255*255+ip[2]*255+ip[3]*1))
+符号解释：
+字符 描述 
+\		将下一个字符标记为一个特殊字符、或一个原义字符、或一个 向后引用、或一个八进制转义符。
+		例如，'n' 匹配字符 "n"。'\n' 匹配一个换行符。序列 '\\' 匹配 "\" 而 "\(" 则匹配 "("。 
+^		匹配输入字符串的开始位置。如果设置了 RegExp 对象的 Multiline 属性，^ 也匹配 '\n'或 '\r' 之后的位置。 
+$		匹配输入字符串的结束位置。如果设置了RegExp 对象的 Multiline 属性，$ 也匹配 '\n'或 '\r' 之前的位置。 
+*		匹配前面的子表达式零次或多次。例如，zo* 能匹配 "z" 以及 "zoo"。* 等价于{0,}。 
++		匹配前面的子表达式一次或多次。例如，'zo+' 能匹配 "zo" 以及 "zoo"，但不能匹配"z"。+ 等价于 {1,}。 
+?		匹配前面的子表达式零次或一次。例如，"do(es)?" 可以匹配 "do" 或 "does" 中的"do" 。? 等价于 {0,1}。 
+{n}		n 是一个非负整数。匹配确定的 n 次。
+		例如，'o{2}' 不能匹配 "Bob" 中的 'o'，但是能匹配 "food" 中的两个 o。 
+{n,}		n 是一个非负整数。至少匹配n 次。
+		例如，'o{2,}' 不能匹配 "Bob" 中的 'o'，但能匹配 "foooood" 中的所有 o。'o{1,}' 
+		等价于 'o+'。'o{0,}' 则等价于 'o*'。 
+{n,m}		m 和 n 均为非负整数，其中n <= m。最少匹配 n 次且最多匹配 m 次。
+		例如，"o{1,3}"将匹配 "fooooood" 中的前三个 o。'o{0,1}' 等价于 'o?'。
+		请注意在逗号和两个数之间不能有空格。 
+?		当该字符紧跟在任何一个其他限制符 (*, +, ?, {n}, {n,}, {n,m}) 
+		后面时，匹配模式是非贪婪的。非贪婪模式尽可能少的匹配所搜索的字符串，
+		而默认的贪婪模式则尽可能多的匹配所搜索的字符串。例如，对于字符串 "oooo"，'o+?' 
+		将匹配单个 "o"，而 'o+' 将匹配所有'o'。 
+.		匹配除 "\n" 之外的任何单个字符。要匹配包括 '\n' 在内的任何字符，请使用象 '[.\n]'的模式。 
+(pattern)	匹配 pattern 并获取这一匹配。所获取的匹配可以从产生的 Matches 集合得到，
+		在VBScript 中使用 SubMatches 集合，在JScript 中则使用 $0…$9 属性。
+		要匹配圆括号字符，请使用 '\(' 或 '\)'。 
+(?:pattern)	匹配 pattern 但不获取匹配结果，也就是说这是一个非获取匹配，不进行存储供以后使用。
+		这在使用 "或" 字符 (|) 来组合一个模式的各个部分是很有用。
+		例如，'industr(?:y|ies) 就是一个比 'industry|industries' 更简略的表达式。 
+(?=pattern)	正向预查，在任何匹配 pattern 的字符串开始处匹配查找字符串。
+		这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。
+		例如，'Windows (?=95|98|NT|2000)' 能匹配 "Windows 2000" 中的 "Windows" ，
+		但不能匹配 "Windows 3.1" 中的 "Windows"。预查不消耗字符，
+		也就是说，在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，
+		而不是从包含预查的字符之后开始。 
+(?!pattern)	负向预查，在任何不匹配 pattern 的字符串开始处匹配查找字符串。这是一个非获取匹配，也就是说，
+		该匹配不需要获取供以后使用。例如'Windows (?!95|98|NT|2000)' 能匹配 "Windows 3.1" 中的 "Windows"，
+		但不能匹配 "Windows 2000" 中的 "Windows"。预查不消耗字符，也就是说，在一个匹配发生后，
+		在最后一次匹配之后立即开始下一次匹配的搜索，而不是从包含预查的字符之后开始 
+x|y		匹配 x 或 y。例如，'z|food' 能匹配 "z" 或 "food"。'(z|f)ood' 则匹配 "zood" 或"food"。 
+[xyz]		字符集合。匹配所包含的任意一个字符。例如， '[abc]' 可以匹配 "plain" 中的'a'。 
+[^xyz]		负值字符集合。匹配未包含的任意字符。例如， '[^abc]' 可以匹配 "plain" 中的'p'。 
+[a-z]		字符范围。匹配指定范围内的任意字符。例如，'[a-z]' 可以匹配 'a' 到 'z' 范围内的任意小写字母字符。 
+[^a-z]		负值字符范围。匹配任何不在指定范围内的任意字符。例如，'[^a-z]' 可以匹配任何不在 'a' 到 'z' 范围内的任意字符。 
+\b		匹配一个单词边界，也就是指单词和空格间的位置。例如， 'er\b' 可以匹配"never" 中的'er'，但不能匹配 "verb" 中的 'er'。 
+\B		匹配非单词边界。'er\B' 能匹配 "verb" 中的 'er'，但不能匹配 "never" 中的 'er'。 
+\cx		匹配由 x 指明的控制字符。例如， \cM 匹配一个 Control-M 或回车符。x 的值必须为 A-Z 或 a-z 之一。
+		否则，将 c 视为一个原义的 'c' 字符。 
+\d		匹配一个数字字符。等价于 [0-9]。 
+\D		匹配一个非数字字符。等价于 [^0-9]。 
+\f		匹配一个换页符。等价于 \x0c 和 \cL。 
+\n		匹配一个换行符。等价于 \x0a 和 \cJ。 
+\r		匹配一个回车符。等价于 \x0d 和 \cM。 
+\s		匹配任何空白字符，包括空格、制表符、换页符等等。等价于 [ \f\n\r\t\v]。 
+\S		匹配任何非空白字符。等价于 [^ \f\n\r\t\v]。 
+\t		匹配一个制表符。等价于 \x09 和 \cI。 
+\v		匹配一个垂直制表符。等价于 \x0b 和 \cK。 
+\w		匹配包括下划线的任何单词字符。等价于'[A-Za-z0-9_]'。 
+\W		匹配任何非单词字符。等价于 '[^A-Za-z0-9_]'。 
+\xn		匹配 n，其中 n 为十六进制转义值。十六进制转义值必须为确定的两个数字长。例如，'\x41' 匹配 "A"。'\x041' 
+		则等价于 '\x04' & "1"。正则表达式中可以使用 ASCII 编码。. 
+\num		匹配 num，其中 num 是一个正整数。对所获取的匹配的引用。例如，'(.)\1' 匹配两个连续的相同字符。 
+\n		标识一个八进制转义值或一个向后引用。如果 \n 之前至少 n 个获取的子表达式，则 n 为向后引用。
+		否则，如果 n 为八进制数字 (0-7)，则 n 为一个八进制转义值。 
+\nm		标识一个八进制转义值或一个向后引用。如果 \nm 之前至少有 nm 个获得子表达式，则 nm 为向后引用。
+		如果 \nm 之前至少有 n 个获取，则 n 为一个后跟文字 m 的向后引用。如果前面的条件都不满足，
+		若 n 和 m 均为八进制数字 (0-7)，则 \nm 将匹配八进制转义值 nm。 
+\nml		如果 n 为八进制数字 (0-3)，且 m 和 l 均为八进制数字 (0-7)，则匹配八进制转义值 nml。 
+\un		匹配 n，其中 n 是一个用四个十六进制数字表示的 Unicode 字符。例如， \u00A9 匹配版权符号 (?)。
+
+As far as I know, balancing groups are unique to .NET's regex flavor.
+
+Aside: Repeated Groups
+First, you need to know that .NET is (again, as far as I know) the only regex flavor that 
+lets you access multiple captures of a single capturing group (not in backreferences but after the match has completed).
+
+To illustrate this with an example, consider the pattern
+
+(.)+
+and the string "abcd".
+
+in all other regex flavors, capturing group 1 will simply yield one result:
+ d (note, the full match will of course be abcd as expected). 
+This is because every new use of the capturing group overwrites the previous capture.
+
+.NET on the other hand remembers them all. And it does so in a stack. After matching the above regex like
+
+Match m = new Regex(@"(.)+").Match("abcd");
+you will find that
+
+m.Groups[1].Captures
+Is a CaptureCollection whose elements correspond to the four captures
+
+0: "a"
+1: "b"
+2: "c"
+3: "d"
+where the number is the index into the CaptureCollection. So basically every time the group is used again, 
+a new capture is pushed onto the stack.
+
+It gets more interesting if we are using named capturing groups. Because .NET allows repeated use of the 
+same name we could write a regex like
+
+(?<word>\w+)\W+(?<word>\w+)
+to capture two words into the same group. Again, every time a group with a certain name is encountered, 
+a capture is pushed onto its stack. So applying this regex to the input "foo bar" and inspecting
+
+m.Groups["word"].Captures
+we find two captures
+
+0: "foo"
+1: "bar"
+This allows us to even push things onto a single stack from different parts of the expression. 
+But still, this is just .NET's feature of being able to track multiple captures which are listed 
+in this CaptureCollection. But I said, this collection is a stack. So can we pop things from it?
+
+Enter: Balancing Groups
+It turns out we can. If we use a group like (?<-word>...), then the last capture is popped from 
+the stack word if the subexpression ... matches. So if we change our previous expression to
+
+(?<word>\w+)\W+(?<-word>\w+)
+Then the second group will pop the first group's capture, and we will receive an empty 
+CaptureCollection in the end. Of course, this example is pretty useless.
+
+But there's one more detail to the minus-syntax: if the stack is already empty, 
+the group fails (regardless of its subpattern). We can leverage this behavior to count nesting levels - 
+and this is where the name balancing group comes from (and where it gets interesting). 
+Say we want to match strings that are correctly parenthesized. 
+We push each opening parenthesis on the stack, and pop one capture for each closing parenthesis. 
+If we encounter one closing parenthesis too many, it will try to pop an empty stack and cause the pattern to fail:
+
+^(?:[^()]|(?<Open>[(])|(?<-Open>[)]))*$
+So we have three alternatives in a repetition. The first alternative consumes everything that is not a parenthesis. 
+The second alternative matches (s while pushing them onto the stack. The third alternative matches )s 
+while popping elements from the stack (if possible!).
+
+Note: Just to clarify, we're only checking that there are no unmatched parentheses! 
+This means that string containing no parentheses at all will match, 
+because they are still syntactically valid (in some syntax where you need your parentheses to match). 
+If you want to ensure at least one set of parentheses, simply add a lookahead (?=.*[(]) right after the ^.
+
+This pattern is not perfect (or entirely correct) though.
+
+Finale: Conditional Patterns
+There is one more catch: this does not ensure that the stack is empty at the end of the string (hence (foo(bar) would be valid). 
+.NET (and many other flavors) have one more construct that helps us out here: conditional patterns. The general syntax is
+
+(?(condition)truePattern|falsePattern)
+where the falsePattern is optional - if it is omitted the false-case will always match. 
+The condition can either be a pattern, or the name of a capturing group. I'll focus on the latter case here. 
+If it's the name of a capturing group, then truePattern is used if and only 
+if the capture stack for that particular group is not empty. That is, a conditional pattern like (?(name)yes|no) 
+reads "if namehas matched and captured something (that is still on the stack), use pattern yes otherwise use pattern no".
+
+So at the end of our above pattern we could add something like (?(Open)failPattern) which causes the entire pattern to fail, 
+if the Open-stack is not empty. The simplest thing to make the pattern unconditionally fail is (?!) (an empty negative lookahead). 
+So we have our final pattern:
+
+^(?:[^()]|(?<Open>[(])|(?<-Open>[)]))*(?(Open)(?!))$
+Note that this conditional syntax has nothing per se to do with balancing groups but it's necessary to harness their full power.
+
+From here, the sky is the limit. Many very sophisticated uses are possible and there are some gotchas when used in combination with 
+other .NET-Regex features like variable-length lookbehinds (which I had to learn the hard way myself). 
+The main question however is always: is your code still maintainable when using these features? 
+You need to document it really well, and be sure that everyone who works on it is also aware of these features. 
+Otherwise you might be better off, just walking the string manually character-by-character and counting nesting levels in an integer.
+
+Addendum: What's with the (?<A-B>...) syntax?
+Credits for this part go to Kobi (see his answer below for more details).
+
+Now with all of the above, we can validate that a string is correctly parenthesized. But it would be a lot more useful, 
+if we could actually get (nested) captures for all those parentheses' contents. Of course, 
+we could remember opening and closing parentheses in a separate capture stack that is not emptied, 
+and then do some substring extraction based on their positions in a separate step.
+
+But .NET provides one more convenience feature here: if we use (?<A-B>subPattern), not only is a capture popped from stack B, 
+but also everything between that popped capture of B and this current group is pushed onto stack A. 
+So if we use a group like this for the closing parentheses, while popping nesting levels from our stack, 
+we can also push the pair's content onto another stack:
+
+^(?:[^()]|(?<Open>[(])|(?<Content-Open>[)]))*(?(Open)(?!))$
+Kobi provided this Live-Demo in his answer
+
+So taking all of these things together we can:
+
+Remember arbitrarily many captures
+Validate nested structures
+Capture each nesting level
+All in a single regular expression. If that's not exciting... ;)
+
+Some resources that I found helpful when I first learned about them:
+
+http://blog.stevenlevithan.com/archives/balancing-groups
+MSDN on balancing groups
+MSDN on conditional patterns
+http://kobikobi.wordpress.com/tag/balancing-group/ (slightly academic, but has some interesting applications)
