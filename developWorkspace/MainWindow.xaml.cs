@@ -332,6 +332,43 @@ namespace DevelopWorkspace.Main
             });
 
             backgroundWorker.RunWorkerAsync();
+
+
+            Base.Services.BusyWorkService(new Action(() =>
+            {
+                //todo trial version
+                string passFile = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.password");
+                string trialInfo = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.trial");
+
+                SoftwareLocker.TrialMaker t = new SoftwareLocker.TrialMaker("DevelopWorkspace", passFile,
+                    trialInfo,
+                    "Wechat:catsamurai\nMobile: CN +86-13664256548\ne-mail:xujingjiang@outlook.com",
+                    90, 210, "745");
+
+                byte[] MyOwnKey = { 97, 250, 1, 5, 84, 21, 7, 63,
+                4, 54, 87, 56, 123, 10, 3, 62,
+                7, 9, 20, 36, 37, 21, 101, 57};
+                t.TripleDESKey = MyOwnKey;
+
+                SoftwareLocker.TrialMaker.RunTypes RT = t.ShowDialog();
+                bool is_trial;
+                if (RT != SoftwareLocker.TrialMaker.RunTypes.Expired)
+                {
+                    if (RT == SoftwareLocker.TrialMaker.RunTypes.Full)
+                        is_trial = false;
+                    else
+                        is_trial = true;
+
+                }
+                else
+                {
+                    System.Windows.Application.Current.Shutdown();
+                }
+
+            }));
+
+
+
         }
 
         private void MainWindow_WorksheetActiveChangeEvent(object sender, WorksheetActiveChangeEventArgs e)
