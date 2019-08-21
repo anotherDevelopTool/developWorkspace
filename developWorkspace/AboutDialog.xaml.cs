@@ -31,6 +31,14 @@ namespace DevelopWorkspace.Main
         public AboutDialog()
         {
             InitializeComponent();
+            if (DevelopWorkspace.Base.license.IsTrialLicense)
+            {
+                license.Text = $"TRIAL VERSION Days to end trial period:{DevelopWorkspace.Base.license.DaysToEnd} Run times left:{DevelopWorkspace.Base.license.Runed}";
+            }
+            else {
+                register.Visibility = Visibility.Hidden;
+            }
+
         }
          private void button1_Click(object sender, RoutedEventArgs e)
         {
@@ -66,6 +74,37 @@ namespace DevelopWorkspace.Main
         private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             ShellExecute(IntPtr.Zero, "open", System.IO.Path.Combine(StartupSetting.instance.homeDir, "help.htm"), "", "", ShowWindowStyles.SW_SHOWNORMAL);
+
+        }
+
+        private void Register_Click(object sender, RoutedEventArgs e)
+        {
+            //todo trial version
+            string passFile = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.password");
+            string trialInfo = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.trial");
+
+            SoftwareLocker.TrialMaker t = new SoftwareLocker.TrialMaker("DevelopWorkspace", passFile,
+                trialInfo,
+                "Wechat:catsamurai\nMobile: CN +86-13664256548\ne-mail:xujingjiang@outlook.com",
+                90, 180, "745");
+
+            byte[] MyOwnKey = { 97, 250, 1, 5, 84, 21, 7, 63,
+                4, 54, 87, 56, 123, 10, 3, 62,
+                7, 9, 20, 36, 37, 21, 101, 57};
+            t.TripleDESKey = MyOwnKey;
+
+            SoftwareLocker.TrialMaker.RunTypes RT = t.ShowDialog(this);
+            if (DevelopWorkspace.Base.license.IsTrialLicense)
+            {
+                register.Visibility = Visibility.Visible;
+                license.Text = $"TRIAL VERSION Days to end trial period:{DevelopWorkspace.Base.license.DaysToEnd} Run times left:{DevelopWorkspace.Base.license.Runed}";
+            }
+            else
+            {
+                register.Visibility = Visibility.Hidden;
+            }
+
+
 
         }
     }

@@ -23,9 +23,11 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontSize="35" TextWrapping="Wrap" Text="developWorkspace1.1" VerticalAlignment="Center" HorizontalAlignment="Left" Height="44" Margin="0,12" Width="418"/>
         <TextBlock Grid.Column="0" Grid.Row="1"  FontSize="20" Grid.ColumnSpan="2" TextWrapping="Wrap" FontWeight="Bold" Foreground="Red" Text="     Speed up your copy/paste routine work" VerticalAlignment="Center" HorizontalAlignment="Left" Height="26" Margin="0,4" Width="450"/>
-        <TextBlock  Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="198" Margin="0,35,10,0"><Run Text="© "/><Run Text="2019  xujingjiang@outlook.com"/></TextBlock>
-        <Image   Grid.Column="1" Grid.Row="3" Source="Images/about.png" Margin="0,10"/>
+        <TextBlock Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="198" Margin="0,10,10,0"><Run Text="© "/><Run Text="2019 xujingjiang@outlook.com"/></TextBlock>
+        <TextBlock Grid.Column="0" Grid.Row="2" TextAlignment="Center" VerticalAlignment="Center" x:Name="license" Foreground="Red" FontSize="12" Text=""/>
+        <Button    Grid.Column="1" Grid.Row="2"  Style="{StaticResource BlueButton}" x:Name="register" Content="register" VerticalAlignment="Center" HorizontalAlignment="Left" Click="Register_Click"/>
         <Image Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2"  Grid.RowSpan="3" Margin="0,15" Source="Images/author_wechat.png"/>
+        <Image   Grid.Column="1" Grid.Row="3" Source="Images/about.png" Margin="0,10"/>
         <Image Grid.Column="0" Grid.Row="4"  Source="Images/images-help.png" HorizontalAlignment="Left" Margin="0,10,0,0" Width="15" MouseLeftButtonDown="Image_MouseLeftButtonDown"/>
         <Button Style="{StaticResource BlueButton}" Grid.Column="2" Grid.Row="4" x:Name="button" Content="OK"  HorizontalAlignment="Right" Width="192" Click="button_Click" Height="23" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="0,10,10,0" />
         <!--<StackPanel>
