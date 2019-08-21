@@ -87,6 +87,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\..\dbtools_proto\dbtools_proto\Microsoft.Office.Interop.Excel.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.Windows.Shell">
       <HintPath>..\lib\Microsoft.Windows.Shell.dll</HintPath>
     </Reference>
@@ -110,6 +111,7 @@
       <HintPath>..\lib\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Activation" />
@@ -175,6 +177,22 @@
     <Compile Include="Themes\WindowStyle.xaml.cs">
       <DependentUpon>WindowStyle.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TrialMaker\FilterTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TrialMaker\frmDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TrialMaker\frmDialog.designer.cs">
+      <DependentUpon>frmDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TrialMaker\SerialBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TrialMaker\SerialBox.designer.cs">
+      <DependentUpon>SerialBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TrialMaker\TrialMaker.cs" />
     <Compile Include="View\PropertiesToolView.xaml.cs">
       <DependentUpon>PropertiesToolView.xaml</DependentUpon>
     </Compile>
@@ -397,6 +415,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="TrialMaker\frmDialog.resx">
+      <DependentUpon>frmDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TrialMaker\SerialBox.resx">
+      <DependentUpon>SerialBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TrialMaker\UserControl1.resx" />
     <None Include="AvalonEdit\Highlighting\00_XmlDoc.xshd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -61,7 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\TrialMaker\TrialMaker\Encryption.cs">
+    <Compile Include="Encryption.cs">
       <Link>Encryption.cs</Link>
     </Compile>
     <Compile Include="frmMain.cs">
