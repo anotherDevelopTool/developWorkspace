@@ -8,6 +8,12 @@ using System.Windows.Controls;
 
 namespace DevelopWorkspace.Base
 {
+    public class license {
+        public static bool IsTrialLicense { get; set; }
+        public static string DaysToEnd { get; set; }
+        public static string Runed { get; set; }
+    }
+
     public enum LongTimeTaskState { Cancel,Continue};
     public class RibbonSelectionChangeEventArgs : System.EventArgs
     {
