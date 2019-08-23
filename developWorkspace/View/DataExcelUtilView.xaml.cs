@@ -822,9 +822,11 @@ namespace DevelopWorkspace.Main.View
 
             TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
             if (ti == null) return;
-            XElement root = new XElement("Table");
-            XAttribute xTableName = new XAttribute("TableName", ti.TableName);
-            root.Add(xTableName);
+            XElement root = new XElement("TableInfo");
+            root.Add(new XElement("TableName", ti.TableName));
+            root.Add(new XElement("Remark", ti.Remark));
+            XElement columns = new XElement("Columns");
+            root.Add(columns);
             ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
             {
                 XElement line = new XElement("Column");
@@ -832,7 +834,7 @@ namespace DevelopWorkspace.Main.View
                 {
                     line.Add(new XElement(xlApp.schemaList[i], ci.Schemas[i]));
                 }
-                root.Add(line);
+                columns.Add(line);
             });
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("XML");
             this.txtOutput.Text = root.ToString();
