@@ -340,7 +340,7 @@ namespace DevelopWorkspace.Base
                     }
                     catch (Exception ex)
                     {
-                        DevelopWorkspace.Base.Logger.WriteLine(ex.Message,Level.ERROR);
+                        DevelopWorkspace.Base.Logger.WriteLine(ex.Message,Level.TRACE);
                         return null;
                     }
                     finally {

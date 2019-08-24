@@ -9,7 +9,7 @@
 
     //基于MVVM模式时model销毁之前回调一下view设定的清除处理
     public Func<string, bool> clearance { get; set; }
-    protected virtual void RaisePropertyChanged(string propertyName)
+    public virtual void RaisePropertyChanged(string propertyName)
     {
       if (PropertyChanged != null)
         PropertyChanged(this, new PropertyChangedEventArgs(propertyName));

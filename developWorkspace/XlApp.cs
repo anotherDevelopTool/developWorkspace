@@ -22,6 +22,8 @@
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Windows.Input;
+    using System.ComponentModel;
+    using DevelopWorkspace.Base.Model;
 
     public delegate List<ColumnInfo> LazyLoadSchemaDelegate();
     public enum eProcessType
@@ -34,7 +36,7 @@
     /// 使用Json.NET进行序列化.NET对象，以保证和js端的应用匹配
     /// http://www.newtonsoft.com/json/help/html/PropertyJsonIgnore.htm
     /// </summary>
-    public class TableInfo
+    public class TableInfo : ViewModelBase
     {
         public TableInfo()
         {
@@ -44,6 +46,7 @@
         public string TableName { get; set; }
         [System.Xml.Serialization.XmlIgnore]
         public string SchemaName { get; set; }
+
         [System.Xml.Serialization.XmlIgnore]
         public bool Selected { get; set; }
 
@@ -167,6 +170,7 @@
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         private List<ColumnInfo> _columns;
+
         public List<ColumnInfo> Columns
         {
             set {

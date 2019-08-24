@@ -850,6 +850,7 @@ namespace DevelopWorkspace.Main.View
             });
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("XML");
             this.txtOutput.Text = root.ToString();
+            Clipboard.SetText(this.txtOutput.Text);
         }
         private void MakeSelSql(object sender, RoutedEventArgs e)
         {
@@ -857,6 +858,7 @@ namespace DevelopWorkspace.Main.View
             if (ti == null) return;
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("SQL");
             this.txtOutput.Text = ti.SelectDataSQL;
+            Clipboard.SetText(this.txtOutput.Text);
         }
         private void Schema2Json(object sender, RoutedEventArgs e)
         {
@@ -864,6 +866,7 @@ namespace DevelopWorkspace.Main.View
             if (ti == null) return;
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(ti, Newtonsoft.Json.Formatting.Indented);
             this.txtOutput.Text = json;
+            Clipboard.SetText(this.txtOutput.Text);
         }
         private void XmlSerializer(object sender, RoutedEventArgs e)
         {
@@ -883,6 +886,7 @@ namespace DevelopWorkspace.Main.View
                 serializerString = System.Text.Encoding.UTF8.GetString(buf);
             }
             this.txtOutput.Text = serializerString;
+            Clipboard.SetText(this.txtOutput.Text);
         }
         private void SqlFormatter(object sender, RoutedEventArgs e)
         {
@@ -1200,8 +1204,14 @@ namespace DevelopWorkspace.Main.View
 
         private void trvFamilies_KeyDown(object sender, KeyEventArgs e)
         {
+            if (sender as ListViewItem == null) return;
 
-            if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl))
+            if (e.Key == Key.Enter) {
+                var tableinfo = ((ListViewItem)sender).Content as TableInfo;
+                tableinfo.Selected = !tableinfo.Selected;
+                tableinfo.RaisePropertyChanged("Selected");
+            }
+            else if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl))
             {
 
                 switch (e.Key)
@@ -1327,10 +1337,27 @@ namespace DevelopWorkspace.Main.View
             DetailsDialog detailsDialog = new DetailsDialog(listViewItem.DataContext as TableInfo);
             Point position = ((Button)sender).PointToScreen(new Point(0d, 0d));
             System.Diagnostics.Debug.WriteLine($"X:{position.X} Y:{position.Y}");
+
             detailsDialog.Top = position.Y;
-            detailsDialog.Left = position.X + ((Button)sender).ActualWidth;
+            detailsDialog.Left = position.X + ((Button)sender).ActualWidth + 10;
             detailsDialog.Show();
 
+        }
+        //双击时可以选择/解除
+        private void trvFamilies_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var tableinfo = ((ListViewItem)sender).Content as TableInfo;
+            tableinfo.Selected = !tableinfo.Selected;
+            tableinfo.RaisePropertyChanged("Selected");
+        }
+
+        private void trvFamilies_LeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl)) {
+                var tableinfo = ((ListViewItem)sender).Content as TableInfo;
+                tableinfo.Selected = !tableinfo.Selected;
+                tableinfo.RaisePropertyChanged("Selected");
+            }
         }
 
         private void btnFormatQuery_Click(object sender, RoutedEventArgs e)

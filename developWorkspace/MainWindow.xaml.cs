@@ -267,9 +267,8 @@ namespace DevelopWorkspace.Main
             this.DataContext = Model.Workspace.This;
             //对COMMAND的具体动作进行绑定
             Model.Workspace.This.InitCommandBinding(this);
-
-            this.Top = AppConfig.SysConfig.This.Top;
-            this.Left = AppConfig.SysConfig.This.Left;
+            this.Top = (AppConfig.SysConfig.This.Top > SystemParameters.PrimaryScreenHeight || AppConfig.SysConfig.This.Top <0 ) ? 100: AppConfig.SysConfig.This.Top;
+            this.Left = (AppConfig.SysConfig.This.Left > SystemParameters.PrimaryScreenWidth || AppConfig.SysConfig.This.Left <0 ) ? 100: AppConfig.SysConfig.This.Left;
             this.Height = AppConfig.SysConfig.This.Height;
             this.Width = AppConfig.SysConfig.This.Width;
 

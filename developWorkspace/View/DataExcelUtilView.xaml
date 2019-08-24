@@ -584,14 +584,16 @@ x:Name="dataview"
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <EventSetter Event="KeyUp" Handler="trvFamilies_KeyDown"/>
+                                <EventSetter Event="MouseLeftButtonUp" Handler="trvFamilies_LeftButtonDown" />
+                                <EventSetter Event="MouseDoubleClick" Handler="trvFamilies_DoubleClick" />
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="select Sql" Click="MakeSelSql"></MenuItem>
-                                <MenuItem Header="schema into json" Click="Schema2Json"></MenuItem>
-                                <MenuItem Header="schema into xml" Click="Schema2Xml"></MenuItem>
-                                <MenuItem Header="schema XmlSerializer" Click="XmlSerializer"></MenuItem>
+                                <MenuItem Header="convert schema into json" Click="Schema2Json"></MenuItem>
+                                <MenuItem Header="convert schema into xml" Click="Schema2Xml"></MenuItem>
+                                <!--<MenuItem Header="schema XmlSerializer" Click="XmlSerializer"></MenuItem>-->
                             </ContextMenu>
                         </ListView.ContextMenu>
                         <ListView.View>
