@@ -669,6 +669,19 @@ x:Name="dataview"
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumn.Header>
+                                        <StackPanel HorizontalAlignment="Right">
+                                            <TextBlock HorizontalAlignment="Right">...</TextBlock>
+                                        </StackPanel>
+                                    </GridViewColumn.Header>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <!--<Button Content="..." Width="50" Command="{Binding DetailsClick}" CommandParameter="{Binding} " Background="Transparent" />-->
+                                            <Button Content="..." Height="20" Click="details_Click" Background="Transparent" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn   x:Name="column4">
                                     <GridViewColumn.Header>
                                         <StackPanel HorizontalAlignment="Left">

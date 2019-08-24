@@ -1,0 +1,91 @@
+﻿<Fluent:RibbonWindow x:Class="DevelopWorkspace.Main.View.DetailsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DevelopWorkspace.Base.Utils"
+        mc:Ignorable="d"
+        Title="Columns Details" Height="300" Width="636.124" ResizeMode="NoResize" Deactivated="RibbonWindow_Deactivated" Closing="RibbonWindow_Closing" KeyDown="RibbonWindow_KeyDown">
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" HorizontalAlignment="Center">Column Details</TextBlock>
+        <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" >
+            <!--<ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <EventSetter Event="KeyUp" Handler="trvFamilies_KeyDown"/>
+                </Style>
+            </ListView.ItemContainerStyle>-->
+            <!--<ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="select Sql" Click="MakeSelSql"></MenuItem>
+                    <MenuItem Header="schema into json" Click="Schema2Json"></MenuItem>
+                    <MenuItem Header="schema into xml" Click="Schema2Xml"></MenuItem>
+                    <MenuItem Header="schema XmlSerializer" Click="XmlSerializer"></MenuItem>
+                </ContextMenu>
+            </ListView.ContextMenu>-->
+            <ListView.View>
+                <GridView>
+                    <!-- ITFORCE -->
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="{x:Type GridViewColumnHeader}">
+                            <Setter Property="Background" Value="White" />
+                            <Setter Property="Foreground" Value="Black" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+                    <GridViewColumn >
+                        <!--<GridViewColumn.Header>
+                            <CheckBox  Name="tableChecked" />
+                        </GridViewColumn.Header>-->
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsIncluded}" Name="checked" IsEnabled="{Binding IsNotKey}" IsThreeState="False" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn  x:Name="column1">
+                        <GridViewColumn.Header>
+                            <StackPanel HorizontalAlignment="Left" >
+                                <TextBlock HorizontalAlignment="Left">ColumnName</TextBlock>
+                            </StackPanel>
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock  Text="{Binding ColumnName}" TextTrimming="WordEllipsis"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumn.Header>
+                            <StackPanel HorizontalAlignment="Left">
+                                <TextBlock HorizontalAlignment="Left">ColumnType</TextBlock>
+                            </StackPanel>
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding ColumnType}" TextTrimming="WordEllipsis" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumn.Header>
+                            <StackPanel HorizontalAlignment="Left">
+                                <TextBlock HorizontalAlignment="Left">ExcelFormatString</TextBlock>
+                            </StackPanel>
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding dataTypeCondtion.ExcelFormatString}" TextTrimming="WordEllipsis"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</Fluent:RibbonWindow>
+

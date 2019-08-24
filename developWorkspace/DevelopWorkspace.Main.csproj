@@ -148,6 +148,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="View\DetailsDialog.xaml.cs">
+      <DependentUpon>DetailsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AppConfig.cs" />
     <Compile Include="Model\PropertiesToolViewModel.cs" />
     <Compile Include="SplashWindow.xaml.cs">
@@ -263,6 +266,10 @@
     <Resource Include="Images\setting.png" />
     <Resource Include="develop.ico" />
     <Resource Include="icon.ico" />
+    <Page Include="View\DetailsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SplashWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

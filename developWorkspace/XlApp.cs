@@ -21,6 +21,7 @@
     using System.Windows.Threading;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Windows.Input;
 
     public delegate List<ColumnInfo> LazyLoadSchemaDelegate();
     public enum eProcessType
@@ -82,15 +83,19 @@
         {
             get
             {
-                if (string.IsNullOrEmpty(_selectDataSql))
+                //2019/8/24 可以定制字段可选，暂且每次发行SQL文时都重新组装，也许会带来些许性能劣化 
+                //if (string.IsNullOrEmpty(_selectDataSql))
                 {
                     //2019/03/08 performance tunning
                     DevelopWorkspace.Base.Logger.WriteLine("SelectDataSQL.get", Level.DEBUG);
 
                     StringBuilder selectDataSqlBuilder = new StringBuilder("select ", 250);
-
+                    bool isFirtIncluded = true;
                     for (int idx = 0; idx < Columns.Count; idx++)
                     {
+                        //todo exclude some column 
+                        if (!Columns[idx].IsIncluded) continue;
+
                         ColumnInfo ci = Columns[idx];
                         //日期类型经常会导致例外发生，索性在取得数据是利用各个数据库自身的功能把日期型转换成字符串型
                         //除了日期型以后还会出现其他类型需要类似处理，或许
@@ -100,6 +105,14 @@
                         //目前这个版本针对blob，clob类型没有做对应，将来是否有需要？只有到那时候才知道
                         //http://stackoverflow.com/questions/5371222/getting-binary-data-using-sqldatareader
                         //if (ci.ColumnType.Equals("System.DateTime"))
+                        if (isFirtIncluded)
+                        {
+                            isFirtIncluded = false;
+                        }
+                        else {
+                            selectDataSqlBuilder.Append(",");
+                        }
+
                         if (!string.IsNullOrEmpty(ci.dataTypeCondtion.ExcelFormatString))
                         {
                             selectDataSqlBuilder.Append(ci.dataTypeCondtion.ExcelFormatString.FormatWith(ci));
@@ -109,17 +122,9 @@
                         {
                             selectDataSqlBuilder.Append(ci.ColumnName);
                         }
-                        if (idx == Columns.Count - 1)
-                        {
-                            selectDataSqlBuilder.Append(" ");
-                        }
-                        else
-                        {
-                            selectDataSqlBuilder.Append(",");
-                        }
                     }
                     string fullTableName = string.IsNullOrEmpty(SchemaName) ? TableName : SchemaName + "." + TableName;
-                    selectDataSqlBuilder.Append("from " + fullTableName);
+                    selectDataSqlBuilder.Append(" from " + fullTableName);
                     _selectDataSql = selectDataSqlBuilder.ToString();
                 }
                 if (!string.IsNullOrWhiteSpace(WhereClause))
@@ -144,6 +149,8 @@
                     List<string> exportSchemaRow = new List<string>();
                     for (int iColumnIdx = 0; iColumnIdx < Columns.Count; iColumnIdx++)
                     {
+                        //toddo
+                        if (!Columns[iColumnIdx].IsIncluded) continue;
                         exportSchemaRow.Add(Columns[iColumnIdx].Schemas[iSchemaIdx]);
                     }
                     exportSchemaRegion.Add(exportSchemaRow);
@@ -179,6 +186,26 @@
                 return _columns;
             }
         }
+
+        //private static RelayCommand _ButtonClick;
+        //public ICommand DetailsClick
+        //{
+        //    get
+        //    {
+        //        if (_ButtonClick == null)
+        //            _ButtonClick = new RelayCommand(param => this.BtClick(param));
+        //        return _ButtonClick;
+        //    }
+        //}
+
+        //private void BtClick(object parameter)
+        //{
+        //    DevelopWorkspace.Main.View.DetailsDialog detailsDialog = new DevelopWorkspace.Main.View.DetailsDialog(parameter as TableInfo);
+        //    //detailsDialog.Owner = DevelopWorkspace.Base.Utils.WPF.GetTopWindow(null);
+        //    detailsDialog.Show();
+        //}
+
+
     }
 
     public class ColumnInfo
@@ -189,6 +216,29 @@
 
         public DataTypeCondition dataTypeCondtion { get; set; }
 
+        //2019/8/24 可以定制字段可选，主键必须能选即不可解除可选状态
+        public bool IsNotKey
+        {
+            get
+            {
+                return !Schemas[0].Equals("*");
+            }
+        }
+        bool defaultInclude = true;
+        public bool IsIncluded
+        {
+            get
+            {
+                //todo ORACLE表中有comment字段的话会引发例外，这里暂且强制不可选
+                if (ColumnName.ToLower().Equals("comment")) return false;
+                return defaultInclude;
+            }
+
+            set
+            {
+                defaultInclude = value;
+            }
+        }
         public int Age { get; set; }
 
         public List<string> Schemas
@@ -1740,7 +1790,7 @@
             using (DbDataReader rdr = cmd.ExecuteReader())
             {
                 List<string> rowData = null;
-                List<string> columnNameList = (from column in tableInfo.Columns select column.ColumnName).ToList();
+                List<string> columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
                 //deleted with refactor:2016/02/06
                 //List<string> dataTypeList = (from column in tableInfo.Columns select column.ColumnType).ToList();
                 while (rdr.Read())
