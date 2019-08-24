@@ -31,6 +31,7 @@ using DevelopWorkspace.Base.Model;
 using Newtonsoft.Json;
 using DevelopWorkspace.Main.Model;
 using System.Runtime.InteropServices;
+using System.Globalization;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -120,12 +121,12 @@ namespace DevelopWorkspace.Main.View
         doing start		false	false	false	false	false
         doing end       恢复现场
         */
-        public enum ViewActionState {initial,load_sucess,load_failure,do_start,do_end };
+        public enum ViewActionState { initial, load_sucess, load_failure, do_start, do_end };
         bool org_load, org_export, org_apply, org_diff, org_setting;
         public void SetViewActionState(ViewActionState actionState)
         {
             switch (actionState) {
-                 case ViewActionState.initial:
+                case ViewActionState.initial:
                 case ViewActionState.load_failure:
                     this.btnLoad.IsEnabled = true;
                     this.btnDrawDataToExcel.IsEnabled = false;
@@ -186,8 +187,8 @@ namespace DevelopWorkspace.Main.View
                 ribbon.Tabs.Add(sqlTabTool);
                 ribbon.SelectedTabIndex = ribbon.Tabs.Count - 2;
                 Base.Services.ActiveModel.RibbonTabIndex = ribbon.SelectedTabIndex;
-                Base.Services.RegRibbon(this.DataContext as Base.Model.PaneViewModel,new List<object> { ribbonTabTool,sqlTabTool });
-                model= this.DataContext as Base.Model.PaneViewModel;
+                Base.Services.RegRibbon(this.DataContext as Base.Model.PaneViewModel, new List<object> { ribbonTabTool, sqlTabTool });
+                model = this.DataContext as Base.Model.PaneViewModel;
                 Base.Services.ActiveModel = this.DataContext as Base.Model.PaneViewModel;
 
                 //(ribbonTabTool.FindName("cmbSavedDatabases1") as ComboBox).ItemsSource = (from history in DbSettingEngine.GetEngine().ConnectionHistories
@@ -211,7 +212,7 @@ namespace DevelopWorkspace.Main.View
 
                 //针对setting...的sqlite的路径需要根据startup.homedir改写.
                 var connectionHistory = (from history in DbSettingEngine.GetEngine().ConnectionHistories
-                               select history).ToArray<ConnectionHistory>();
+                                         select history).ToArray<ConnectionHistory>();
                 connectionHistory[0].ConnectionString = $"Data Source ={ System.IO.Path.Combine(StartupSetting.instance.homeDir, "workspaceEngine.db")}; Pooling = true; FailIfMissing = false";
                 cmbSavedDatabases.ItemsSource = connectionHistory;
                 cmbSavedDatabases.SelectedIndex = 0;
@@ -224,7 +225,7 @@ namespace DevelopWorkspace.Main.View
                 propertygrid1.SelectedObject = databaseConfig;
 
                 //这里面的代码MainWindow和插件之间互相参照，代码需要整理.尤其ribbon的状态管理等目前依然有为解决BUG
-                (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).ribbonSelectionChangeEvent+= new RibbonSelectionChangeEventHandler(RibbonSelectionChangeEventFunc);
+                (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).ribbonSelectionChangeEvent += new RibbonSelectionChangeEventHandler(RibbonSelectionChangeEventFunc);
                 //减少绑定时错误提前准备属性
                 SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)120, (byte)255, (byte)255, (byte)255));
                 (this.DataContext as DataExcelUtilModel).ThemeColorBrush = brush;
@@ -265,7 +266,7 @@ namespace DevelopWorkspace.Main.View
         //逻辑树
         void WalkDownLogicalTree(object current)
         {
-             DependencyObject depObj = current as DependencyObject;
+            DependencyObject depObj = current as DependencyObject;
             if (depObj != null)
             {
                 foreach (object logicalChild in LogicalTreeHelper.GetChildren(depObj))
@@ -317,7 +318,7 @@ namespace DevelopWorkspace.Main.View
             //    iProvider.LoadAssembly));
 
             //2019/02/22
-            System.Reflection.Assembly addinAssembly=null;
+            System.Reflection.Assembly addinAssembly = null;
 
             string dllname = iProvider.LoadAssembly.ToLower();
 
@@ -362,7 +363,7 @@ namespace DevelopWorkspace.Main.View
             tableRemarkFilter.Text = "";
             view.Filter += new FilterEventHandler(view_Filter);
             this.trvFamilies.DataContext = view;
-            
+
             xlApp.Provider = iProvider;
             xlApp.ConnectionHistory = cmbSavedDatabases.SelectedItem as ConnectionHistory;
             xlApp.DbConnection = ctorViewModel.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
@@ -469,7 +470,7 @@ namespace DevelopWorkspace.Main.View
                         }
                     }
                 }
-                
+
                 #endregion
 
                 Base.Services.BusyWorkIndicatorService($"aquiring table list");
@@ -498,9 +499,9 @@ namespace DevelopWorkspace.Main.View
                         //tableList.Add(new TableInfo() { TableName = rdr["name"].ToString(), SchemaName = xlApp.SchemaName, Remark = rdr["name"].ToString().GetLogicalName(), WhereClause = whereClause == null ? "" : whereClause, DateTimeFormatter = iProvider.DateTimeFormatter, DeleteClause = "1=0" });
                         tableList.Add(new TableInfo() {
                             TableName = rdr["name"].ToString(),
-                            RowCount = string.IsNullOrEmpty(rdr["rowcount"].ToString())?0:int.Parse(rdr["rowcount"].ToString()),
+                            RowCount = string.IsNullOrEmpty(rdr["rowcount"].ToString()) ? 0 : int.Parse(rdr["rowcount"].ToString()),
                             SchemaName = xlApp.SchemaName,
-                            Remark = string.IsNullOrWhiteSpace(rdr["remark"].ToString())? rdr["name"].ToString(): rdr["remark"].ToString(),
+                            Remark = string.IsNullOrWhiteSpace(rdr["remark"].ToString()) ? rdr["name"].ToString() : rdr["remark"].ToString(),
                             WhereClause = whereClause == null ? "" : whereClause,
                             LimitCondition = limitCondition,
                             DateTimeFormatter = iProvider.DateTimeFormatter,
@@ -512,7 +513,7 @@ namespace DevelopWorkspace.Main.View
                         //2019/08/11 当数据库为SQLite时，表的当前行数自动手动统计
                         if (iProvider.ProviderID == 1 || AppConfig.DatabaseConfig.This.doRealCount)
                         {
-                            if(string.IsNullOrEmpty(selectedSchema))
+                            if (string.IsNullOrEmpty(selectedSchema))
                                 getRowCountSqlList.Add($"select '{rdr["name"].ToString()}' as name,'' as remark,count(*) as rowcount FROM {rdr["name"].ToString()}");
                             else
                                 getRowCountSqlList.Add($"select '{rdr["name"].ToString()}' as name,'' as remark,count(*) as rowcount FROM {selectedSchema}.{rdr["name"].ToString()}");
@@ -552,14 +553,14 @@ namespace DevelopWorkspace.Main.View
                 //DevelopWorkspace.Base.Logger.WriteLine("table columninfo....start", Base.Level.DEBUG);
                 //2019/03/09
                 //针对mysql不能通过getschematable取得正确的类型信息，这里通过数据库字典的方式取得列属性信息取得
-                if (tableList.Count !=0 && !string.IsNullOrEmpty(iProvider.SelectColumnListSql))
+                if (tableList.Count != 0 && !string.IsNullOrEmpty(iProvider.SelectColumnListSql))
                 {
                     Base.Services.BusyWorkIndicatorService($"aquiring column infomation");
                     string tableNameList = "";
                     for (int idx = 0; idx < tableList.Count; idx++)
                     {
                         tableNameList += "'" + tableList[idx].TableName + "'";
-                        if(idx != tableList.Count - 1)
+                        if (idx != tableList.Count - 1)
                         {
                             tableNameList += ",";
                         }
@@ -583,7 +584,7 @@ namespace DevelopWorkspace.Main.View
                         while (rdr.Read())
                         {
                             tableName = rdr[tableNameKey].ToString();
-                            if(previousTableName == "") previousTableName = tableName;
+                            if (previousTableName == "") previousTableName = tableName;
                             if (tableName != previousTableName)
                             {
                                 TableInfo tableInfo = tableList.First(t => t.TableName == previousTableName);
@@ -600,9 +601,9 @@ namespace DevelopWorkspace.Main.View
 
                                 previousTableName = tableName;
                             }
-                            ColumnInfo columnInfo = new ColumnInfo() {  ColumnName = rdr[columnNameKey].ToString(),
-                                                                        ColumnType = rdr[dataTypeNameKey].ToString().ToLower(),
-                                                                        Schemas =new List<string>() {
+                            ColumnInfo columnInfo = new ColumnInfo() { ColumnName = rdr[columnNameKey].ToString(),
+                                ColumnType = rdr[dataTypeNameKey].ToString().ToLower(),
+                                Schemas = new List<string>() {
                                                                             string.IsNullOrEmpty(rdr[iskeyKey].ToString())?"":"*",
                                                                             rdr[columnNameKey].ToString(),
                                                                             rdr[remarkKey].ToString(),
@@ -620,7 +621,7 @@ namespace DevelopWorkspace.Main.View
 
                     }
                     //如果有没有load的表信息，则说明provider里的设定不整合
-                    if(tableList.Find((TableInfo tableinfo) => tableinfo.Loaded==false) != null){
+                    if (tableList.Find((TableInfo tableinfo) => tableinfo.Loaded == false) != null) {
                         DevelopWorkspace.Base.Logger.WriteLine($"{tableName} don't exist in tablelist,please confirm your provider setting", Base.Level.WARNING);
                     }
                 }
@@ -711,7 +712,7 @@ namespace DevelopWorkspace.Main.View
             {
                 nestedConn.Open();
                 DbCommand dbCommand = nestedConn.CreateCommand();
-                dbCommand.CommandText = string.Format("SELECT * FROM {0} where 1=0", string.IsNullOrEmpty(schemaName)?tableName:$"{schemaName}.{tableName}");
+                dbCommand.CommandText = string.Format("SELECT * FROM {0} where 1=0", string.IsNullOrEmpty(schemaName) ? tableName : $"{schemaName}.{tableName}");
                 DevelopWorkspace.Base.Logger.WriteLine(dbCommand.CommandText, Base.Level.DEBUG);
                 using (DbDataReader rdr = dbCommand.ExecuteReader(CommandBehavior.KeyInfo))
                 {
@@ -757,7 +758,7 @@ namespace DevelopWorkspace.Main.View
                                 else {
                                     dataTypeName = row["DataType"].ToString();
                                 }
-                                columnInfo.ColumnType=dataTypeName.ToLower();
+                                columnInfo.ColumnType = dataTypeName.ToLower();
                                 columnInfo.dataTypeCondtion = xlApp.GetDataTypeCondition(dataTypeName);
                                 columnInfo.Schemas.Add(dataTypeName.ToLower());
                             }
@@ -775,7 +776,7 @@ namespace DevelopWorkspace.Main.View
             }
             catch (Exception ex)
             {
-                DevelopWorkspace.Base.Logger.WriteLine(ex.Message,Base.Level.ERROR);
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
                 System.Diagnostics.Debug.WriteLine($"can't aquire schema infomation from {tableName}", Base.Level.ERROR);
                 throw new Exception($"can't aquire schema infomation from {tableName}");
             }
@@ -817,14 +818,26 @@ namespace DevelopWorkspace.Main.View
                 }
             }));
         }
+        private string getCameralString(string _functionName) { 
+            string functionName = _functionName;
+            TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
+            functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
+            functionName = $"{functionName.First().ToString().ToLowerInvariant()}{functionName.Substring(1)}";
+            return functionName;
+
+
+        }
+
         private void Schema2Xml(object sender, RoutedEventArgs e)
         {
 
             TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
             if (ti == null) return;
-            XElement root = new XElement("Table");
-            XAttribute xTableName = new XAttribute("TableName", ti.TableName);
-            root.Add(xTableName);
+            XElement root = new XElement("TableInfo");
+            root.Add(new XElement("TableName", ti.TableName));
+            root.Add(new XElement("Remark", ti.Remark));
+            XElement columns = new XElement("Columns");
+            root.Add(columns);
             ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
             {
                 XElement line = new XElement("Column");
@@ -832,7 +845,8 @@ namespace DevelopWorkspace.Main.View
                 {
                     line.Add(new XElement(xlApp.schemaList[i], ci.Schemas[i]));
                 }
-                root.Add(line);
+                line.Add(new XElement("CameralColumnName", getCameralString(ci.Schemas[1])));
+                columns.Add(line);
             });
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("XML");
             this.txtOutput.Text = root.ToString();
