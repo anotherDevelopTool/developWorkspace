@@ -1336,10 +1336,9 @@ namespace DevelopWorkspace.Main.View
 
             DetailsDialog detailsDialog = new DetailsDialog(listViewItem.DataContext as TableInfo);
             Point position = ((Button)sender).PointToScreen(new Point(0d, 0d));
-            System.Diagnostics.Debug.WriteLine($"X:{position.X} Y:{position.Y}");
 
             detailsDialog.Top = position.Y;
-            detailsDialog.Left = position.X + ((Button)sender).ActualWidth + 10;
+            detailsDialog.Left = position.X - detailsDialog.Width - ((Button)sender).ActualWidth - 10;
             detailsDialog.Show();
 
         }

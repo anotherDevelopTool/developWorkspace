@@ -160,7 +160,7 @@
                                         <!--<Setter TargetName="Border" Property="Background" Value="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=ThemeColorBrush}" />-->
                                         <Setter TargetName="Border" Property="Background" Value="{Binding Content.ThemeColorBrush}" />
                                         <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource HighlightBackground}" />
-                                        <Setter TargetName="Border" Property="BorderThickness" Value="3,3,3,3" />
+                                        <Setter TargetName="Border" Property="BorderThickness" Value="1,2,1,0" />
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
                                         <Setter TargetName="Border" Property="Background" Value="{StaticResource DisabledBackgroundBrush}" />

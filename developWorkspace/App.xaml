@@ -45,7 +45,7 @@
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.whereclause">DBデータをエクスポートする際にテーブルの絞り込み条件をカスタマイズできる。特定した更新ユーザー、更新タイムスタンプなどがよく利用される、またそれらの組み合わせも</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.deleteclause">ExcelシートにあるデータをDBへ反映する前にDbデータを削除する条件をカスタマイズできる。デフォルトは1 =0であり、削除処理を行わないである</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.sql">SQL文</system:String>
-            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.sql">直接SQL文を入力するか、スキーマのコンテクストメニューから取得入力できる</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.sql">直接SQL文を入力するか、スキーマのコンテキストメニューから取得入力できる</system:String>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

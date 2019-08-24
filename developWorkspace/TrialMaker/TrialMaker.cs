@@ -339,7 +339,7 @@ namespace SoftwareLocker
             // check if registered before
             if (CheckRegister() == true)
             {
-                DevelopWorkspace.Base.license.IsTrialLicense = true;
+                DevelopWorkspace.Base.license.IsTrialLicense = false;
                 return RunTypes.Full;
 
             }
@@ -409,15 +409,19 @@ namespace SoftwareLocker
         {
             FileReadWrite.WriteFile(_RegFilePath, _Password);
         }
-
+        static bool isRegisterUser = false;
         // Control Registeration file for password
         // if password saved correctly return true else false
-        private bool CheckRegister()
-        { 
+        public bool CheckRegister()
+        {
+            if (isRegisterUser) return true;
             string Password = FileReadWrite.ReadFile(_RegFilePath);
 
             if (_Password == Password)
+            {
+                isRegisterUser = true;
                 return true;
+            }
             else
                 return false;
         }
