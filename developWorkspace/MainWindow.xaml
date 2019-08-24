@@ -264,7 +264,7 @@
 
     </Fluent:RibbonWindow.Resources>
     <Canvas>
-        <Button x:Name="cancelLongTimeTask"  Click="cancelLongTimeTask_Click" Visibility="Hidden" Content="cancel" Width="220" Height="30" Canvas.Left="{Binding Mode=OneWay, Converter={StaticResource CancelButtonPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Width}" Canvas.Top="{Binding Mode=OneWay, Converter={StaticResource CancelButtonTopPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Height}" Panel.ZIndex="12345"></Button>
+        <Button x:Name="cancelLongTimeTask"  Click="cancelLongTimeTask_Click" Visibility="Hidden" Background="Transparent" Content="cancel" Width="220" Height="30" Canvas.Left="{Binding Mode=OneWay, Converter={StaticResource CancelButtonPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Width}" Canvas.Top="{Binding Mode=OneWay, Converter={StaticResource CancelButtonTopPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Height}" Panel.ZIndex="12345"></Button>
         <heid:BusyDecorator x:Name="busy" IsEnabledWhenBusy="False" BusyStyle="{StaticResource busyStyle}">
             <DockPanel LastChildFill="True" Height="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Height}" Width="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Width}">
                 <Grid>
