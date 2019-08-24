@@ -33,6 +33,10 @@
     <avalonDockConverters:ActivateCommandLayoutItemFromLayoutModelConverter x:Key="ActivateCommandLayoutItemFromLayoutModelConverter"/>
 
     <SolidColorBrush x:Key="dviBackGroundBrush"  Color="White"/>
+    <RadialGradientBrush RadiusX="1" RadiusY="5" GradientOrigin="0.5,0.3" x:Key="HighlightBackground">
+        <GradientStop Color="Red" Offset="0" />
+        <GradientStop Color="Blue" Offset=".4" />
+    </RadialGradientBrush>
 
 
     <SolidColorBrush x:Key="RedBrush" Color="Red"/>
@@ -155,7 +159,8 @@
                                         <!--<Setter TargetName="Border" Property="Background" Value="{Binding ThemeColorBrush }" />-->
                                         <!--<Setter TargetName="Border" Property="Background" Value="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=ThemeColorBrush}" />-->
                                         <Setter TargetName="Border" Property="Background" Value="{Binding Content.ThemeColorBrush}" />
-                                        <Setter TargetName="Border" Property="BorderThickness" Value="5,5,5,0" />
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource HighlightBackground}" />
+                                        <Setter TargetName="Border" Property="BorderThickness" Value="3,3,3,3" />
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
                                         <Setter TargetName="Border" Property="Background" Value="{StaticResource DisabledBackgroundBrush}" />

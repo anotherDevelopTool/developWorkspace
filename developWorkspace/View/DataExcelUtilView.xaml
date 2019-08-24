@@ -199,7 +199,7 @@ x:Name="dataview"
                         <ComboBox.ItemTemplate>
                             <!--DataTemplate开始-->
                             <DataTemplate>
-                                <Grid>
+                                <Grid Background="{Binding ExcelSchemaThemeColor, Converter={StaticResource BackgroundBrushConverter}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="36"/>
                                         <ColumnDefinition Width="100*"/>
@@ -211,7 +211,7 @@ x:Name="dataview"
                                     <!--绑定数据对象Image属性-->
                                     <!-- {Binding ProviderID,Converter={DynamicResource DbProviderImageConverter1}} -->
                                     <!--<Image Source="{Binding ProviderID, Mode=TwoWay, Converter={StaticResource DbProviderImageConverter}}" Width="32" Height="32" Margin="3,3,3,3" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" />-->
-                                    <Image Width="32" Height="32" Margin="3,3,3,3" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" >
+                                    <Image Width="32" Height="32" Margin="3,3,3,3" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
                                         <Image.Source>
                                             <MultiBinding  Converter="{StaticResource DbProviderImageConverter}">
                                                 <Binding Path="ProviderID"  />

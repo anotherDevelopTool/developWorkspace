@@ -138,7 +138,7 @@ namespace DevelopWorkspace.Main.View
                 (this.DataContext as Base.Model.ViewModelBase).clearance= new Func<string, bool>(DoClearance);
 
 
-                SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)50, (byte)0, (byte)255, (byte)0));
+                SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, (byte)204, (byte)236, (byte)255));
                 (this.DataContext as PaneViewModel).ThemeColorBrush = brush;
 
 

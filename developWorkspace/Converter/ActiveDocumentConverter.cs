@@ -119,7 +119,7 @@
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             AppConfig.JsonArgb schemaColorArgbRaw = (AppConfig.JsonArgb)JsonConvert.DeserializeObject(value.ToString(), typeof(AppConfig.JsonArgb));
-            SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)50, (byte)schemaColorArgbRaw.red, (byte)schemaColorArgbRaw.green, (byte)schemaColorArgbRaw.blue));
+            SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, (byte)schemaColorArgbRaw.red, (byte)schemaColorArgbRaw.green, (byte)schemaColorArgbRaw.blue));
             return brush;
         }
 

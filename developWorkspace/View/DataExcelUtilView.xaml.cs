@@ -377,7 +377,7 @@ namespace DevelopWorkspace.Main.View
             AppConfig.JsonArgb supportDataColorArgbRaw = (AppConfig.JsonArgb)JsonConvert.DeserializeObject(xlApp.ConnectionHistory.ExcelSupportDataThemeColor, typeof(AppConfig.JsonArgb));
             System.Drawing.Color themeColor = System.Drawing.Color.FromArgb(255, headerColorArgbRaw.red, headerColorArgbRaw.green, headerColorArgbRaw.blue);
             System.Drawing.Color schemaThemeColor = System.Drawing.Color.FromArgb(255, schemaColorArgbRaw.red, schemaColorArgbRaw.green, schemaColorArgbRaw.blue);
-            SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)50, (byte)schemaColorArgbRaw.red, (byte)schemaColorArgbRaw.green, (byte)schemaColorArgbRaw.blue));
+            SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, (byte)schemaColorArgbRaw.red, (byte)schemaColorArgbRaw.green, (byte)schemaColorArgbRaw.blue));
 
             //2019/8/11
             //Bug:目前碰到了所有数据都准备妥当但是在加载ListView显示时明显慢了半拍，原因？
