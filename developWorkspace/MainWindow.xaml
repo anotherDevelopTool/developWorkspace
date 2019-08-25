@@ -261,10 +261,38 @@
             </Setter>
         </Style>
 
-
+        <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid x:Name="grid">
+                            <Border x:Name="border" CornerRadius="5" BorderBrush="#707070" BorderThickness="1" Background="White">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      TextElement.FontWeight="Normal">
+                                </ContentPresenter>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#BEE6FD"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#3C7FB1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="BorderBrush" TargetName="border" Value="#2C628B"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" TargetName="grid" Value="0.25"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Fluent:RibbonWindow.Resources>
     <Canvas>
-        <Button x:Name="cancelLongTimeTask"  Click="cancelLongTimeTask_Click" Visibility="Hidden" Background="Transparent" Content="cancel" Width="220" Height="30" Canvas.Left="{Binding Mode=OneWay, Converter={StaticResource CancelButtonPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Width}" Canvas.Top="{Binding Mode=OneWay, Converter={StaticResource CancelButtonTopPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Height}" Panel.ZIndex="12345"></Button>
+        <Button x:Name="cancelLongTimeTask"  Click="cancelLongTimeTask_Click" Style="{StaticResource RoundedButtonStyle}" Visibility="Hidden" Background="Transparent" Content="cancel" Width="220" Height="30" Canvas.Left="{Binding Mode=OneWay, Converter={StaticResource CancelButtonPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Width}" Canvas.Top="{Binding Mode=OneWay, Converter={StaticResource CancelButtonTopPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Height}" Panel.ZIndex="12345">
+        </Button>
         <heid:BusyDecorator x:Name="busy" IsEnabledWhenBusy="False" BusyStyle="{StaticResource busyStyle}">
             <DockPanel LastChildFill="True" Height="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Height}" Width="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Width}">
                 <Grid>
