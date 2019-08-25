@@ -840,13 +840,16 @@ namespace DevelopWorkspace.Main.View
             root.Add(columns);
             ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
             {
-                XElement line = new XElement("Column");
-                for (int i = 0; i < xlApp.schemaList.Count(); i++)
+                if (ci.IsIncluded)
                 {
-                    line.Add(new XElement(xlApp.schemaList[i], ci.Schemas[i]));
+                    XElement line = new XElement("Column");
+                    for (int i = 0; i < xlApp.schemaList.Count(); i++)
+                    {
+                        line.Add(new XElement(xlApp.schemaList[i], ci.Schemas[i]));
+                    }
+                    line.Add(new XElement("CameralColumnName", getCameralString(ci.Schemas[1])));
+                    columns.Add(line);
                 }
-                line.Add(new XElement("CameralColumnName", getCameralString(ci.Schemas[1])));
-                columns.Add(line);
             });
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("XML");
             this.txtOutput.Text = root.ToString();
