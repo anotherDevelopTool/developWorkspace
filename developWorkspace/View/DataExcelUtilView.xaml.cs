@@ -1336,6 +1336,7 @@ namespace DevelopWorkspace.Main.View
         private void details_Click(object sender, RoutedEventArgs e)
         {
             ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
+            listViewItem.IsSelected = true;
 
             DetailsDialog detailsDialog = new DetailsDialog(listViewItem.DataContext as TableInfo);
             Point position = ((Button)sender).PointToScreen(new Point(0d, 0d));
@@ -1360,6 +1361,13 @@ namespace DevelopWorkspace.Main.View
                 tableinfo.Selected = !tableinfo.Selected;
                 tableinfo.RaisePropertyChanged("Selected");
             }
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
+            listViewItem.IsSelected = true;
+
         }
 
         private void btnFormatQuery_Click(object sender, RoutedEventArgs e)

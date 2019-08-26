@@ -667,7 +667,7 @@ x:Name="dataview"
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBox  TextWrapping="Wrap" Text="{Binding WhereClause}" Background="Transparent" BorderThickness="0" BorderBrush="Transparent"  MinWidth="250" Width="{Binding ElementName=column3,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}"/>
+                                            <TextBox  TextWrapping="Wrap" Text="{Binding WhereClause}" Background="Transparent" BorderThickness="0" BorderBrush="Transparent"  MinWidth="250" Width="{Binding ElementName=column3,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}" GotFocus="TextBox_GotFocus"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
