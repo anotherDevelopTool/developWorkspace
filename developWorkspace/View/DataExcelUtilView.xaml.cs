@@ -788,7 +788,20 @@ namespace DevelopWorkspace.Main.View
 
         void view_Filter(object sender, FilterEventArgs e)
         {
-            if ((e.Item as TableInfo).TableName.ToLower().IndexOf(this.tableNameFilter.Text.ToLower()) >= 0 &&
+            //只显示选中行,如果没有选中的就不进行过滤
+            if (iAllCheck == 3 && tableList.Where( ti => ti.Selected).Count() > 0 )
+            {
+                if ((e.Item as TableInfo).Selected)
+                    e.Accepted = true;
+                else
+                    e.Accepted = false;
+            }
+            //解除显示选中行
+            else if (iAllCheck == 4)
+            {
+                e.Accepted = true;
+            }
+            else if ((e.Item as TableInfo).TableName.ToLower().IndexOf(this.tableNameFilter.Text.ToLower()) >= 0 &&
                 (e.Item as TableInfo).Remark.ToLower().IndexOf(this.tableRemarkFilter.Text.ToLower()) >= 0)
             {
                 if (iAllCheck == 1) (e.Item as TableInfo).Selected = true;
@@ -1136,73 +1149,81 @@ namespace DevelopWorkspace.Main.View
         private void btnExecuteQuery_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText) && string.IsNullOrWhiteSpace(this.txtOutput.Text)) return;
-
             DevelopWorkspace.Base.Logger.WriteLine(this.txtOutput.SelectedText);
-            try
+
+            SetViewActionState(ViewActionState.do_start);
+            Base.Services.BusyWorkService(new Action(() =>
             {
-                xlApp.DbConnection.Open();
-                DbCommand cmd = xlApp.DbConnection.CreateCommand();
-
-                if(string.IsNullOrWhiteSpace(this.txtOutput.SelectedText))
-                    cmd.CommandText = this.txtOutput.Text;
-                else
-                    cmd.CommandText = this.txtOutput.SelectedText;
-
-                DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, Base.Level.DEBUG);
-
-                List<string> titleList = new List<string>();
-                List<int> columnPadSizeList = new List<int>();
-                List<List<string>> dataListList = new List<List<string>>();
-                bool titleInitial = false;
-                using (DbDataReader rdr = cmd.ExecuteReader())
-                {
-                    while (rdr.Read())
+                    try
                     {
-                        if (!titleInitial) {
-                            titleInitial = true;
-                            for (int idx = 0; idx < rdr.FieldCount; idx++)
+                        xlApp.DbConnection.Open();
+                        DbCommand cmd = xlApp.DbConnection.CreateCommand();
+
+                        if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText))
+                            cmd.CommandText = this.txtOutput.Text;
+                        else
+                            cmd.CommandText = this.txtOutput.SelectedText;
+
+                        DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, Base.Level.DEBUG);
+
+                        List<string> titleList = new List<string>();
+                        List<int> columnPadSizeList = new List<int>();
+                        List<List<string>> dataListList = new List<List<string>>();
+                        bool titleInitial = false;
+                        using (DbDataReader rdr = cmd.ExecuteReader())
+                        {
+                            while (rdr.Read())
                             {
-                                titleList.Add(rdr.GetName(idx).ToString());
-                                columnPadSizeList.Add(rdr.GetName(idx).ToString().Length);
+                                if (!titleInitial)
+                                {
+                                    titleInitial = true;
+                                    for (int idx = 0; idx < rdr.FieldCount; idx++)
+                                    {
+                                        titleList.Add(rdr.GetName(idx).ToString());
+                                        columnPadSizeList.Add(rdr.GetName(idx).ToString().Length);
+                                    }
+                                }
+                                List<string> dataList = new List<string>();
+                                for (int idx = 0; idx < rdr.FieldCount; idx++)
+                                {
+                                    string data = rdr[idx] == null ? "" : rdr[idx].ToString();
+                                    dataList.Add(data);
+                                    if (columnPadSizeList[idx] < data.Length) columnPadSizeList[idx] = data.Length;
+                                }
+                                dataListList.Add(dataList);
                             }
                         }
-                        List<string> dataList = new List<string>();
-                        for (int idx = 0; idx < rdr.FieldCount; idx++)
+                        if (dataListList.Count > 0)
                         {
-                            string data = rdr[idx] == null ? "" : rdr[idx].ToString();
-                            dataList.Add(data);
-                            if (columnPadSizeList[idx] < data.Length) columnPadSizeList[idx] = data.Length;
+                            string titleOutput = "";
+                            for (int idx = 0; idx < titleList.Count; idx++)
+                            {
+                                titleOutput += string.Format("{0," + (0 - columnPadSizeList[idx] - 4) + "}", titleList[idx]);
+                            }
+                            Base.Logger.WriteLine(titleOutput);
+                            int outputLimit = dataListList.Count;
+                            if (outputLimit > AppConfig.DatabaseConfig.This.maxRecordCount) outputLimit = AppConfig.DatabaseConfig.This.maxRecordCount;
+                            for (int idx = 0; idx < dataListList.Count; idx++)
+                            {
+                                string dataOutput = "";
+                                for (int jdx = 0; jdx < dataListList[idx].Count; jdx++)
+                                {
+                                    dataOutput += string.Format("{0," + (0 - columnPadSizeList[jdx] - 4) + "}", dataListList[idx][jdx]);
+                                }
+                                Base.Logger.WriteLine(dataOutput);
+                            }
                         }
-                        dataListList.Add(dataList);
                     }
-                }
-                if (dataListList.Count > 0) {
-                    string titleOutput = "";
-                    for (int idx = 0; idx < titleList.Count; idx++) {
-                        titleOutput += string.Format("{0," + (0 - columnPadSizeList[idx] -4 ) +"}", titleList[idx]);
-                    }
-                    Base.Logger.WriteLine(titleOutput);
-                    int outputLimit = dataListList.Count;
-                    if (outputLimit > AppConfig.DatabaseConfig.This.maxRecordCount) outputLimit = AppConfig.DatabaseConfig.This.maxRecordCount;
-                    for (int idx = 0; idx < dataListList.Count; idx++)
+                    catch (Exception ex)
                     {
-                        string dataOutput = "";
-                        for (int jdx = 0; jdx < dataListList[idx].Count; jdx++)
-                        {
-                            dataOutput += string.Format("{0," + (0 - columnPadSizeList[jdx] -4 ) + "}", dataListList[idx][jdx]);
-                        }
-                        Base.Logger.WriteLine(dataOutput);
+                        Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
                     }
+                    finally
+                    {
+                        xlApp.DbConnection.Close();
+                    SetViewActionState(ViewActionState.do_end);
                 }
-            }
-            catch(Exception ex)
-            {
-                Base.Logger.WriteLine(ex.Message,Base.Level.ERROR);
-            }
-            finally {
-                xlApp.DbConnection.Close();
-            }
-
+            }));
         }
 
         private void trvFamilies_KeyDown(object sender, KeyEventArgs e)
@@ -1367,6 +1388,22 @@ namespace DevelopWorkspace.Main.View
         {
             ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
             listViewItem.IsSelected = true;
+
+        }
+
+        private void toggleSelectFilter_Checked(object sender, RoutedEventArgs e)
+        {
+            iAllCheck = 3;
+            if (view.View != null) view.View.Refresh();
+            iAllCheck = 0;
+
+        }
+
+        private void toggleSelectFilter_Unchecked(object sender, RoutedEventArgs e)
+        {
+            iAllCheck = 4;
+            if (view.View != null) view.View.Refresh();
+            iAllCheck = 0;
 
         }
 

@@ -12,27 +12,30 @@
             <RowDefinition Height="25"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" HorizontalAlignment="Center">Column Details</TextBlock>
+        <TextBlock Name="tableTitle" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">Column Details</TextBlock>
         <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" >
-            <!--<ListView.ItemContainerStyle>
+            <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
-                    <EventSetter Event="KeyUp" Handler="trvFamilies_KeyDown"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="Aqua" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="false" />
+                                <Condition Property="IsMouseOver" Value="true" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="Transparent" />
+                        </MultiTrigger>
+                    </Style.Triggers>
                 </Style>
-            </ListView.ItemContainerStyle>-->
-            <!--<ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="select Sql" Click="MakeSelSql"></MenuItem>
-                    <MenuItem Header="schema into json" Click="Schema2Json"></MenuItem>
-                    <MenuItem Header="schema into xml" Click="Schema2Xml"></MenuItem>
-                    <MenuItem Header="schema XmlSerializer" Click="XmlSerializer"></MenuItem>
-                </ContextMenu>
-            </ListView.ContextMenu>-->
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
                     <!-- ITFORCE -->
                     <GridView.ColumnHeaderContainerStyle>
                         <Style TargetType="{x:Type GridViewColumnHeader}">
-                            <Setter Property="Background" Value="White" />
+                            <Setter Property="Background" Value="{Binding ThemeColorBrush}" />
                             <Setter Property="Foreground" Value="Black" />
                             <Setter Property="FontWeight" Value="Bold" />
                         </Style>
@@ -71,6 +74,18 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
+                    <!--<GridViewColumn>
+                        <GridViewColumn.Header>
+                            <StackPanel HorizontalAlignment="Left">
+                                <TextBlock HorizontalAlignment="Left">Remark</TextBlock>
+                            </StackPanel>
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Schemas[2]}" TextTrimming="WordEllipsis"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>-->
                     <GridViewColumn>
                         <GridViewColumn.Header>
                             <StackPanel HorizontalAlignment="Left">

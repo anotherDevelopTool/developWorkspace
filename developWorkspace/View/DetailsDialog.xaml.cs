@@ -29,9 +29,9 @@ namespace DevelopWorkspace.Main.View
         public DetailsDialog(TableInfo tableinfo)
         {
             InitializeComponent();
+            tableinfo.Columns[0].ThemeColorBrush = tableinfo.ThemeColorBrush;
             this.trvFamilies.DataContext = tableinfo.Columns;
-
-
+            this.tableTitle.Text = $"Column Detail:{tableinfo.TableName}";
         }
          private void button1_Click(object sender, RoutedEventArgs e)
         {

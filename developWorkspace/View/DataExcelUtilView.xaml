@@ -12,7 +12,7 @@
 x:Name="dataview"
              mc:Ignorable="d">
     <UserControl.Resources>
-
+        
         <ResourceDictionary>
             <SolidColorBrush x:Key="EditorSelectionBrush"  Color="Red"/>
             <main:DbProviderImageConverter x:Key="DbProviderImageConverter"/>
@@ -586,6 +586,18 @@ x:Name="dataview"
                                 <EventSetter Event="KeyUp" Handler="trvFamilies_KeyDown"/>
                                 <EventSetter Event="MouseLeftButtonUp" Handler="trvFamilies_LeftButtonDown" />
                                 <EventSetter Event="MouseDoubleClick" Handler="trvFamilies_DoubleClick" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="Aqua" />
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="false" />
+                                            <Condition Property="IsMouseOver" Value="true" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="Background" Value="Transparent" />
+                                    </MultiTrigger>
+                                </Style.Triggers>
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ContextMenu>
@@ -608,7 +620,10 @@ x:Name="dataview"
                                 </GridView.ColumnHeaderContainerStyle>
                                 <GridViewColumn >
                                     <GridViewColumn.Header>
-                                        <CheckBox  Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
+                                        <StackPanel HorizontalAlignment="Left" >
+                                            <CheckBox  Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
+                                            <CheckBox  Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>
+                                        </StackPanel>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>

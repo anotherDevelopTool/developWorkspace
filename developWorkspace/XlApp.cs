@@ -220,6 +220,8 @@
 
         public DataTypeCondition dataTypeCondtion { get; set; }
 
+        public System.Windows.Media.SolidColorBrush ThemeColorBrush { get; set; }
+
         //2019/8/24 可以定制字段可选，主键必须能选即不可解除可选状态
         public bool IsNotKey
         {
@@ -611,7 +613,7 @@
                                         table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx]);
                                     }
                                     else {
-                                        //TODO
+                                        //TODO 2019/08/27 tinyint值里放如true？会导致崩溃，对应方法待定
                                         switch (dicShema[SCHEMA_DATATYPE_NAME][idx])
                                         {
                                             case "System.Decimal":
