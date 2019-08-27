@@ -219,7 +219,6 @@
         public string ColumnType { get; set; }
 
         public DataTypeCondition dataTypeCondtion { get; set; }
-
         public System.Windows.Media.SolidColorBrush ThemeColorBrush { get; set; }
 
         //2019/8/24 可以定制字段可选，主键必须能选即不可解除可选状态
@@ -608,29 +607,35 @@
                                     //2019/03/08
                                     //if (DatabaseConfig.isStringLikeColumn(dicShema[SCHEMA_DATATYPE_NAME][idx]))
                                     //如果时数字以外的情况一律看作字符串（因为从excel能获取的只有这两类）
-                                    if(dataTypeConditionList[idx].ProcessKbn != (int)ColumnProcessFlg.NUMBER)
+                                    if (dicShema[SCHEMA_IS_KEY][idx] == "*")
                                     {
-                                        table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx]);
-                                    }
-                                    else {
-                                        //TODO 2019/08/27 tinyint值里放如true？会导致崩溃，对应方法待定
-                                        switch (dicShema[SCHEMA_DATATYPE_NAME][idx])
+                                        if (dataTypeConditionList[idx].ProcessKbn != (int)ColumnProcessFlg.NUMBER)
                                         {
-                                            case "System.Decimal":
-                                                table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(System.Decimal));
-                                                break;
-                                            case "System.Double":
-                                                table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(System.Double));
-                                                break;
-                                            case "System.Integer":
-                                                table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(int));
-                                                break;
-                                            default:
-                                                table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(System.Decimal));
-                                                break;
+                                            table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx]);
+                                        }
+                                        else
+                                        {
+                                            //TODO 2019/08/27 tinyint值里放如true？会导致崩溃，对应方法待定
+                                            switch (dicShema[SCHEMA_DATATYPE_NAME][idx])
+                                            {
+                                                case "System.Decimal":
+                                                    table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(System.Decimal));
+                                                    break;
+                                                case "System.Double":
+                                                    table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(System.Double));
+                                                    break;
+                                                case "System.Integer":
+                                                    table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(int));
+                                                    break;
+                                                default:
+                                                    table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx], typeof(System.Decimal));
+                                                    break;
+                                            }
                                         }
                                     }
-
+                                    else {
+                                        table.Columns.Add(dicShema[SCHEMA_COLUMN_NAME][idx]);
+                                    }
                                     //switch (dicShema[SCHEMA_DATATYPE_NAME][idx])
                                     //{
                                     //    //现在取得数据时都使用了SchemaTable里面的DataType列这个关键字，即C#对应的数据类型，而不是DB本身的了
