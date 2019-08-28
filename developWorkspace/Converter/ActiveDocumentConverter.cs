@@ -88,7 +88,7 @@
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
         double totalWidth = double.Parse(value.ToString());
-        return totalWidth-40;
+        return totalWidth-45;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
