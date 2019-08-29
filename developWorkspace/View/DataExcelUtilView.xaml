@@ -479,9 +479,9 @@ x:Name="dataview"
                         <Setter Property="VerticalAlignment" Value="Stretch" />
                     </Style>
                     <SolidColorBrush x:Key="ToggleButtonFalseBackground"
-                         Color="Aqua" />
+                         Color="{StaticResource Color.Additional.LightGrey}" />
                     <SolidColorBrush x:Key="ToggleButtonTrueBackground"
-                         Color="Green" />
+                         Color="{StaticResource Color.MedtronicBranding.CobaltBlue}" />
                     <SolidColorBrush x:Key="ToggleButtonFalseForeground"
                          Color="{StaticResource Color.Additional.MediumGrey}" />
                     <SolidColorBrush x:Key="ToggleButtonTrueForeground"
@@ -642,6 +642,7 @@ x:Name="dataview"
                 </Setter>
             </Style>
 
+            
 
         </ResourceDictionary>
     </UserControl.Resources>
@@ -802,7 +803,7 @@ x:Name="dataview"
                                     <GridViewColumn.Header>
                                         <StackPanel HorizontalAlignment="Center" >
                                             <ToggleButton  Style="{StaticResource SwitchTypeToggleButton}"  Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
-                                            <ToggleButton  Style="{StaticResource SwitchTypeToggleButton}"  Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>
+                                            <ToggleButton  Style="{StaticResource SwitchTypeToggleButton}" Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>
                                         </StackPanel>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
