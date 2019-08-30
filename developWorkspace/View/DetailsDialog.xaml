@@ -7,7 +7,6 @@
         xmlns:local="clr-namespace:DevelopWorkspace.Base.Utils"
         mc:Ignorable="d"
         Title="Columns Details" Height="300" Width="636.124" ResizeMode="NoResize" Deactivated="RibbonWindow_Deactivated" Closing="RibbonWindow_Closing" KeyDown="RibbonWindow_KeyDown">
-   
     <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
@@ -27,8 +26,8 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="true">
-                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
+                                        <Setter TargetName="Bd" Property="Background" Value="Aqua"/>
+                                        <Setter Property="Foreground" Value="Black"/>
                                     </Trigger>
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
