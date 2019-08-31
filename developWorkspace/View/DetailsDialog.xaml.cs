@@ -68,5 +68,22 @@ namespace DevelopWorkspace.Main.View
                 catch (Exception ex) { }
             }
         }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
+            listViewItem.IsSelected = true;
+
+        }
+        private static T GetVisualAncestor<T>(DependencyObject o) where T : DependencyObject
+        {
+            do
+            {
+                o = VisualTreeHelper.GetParent(o);
+            } while (o != null && !typeof(T).IsAssignableFrom(o.GetType()));
+
+            return (T)o;
+        }
+
     }
 }

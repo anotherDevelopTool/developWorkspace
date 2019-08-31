@@ -394,7 +394,7 @@ namespace DevelopWorkspace.Main.View
             //2019/03/06
             xlApp.SchemaName = (cmbSavedDatabases.SelectedItem as ConnectionHistory).Schema;
 
-            string limitCondition = $" where {iProvider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
+            string limitCondition = $"{iProvider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
 
             //DB连接
             try
@@ -571,7 +571,7 @@ namespace DevelopWorkspace.Main.View
                     List<ColumnInfo> columns = new List<ColumnInfo>();
                     string previousTableName = "";
                     string tableName = "";
-
+                    TableInfo currenttable = new TableInfo();
                     string tableNameKey = "TableName";
                     string columnNameKey = "ColumnName";
                     string dataTypeNameKey = "DataTypeName";
@@ -584,6 +584,9 @@ namespace DevelopWorkspace.Main.View
                         while (rdr.Read())
                         {
                             tableName = rdr[tableNameKey].ToString();
+
+                            if(!tableName.Equals(currenttable.TableName)) currenttable = tableList.First(t => t.TableName == tableName);
+
                             if (previousTableName == "") previousTableName = tableName;
                             if (tableName != previousTableName)
                             {
@@ -603,6 +606,8 @@ namespace DevelopWorkspace.Main.View
                             }
                             ColumnInfo columnInfo = new ColumnInfo() { ColumnName = rdr[columnNameKey].ToString(),
                                 ColumnType = rdr[dataTypeNameKey].ToString().ToLower(),
+                                //2019/08/31
+                                parent = currenttable,
                                 Schemas = new List<string>() {
                                                                             string.IsNullOrEmpty(rdr[iskeyKey].ToString())?"":"*",
                                                                             rdr[columnNameKey].ToString(),
@@ -636,7 +641,7 @@ namespace DevelopWorkspace.Main.View
                                                 ConnectionString,
                                                 ti.SchemaName,
                                                 ti.TableName,
-                                                xlApp.schemaList);
+                                                xlApp.schemaList,ti);
                     };
                 }
 
@@ -699,7 +704,7 @@ namespace DevelopWorkspace.Main.View
         /// <param name="logicalName4Columns"></param>
         /// <param name="logicalName4Tables"></param>
         /// <returns></returns>
-        public List<ColumnInfo> LazyLoadSchema(System.Data.Common.DbConnection conn, string connectionString, string schemaName, string tableName, string[] schemaList)
+        public List<ColumnInfo> LazyLoadSchema(System.Data.Common.DbConnection conn, string connectionString, string schemaName, string tableName, string[] schemaList,TableInfo parent)
         {
             DevelopWorkspace.Base.Logger.WriteLine("get columninfo....start", Base.Level.DEBUG);
             //2019/03/11 postgressql/mysql等都切换到数据字典的方式，这个方法留作数据字典无法对应的数据库
@@ -720,6 +725,9 @@ namespace DevelopWorkspace.Main.View
                     foreach (System.Data.DataRow row in schemaTable.Rows)
                     {
                         ColumnInfo columnInfo = new ColumnInfo() { ColumnName = row[XlApp.SCHEMA_COLUMN_NAME].ToString() };
+
+                        columnInfo.parent = parent;
+
                         //
                         Array.ForEach(schemaList, keyword =>
                         {
@@ -1362,8 +1370,9 @@ namespace DevelopWorkspace.Main.View
             DetailsDialog detailsDialog = new DetailsDialog(listViewItem.DataContext as TableInfo);
             Point position = ((Button)sender).PointToScreen(new Point(0d, 0d));
 
-            detailsDialog.Top = position.Y;
-            detailsDialog.Left = position.X - detailsDialog.Width - ((Button)sender).ActualWidth - 10;
+            detailsDialog.Top = position.Y - detailsDialog.Height / 2 + 50;
+            //detailsDialog.Left = position.X - detailsDialog.Width - ((Button)sender).ActualWidth - 10;
+            detailsDialog.Left = position.X + ((Button)sender).ActualWidth + 10;
             detailsDialog.Show();
 
         }

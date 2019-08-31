@@ -69,9 +69,78 @@
         public string LimitCondition { get; set; }
         public int ViewOrderNum { get; set; }
 
+        //利用正则对数据字段进行替换，但是要过滤关键词以及字段名，如果这些被'号包围则视为数据
+        string substitute(string match,string columnsString, int processKbn)
+        {
+            //
+            Regex regex = new Regex($"select|as|from|where|and|or|between|max|min|sum|count|is|not|null|in|on|inner|join|left|{columnsString}", RegexOptions.IgnoreCase);
+            var result = regex.Match(match);
+            if (result.Success)
+                return match;
+            else
+            {
+                if (match[0] == 39)
+                    return match;
+                else
+                {
+                    if (processKbn == 0)
+                        return "'" + match + "'";
+                    else
+                        return match;
+                }
+            }
+        }
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
-        public string WhereClause { get; set; }
+        private string _whereClause;
+        public string WhereClause
+        {
+            set
+            {
+                _whereClause = value;
+                if ("*".Equals(value)){
+                    _whereClause = "";
+                    if (Columns != null) {
+                        string columnsString = (from column in Columns select column.ColumnName).Aggregate((a, b) => a + "|" + b);
+                        //对所有的column的where条件进行遍历，这么做比较粗暴会把一些信息丢失掉，比如 or 关系被强制成 and
+                        Columns.ForEach(delegate (ColumnInfo ci)
+                        {
+                            if (ci.IsIncluded && !string.IsNullOrWhiteSpace(ci.WhereClause))
+                            {
+                                string whereClause = ci.ColumnName + " ";
+                                Regex regex = new Regex(@"^([ ]+>|[ ]+<|[ ]+=|[ ]+is\b|[ ]+in\b|[ ]+between\b)", RegexOptions.IgnoreCase);
+                                var result = regex.Match(ci.WhereClause);
+                                if (!result.Success)
+                                {
+                                    whereClause += " = ";
+                                }
+
+
+                                var substitutedString = Regex.Replace(ci.WhereClause, @"(\'.+?\'|[^\s ()=,"";]+)", m => substitute(m.Value, columnsString,ci.dataTypeCondtion.ProcessKbn), RegexOptions.IgnoreCase ); // Append the rest of the match
+
+                                whereClause += substitutedString;
+
+                                if (string.IsNullOrWhiteSpace(_whereClause))
+                                {
+                                    _whereClause += whereClause;
+                                }
+                                else {
+                                    _whereClause += " and " + whereClause;
+
+                                }
+
+                            }
+                        });
+                    }
+                }
+
+                RaisePropertyChanged("WhereClause");
+            }
+            get
+            {
+                return _whereClause;
+            }
+        }
         //默认设为1=0，也就是说Excel的数据登录前不做删除处理，需要根据实际项目定制条件
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
@@ -132,11 +201,11 @@
                 }
                 if (!string.IsNullOrWhiteSpace(WhereClause))
                 {
-                    return _selectDataSql + " where " + WhereClause;
+                    return _selectDataSql + " where " + WhereClause + " and " + LimitCondition;
                 }
                 else
                 {
-                    return _selectDataSql + LimitCondition;
+                    return _selectDataSql + " where " + LimitCondition;
                 }
             }
         }
@@ -179,7 +248,7 @@
             get
             {
                 //只有在需要时才去载入Schema信息
-                if (!Loaded)
+                if (!Loaded && LazyLoadSchemaAction != null)
                 {
                     lock (typeof(TableInfo))
                     {
@@ -212,11 +281,36 @@
 
     }
 
-    public class ColumnInfo
+    public class ColumnInfo : ViewModelBase
     {
         List<string> _schemas = new List<string>();
         public string ColumnName { get; set; }
         public string ColumnType { get; set; }
+
+
+        public TableInfo parent { get; set; }
+
+        private string _whereClause = "";
+        public string WhereClause {
+            set
+            {
+                //当画面入力后失去焦点时会激活这个方法，如果通知给tableinfo
+                _whereClause = value;
+
+                if (string.IsNullOrWhiteSpace(value)) return;
+
+                //给tableinfo进行所有字段条件遍历的机会
+                parent.WhereClause = "*";
+
+            }
+            get
+            {
+                return _whereClause;
+            }
+
+        }
+
+
 
         public DataTypeCondition dataTypeCondtion { get; set; }
         public System.Windows.Media.SolidColorBrush ThemeColorBrush { get; set; }

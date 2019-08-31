@@ -40,7 +40,7 @@ x:Name="dataview"
   x:Name="Border" 
   Grid.ColumnSpan="2"
   CornerRadius="2"
-  Background="#C0C0C0"
+  Background="White"
   BorderBrush="#404040"
   BorderThickness="1" />
                                     <Border 
@@ -767,19 +767,37 @@ x:Name="dataview"
                                 <EventSetter Event="KeyUp" Handler="trvFamilies_KeyDown"/>
                                 <EventSetter Event="MouseLeftButtonUp" Handler="trvFamilies_LeftButtonDown" />
                                 <EventSetter Event="MouseDoubleClick" Handler="trvFamilies_DoubleClick" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="Aqua" />
-                                    </Trigger>
-                                    <MultiTrigger>
-                                        <MultiTrigger.Conditions>
-                                            <Condition Property="IsSelected" Value="false" />
-                                            <Condition Property="IsMouseOver" Value="true" />
-                                        </MultiTrigger.Conditions>
-                                        <Setter Property="Background" Value="Transparent" />
-                                    </MultiTrigger>
-                                </Style.Triggers>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                            <Border Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                                <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="true">
+                                                    <Setter TargetName="Bd" Property="Background" Value="Aqua"/>
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                </Trigger>
+                                                <MultiTrigger>
+                                                    <MultiTrigger.Conditions>
+                                                        <Condition Property="IsSelected" Value="true"/>
+                                                        <Condition Property="Selector.IsSelectionActive" Value="false"/>
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter TargetName="Bd" Property="Background" Value="Aqua"/>
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                </MultiTrigger>
+                                                <Trigger Property="IsEnabled" Value="false">
+                                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+
                             </Style>
+
                         </ListView.ItemContainerStyle>
                         <ListView.ContextMenu>
                             <ContextMenu>
@@ -802,8 +820,10 @@ x:Name="dataview"
                                 <GridViewColumn >
                                     <GridViewColumn.Header>
                                         <StackPanel HorizontalAlignment="Center" >
-                                            <ToggleButton  Style="{StaticResource SwitchTypeToggleButton}"  Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
-                                            <ToggleButton  Style="{StaticResource SwitchTypeToggleButton}" Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>
+                                            <!--<ToggleButton  Style="{StaticResource SwitchTypeToggleButton}"  Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
+                                            <ToggleButton  Style="{StaticResource SwitchTypeToggleButton}" Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>-->
+                                            <CheckBox Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
+                                            <CheckBox Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>
                                         </StackPanel>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>

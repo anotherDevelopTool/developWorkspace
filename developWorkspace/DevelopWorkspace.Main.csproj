@@ -266,6 +266,10 @@
     <Resource Include="Images\setting.png" />
     <Resource Include="develop.ico" />
     <Resource Include="icon.ico" />
+    <AdditionalFiles Include="Resources\classic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </AdditionalFiles>
     <Page Include="View\DetailsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
