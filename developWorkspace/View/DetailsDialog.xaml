@@ -3,21 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
-        xmlns:main="clr-namespace:DevelopWorkspace.Main"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DevelopWorkspace.Base.Utils"
         mc:Ignorable="d"
         Title="Columns Details" Height="300" Width="636.124" ResizeMode="NoResize" Deactivated="RibbonWindow_Deactivated" Closing="RibbonWindow_Closing" KeyDown="RibbonWindow_KeyDown">
-    <Fluent:RibbonWindow.Resources>
-        <main:ElementWidhtConverter x:Key="ElementWidhtConverter"/>
-    </Fluent:RibbonWindow.Resources>
+   
     <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TextBlock Name="tableTitle" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">Column Details</TextBlock>
-        <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" BorderThickness="1">
+        <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Background" Value="Transparent"/>
@@ -92,18 +89,6 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock TextWrapping="Wrap" Text="{Binding ColumnType}" TextTrimming="WordEllipsis" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn   x:Name="column3">
-                        <GridViewColumn.Header>
-                            <StackPanel HorizontalAlignment="Left">
-                                <TextBlock HorizontalAlignment="Left">select Clause</TextBlock>
-                            </StackPanel>
-                        </GridViewColumn.Header>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBox  TextWrapping="Wrap" Text="{Binding WhereClause}" Background="Transparent" BorderThickness="0" BorderBrush="Transparent"  MinWidth="150" Width="{Binding ElementName=column3,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}" GotFocus="TextBox_GotFocus"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
