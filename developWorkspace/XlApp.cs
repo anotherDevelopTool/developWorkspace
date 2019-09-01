@@ -71,16 +71,14 @@
 
         //利用正则对数据字段进行替换，但是要过滤关键词以及字段名，如果这些被'号包围则视为数据
         enum FilterType { SingleValue, MultiValue, MultiValueWithOR, CustomClause };
-        bool IsKeyword(string keyword,string columnsString)
+        List<string> sqlkeywordsString = DatabaseConfig.This.sqlKeywords;
+        bool IsKeyword(string keyword, List<string> columnsString)
         {
-            Regex regex = new Regex($"\bselect\b|\bas\b|\bfrom\b|\bwhere\b|\band\b|\bor\b|\bbetween\b|\bmax\b|\bmin\b|\bsum\b|\bcount\b|\bis\b|\bnot\b|\bnull\b|\bin\b|\bon\b|\binner\b|\bjoin\b|\bleft\b|=|>|<|>=|<=|{columnsString}", RegexOptions.IgnoreCase);
-            var result = regex.Match(keyword);
-            if (result.Success)
-                return true;
-            else
-                return false;
+            if (sqlkeywordsString.Find(a => a.Equals(keyword)) != null) return true;
+            if (columnsString.Find(a => a.Equals(keyword)) != null) return true;
+            return false;
         }
-        FilterType checkFilterType(string filterString, string columnsString)
+        FilterType checkFilterType(string filterString, List<string> columnsString)
         {
             var matches = Regex.Matches(filterString, @"(\'.+?\'|[^\s (),"";]+)", RegexOptions.IgnoreCase);
             int occurtimesAboutOR = 0;
@@ -109,7 +107,7 @@
                 return FilterType.SingleValue;
 
         }
-        string substitute(string match,string columnsString, int processKbn,string columnName,FilterType filterType)
+        string substitute(string match, List<string> columnsString, int processKbn,string columnName,FilterType filterType)
         {
             if (IsKeyword(match, columnsString))
                 return match;
@@ -151,7 +149,7 @@
                 if ("*".Equals(value)){
                     _whereClause = "";
                     if (Columns != null) {
-                        string columnsString = (from column in Columns select column.ColumnName).Aggregate((a, b) => a + "\b|" + b);
+                        List<string> columnsString = (from column in Columns select column.ColumnName).ToList<string>();
                         //对所有的column的where条件进行遍历，这么做比较粗暴会把一些信息丢失掉，比如 or 关系被强制成 and
                         Columns.ForEach(delegate (ColumnInfo ci)
                         {
@@ -176,7 +174,11 @@
                                         whereClause += $"{ci.ColumnName} {substitutedString}";
                                     }
                                     else
-                                        whereClause += substitutedString;
+                                        if(filterType == FilterType.MultiValueWithOR)
+                                            whereClause += substitutedString;
+                                        else
+                                            whereClause += $"{ci.ColumnName} = {substitutedString}";
+
                                 }
                                 if (string.IsNullOrWhiteSpace(_whereClause))
                                 {

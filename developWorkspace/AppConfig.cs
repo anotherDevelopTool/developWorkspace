@@ -200,6 +200,9 @@ namespace DevelopWorkspace.Main
             public bool applyFormatConditionForDiffResult { get; set; }
             [ExpandableObject()]
             public List<selectClause> favoriteSelectClause { get; set; }
+            [ExpandableObject()]
+            public List<string> sqlKeywords { get; set; }
+
             public DatabaseConfig()
             {
                 This = this;
