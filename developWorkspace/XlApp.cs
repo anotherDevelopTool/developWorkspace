@@ -70,23 +70,73 @@
         public int ViewOrderNum { get; set; }
 
         //利用正则对数据字段进行替换，但是要过滤关键词以及字段名，如果这些被'号包围则视为数据
-        string substitute(string match,string columnsString, int processKbn)
+        enum FilterType { SingleValue, MultiValue, MultiValueWithOR, CustomClause };
+        bool IsKeyword(string keyword,string columnsString)
         {
-            //
-            Regex regex = new Regex($"select|as|from|where|and|or|between|max|min|sum|count|is|not|null|in|on|inner|join|left|{columnsString}", RegexOptions.IgnoreCase);
-            var result = regex.Match(match);
+            Regex regex = new Regex($"\bselect\b|\bas\b|\bfrom\b|\bwhere\b|\band\b|\bor\b|\bbetween\b|\bmax\b|\bmin\b|\bsum\b|\bcount\b|\bis\b|\bnot\b|\bnull\b|\bin\b|\bon\b|\binner\b|\bjoin\b|\bleft\b|=|>|<|>=|<=|{columnsString}", RegexOptions.IgnoreCase);
+            var result = regex.Match(keyword);
             if (result.Success)
+                return true;
+            else
+                return false;
+        }
+        FilterType checkFilterType(string filterString, string columnsString)
+        {
+            var matches = Regex.Matches(filterString, @"(\'.+?\'|[^\s (),"";]+)", RegexOptions.IgnoreCase);
+            int occurtimesAboutOR = 0;
+            int occurtimesAboutValue = 0;
+
+            foreach (Match match in matches)
+            {
+                if (!"or".Equals(match.Value.ToLower()) && IsKeyword(match.Value, columnsString))
+                {
+                    return FilterType.CustomClause;
+                }
+                else if ("or".Equals(match.Value.ToLower()))
+                {
+                    occurtimesAboutOR++;
+                }
+                else
+                {
+                    occurtimesAboutValue++;
+                }
+            }
+            if (occurtimesAboutOR > 0)
+                return FilterType.MultiValueWithOR;
+            else if (occurtimesAboutValue > 1)
+                return FilterType.MultiValue;
+            else
+                return FilterType.SingleValue;
+
+        }
+        string substitute(string match,string columnsString, int processKbn,string columnName,FilterType filterType)
+        {
+            if (IsKeyword(match, columnsString))
                 return match;
             else
             {
-                if (match[0] == 39)
-                    return match;
-                else
+                if (filterType == FilterType.MultiValueWithOR || filterType == FilterType.SingleValue)
                 {
-                    if (processKbn == 0)
-                        return "'" + match + "'";
+                    if (match[0] == 39)
+                        return $" {columnName} =  {match} ";
                     else
+                    {
+                        if (processKbn == 0)
+                            return $" {columnName} =  '{match}' ";
+                        else
+                            return $" {columnName} =  {match} ";
+                    }
+                }
+                else {
+                    if (match[0] == 39)
                         return match;
+                    else
+                    {
+                        if (processKbn == 0)
+                            return "'" + match + "'";
+                        else
+                            return match;
+                    }
                 }
             }
         }
@@ -101,32 +151,46 @@
                 if ("*".Equals(value)){
                     _whereClause = "";
                     if (Columns != null) {
-                        string columnsString = (from column in Columns select column.ColumnName).Aggregate((a, b) => a + "|" + b);
+                        string columnsString = (from column in Columns select column.ColumnName).Aggregate((a, b) => a + "\b|" + b);
                         //对所有的column的where条件进行遍历，这么做比较粗暴会把一些信息丢失掉，比如 or 关系被强制成 and
                         Columns.ForEach(delegate (ColumnInfo ci)
                         {
                             if (ci.IsIncluded && !string.IsNullOrWhiteSpace(ci.WhereClause))
                             {
-                                string whereClause = ci.ColumnName + " ";
-                                Regex regex = new Regex(@"^([ ]+>|[ ]+<|[ ]+=|[ ]+is\b|[ ]+in\b|[ ]+between\b)", RegexOptions.IgnoreCase);
-                                var result = regex.Match(ci.WhereClause);
-                                if (!result.Success)
+                                string whereClause = " ";
+
+                                FilterType filterType = checkFilterType(ci.WhereClause, columnsString);
+
+                                var substitutedString = Regex.Replace(ci.WhereClause, @"(\'.+?\'|[^\s (),"";]+)", m => substitute(m.Value, columnsString,ci.dataTypeCondtion.ProcessKbn,ci.ColumnName,filterType), RegexOptions.IgnoreCase ); // Append the rest of the match
+                                if (filterType == FilterType.MultiValue)
                                 {
-                                    whereClause += " = ";
+                                    whereClause += $"{ci.ColumnName} in ( {substitutedString} )";
                                 }
-
-
-                                var substitutedString = Regex.Replace(ci.WhereClause, @"(\'.+?\'|[^\s ()=,"";]+)", m => substitute(m.Value, columnsString,ci.dataTypeCondtion.ProcessKbn), RegexOptions.IgnoreCase ); // Append the rest of the match
-
-                                whereClause += substitutedString;
-
+                                else
+                                {
+                                    //如果开始文字为各种符号的话，则添加字段名
+                                    Regex regex = new Regex(@"^(\s{0,}<=|\s{0,}>=|\s{0,}>|\s{0,}<|\s{0,}=|\s{0,}is\b|\s{0,}in\b|\s{0,}between\b)", RegexOptions.IgnoreCase);
+                                    var result = regex.Match(substitutedString);
+                                    if (result.Success)
+                                    {
+                                        whereClause += $"{ci.ColumnName} {substitutedString}";
+                                    }
+                                    else
+                                        whereClause += substitutedString;
+                                }
                                 if (string.IsNullOrWhiteSpace(_whereClause))
                                 {
                                     _whereClause += whereClause;
                                 }
                                 else {
-                                    _whereClause += " and " + whereClause;
-
+                                    Regex regex = new Regex(@"^(\s{0,}or\b)", RegexOptions.IgnoreCase);
+                                    var result = regex.Match(substitutedString);
+                                    if (result.Success)
+                                    {
+                                        _whereClause += whereClause;
+                                    }
+                                    else
+                                        _whereClause += " and " + whereClause;
                                 }
 
                             }
@@ -201,7 +265,13 @@
                 }
                 if (!string.IsNullOrWhiteSpace(WhereClause))
                 {
-                    return _selectDataSql + " where " + WhereClause + " and " + LimitCondition;
+                    Regex regex = new Regex(@"limit\s+[0-9]+$", RegexOptions.IgnoreCase);
+                    var result = regex.Match(WhereClause);
+                    if (result.Success)
+                        return _selectDataSql + " where " + WhereClause;
+                    else
+                        return _selectDataSql + " where " + WhereClause + " and " + LimitCondition;
+
                 }
                 else
                 {

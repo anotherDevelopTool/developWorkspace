@@ -1167,10 +1167,12 @@ namespace DevelopWorkspace.Main.View
                         xlApp.DbConnection.Open();
                         DbCommand cmd = xlApp.DbConnection.CreateCommand();
 
+                        string limitCondition = $"{xlApp.Provider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
+
                         if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText))
-                            cmd.CommandText = this.txtOutput.Text;
+                            cmd.CommandText = $"select * from ({this.txtOutput.Text}) where {limitCondition}";
                         else
-                            cmd.CommandText = this.txtOutput.SelectedText;
+                            cmd.CommandText = $"select * from ({this.txtOutput.SelectedText}) where {limitCondition}";
 
                         DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, Base.Level.DEBUG);
 
