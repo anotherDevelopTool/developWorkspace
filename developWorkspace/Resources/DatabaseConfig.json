@@ -1,0 +1,93 @@
+﻿{
+  "backgroundWorkerMode": false,
+  "withRemark": true,
+  "plainFormatMode": false,
+  "plainFormatRoundupSize": 10000,
+  "maxRecordCount": 100,
+  "doRealCount": false,
+  "sqlOnly": false,
+  "sqlRoundupSize": 100,
+  "batchUpdate": false,
+  "singleConditionDatatypeList": [
+    "System.String",
+    "System.DateTime",
+    "System.Byte[]",
+    "nchar",
+    "varchar",
+    "nvarchar",
+    "ntext",
+    "datetime",
+    "System.TimeSpan",
+    "System.Boolean",
+    "System.Object"
+  ],
+  "exceptZeroRowDataTable": false,
+  "exceptZeroDiffRowTable": false,
+  "exceptUnchangedRow": false,
+  "applyFormatConditionForDiffResult": true,
+  "favoriteSelectClause": [
+    {
+      "provider": "SQLite",
+      "clauses": [
+        "1=1 LIMIT 100"
+      ]
+    },
+    {
+      "provider": "Postgres",
+      "clauses": [
+        "1=1 LIMIT 100"
+      ]
+    },
+    {
+      "provider": "MySQL",
+      "clauses": [
+        "1=1 LIMIT 100"
+      ]
+    },
+    {
+      "provider": "Oracle",
+      "clauses": [
+        "rownum<=10"
+      ]
+    }
+  ],
+  "sqlKeywords": [
+    "select",
+    "as",
+    "from",
+    "where",
+    "and",
+    "or",
+    "between",
+    "max",
+    "min",
+    "sum",
+    "count",
+    "is",
+    "not",
+    "null",
+    "in",
+    "on",
+    "inner",
+    "join",
+    "left",
+    "sysdate",
+    "now",
+    "systimestamp",
+    "current_date",
+    "current_timestamp",
+    "extract",
+    "epoch",
+    ">=",
+    "<=",
+    "=",
+    ">",
+    "<",
+    "+",
+    "-",
+    "/",
+    "*"
+  ],
+  "typeName": "DatabaseConfig",
+  "jsonfile": "C:\\Users\\xujingjiang\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\DatabaseConfig.json"
+}

@@ -161,6 +161,9 @@
     </Compile>
     <Compile Include="Behaviour\DropFileCommand.cs" />
     <Compile Include="Behaviour\KeyboardFocus.cs" />
+    <None Include="Resources\DatabaseConfig.json" />
+    <None Include="Resources\ScriptConfig.json" />
+    <None Include="Resources\SysConfig.json" />
     <Resource Include="addin.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

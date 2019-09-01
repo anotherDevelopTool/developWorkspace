@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 0,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": null,
+  "Description": null,
+  "Path": null,
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\Users\\xujingjiang\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\ScriptConfig.json"
+}
