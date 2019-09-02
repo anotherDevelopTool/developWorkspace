@@ -78,9 +78,10 @@
             if (columnsString.Find(a => a.Equals(keyword)) != null) return true;
             return false;
         }
+        string FILTER_PATTERN = @"(\'.+?\'|[^\s (),;\w]+|[^\s (),;\W]+)";
         FilterType checkFilterType(string filterString, List<string> columnsString)
         {
-            var matches = Regex.Matches(filterString, @"(\'.+?\'|[^\s (),"";]+)", RegexOptions.IgnoreCase);
+            var matches = Regex.Matches(filterString, FILTER_PATTERN, RegexOptions.IgnoreCase);
             int occurtimesAboutOR = 0;
             int occurtimesAboutValue = 0;
 
@@ -138,6 +139,7 @@
                 }
             }
         }
+        string START_PATTERN = @"^(\s{0,}<=|\s{0,}>=|\s{0,}>|\s{0,}<|\s{0,}=|\s{0,}is\b|\s{0,}in\b|\s{0,}between\b)";
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         private string _whereClause;
@@ -159,7 +161,7 @@
 
                                 FilterType filterType = checkFilterType(ci.WhereClause, columnsString);
 
-                                var substitutedString = Regex.Replace(ci.WhereClause, @"(\'.+?\'|[^\s (),"";]+)", m => substitute(m.Value, columnsString,ci.dataTypeCondtion.ProcessKbn,ci.ColumnName,filterType), RegexOptions.IgnoreCase ); // Append the rest of the match
+                                var substitutedString = Regex.Replace(ci.WhereClause, FILTER_PATTERN, m => substitute(m.Value, columnsString,ci.dataTypeCondtion.ProcessKbn,ci.ColumnName,filterType), RegexOptions.IgnoreCase ); // Append the rest of the match
                                 if (filterType == FilterType.MultiValue)
                                 {
                                     whereClause += $"{ci.ColumnName} in ( {substitutedString} )";
@@ -167,14 +169,14 @@
                                 else
                                 {
                                     //如果开始文字为各种符号的话，则添加字段名
-                                    Regex regex = new Regex(@"^(\s{0,}<=|\s{0,}>=|\s{0,}>|\s{0,}<|\s{0,}=|\s{0,}is\b|\s{0,}in\b|\s{0,}between\b)", RegexOptions.IgnoreCase);
+                                    Regex regex = new Regex(START_PATTERN, RegexOptions.IgnoreCase);
                                     var result = regex.Match(substitutedString);
                                     if (result.Success)
                                     {
                                         whereClause += $"{ci.ColumnName} {substitutedString}";
                                     }
                                     else
-                                        if(filterType == FilterType.MultiValueWithOR)
+                                        if(filterType == FilterType.MultiValueWithOR || filterType == FilterType.SingleValue)
                                             whereClause += substitutedString;
                                         else
                                             whereClause += $"{ci.ColumnName} = {substitutedString}";
