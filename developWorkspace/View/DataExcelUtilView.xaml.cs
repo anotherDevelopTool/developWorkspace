@@ -1169,11 +1169,23 @@ namespace DevelopWorkspace.Main.View
 
                         string limitCondition = $"{xlApp.Provider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
 
-                        if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText))
-                            cmd.CommandText = $"select * from ({this.txtOutput.Text}) where {limitCondition}";
-                        else
-                            cmd.CommandText = $"select * from ({this.txtOutput.SelectedText}) where {limitCondition}";
+                        Regex regex = new Regex(@"^\s{0,}select\b", RegexOptions.IgnoreCase);
 
+                        if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText))
+                        {
+                            if(regex.Match(this.txtOutput.Text).Success)
+                                cmd.CommandText = $"select * from ({this.txtOutput.Text}) subquery where {limitCondition}";
+                            else
+                                cmd.CommandText = this.txtOutput.Text;
+
+                        }
+                        else
+                        {
+                            if (regex.Match(this.txtOutput.SelectedText).Success)
+                                cmd.CommandText = $"select * from ({this.txtOutput.SelectedText}) subquery where {limitCondition}";
+                            else
+                                cmd.CommandText = this.txtOutput.SelectedText;
+                        }
                         DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, Base.Level.DEBUG);
 
                         List<string> titleList = new List<string>();
