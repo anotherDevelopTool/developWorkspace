@@ -149,21 +149,16 @@
 
         private void OnLoad(object parameter)
         {
-            AddinBaseViewModel addinViewModel;
-            if (parameter.ToString().IndexOf("DevelopWorkspace.CodeGeneratorAddin") != -1)
-            {
-                addinViewModel = AddinBaseViewModel.GetViewModel(@"addins\DevelopWorkspace.CodeGeneratorAddin.dll", "DevelopWorkspace.CodeGeneratorAddin.ViewModel");
-                addinViewModel.IsActive = true;
-                _files.Add(addinViewModel);
-                ActiveDocument = addinViewModel;
-
-            }
-            else if (parameter.ToString().IndexOf("DevelopWorkspace.DataCreateAddin") != -1)
-            {
-                addinViewModel = AddinBaseViewModel.GetViewModel(@"addins\DevelopWorkspace.DataCreateAddin.dll", "DevelopWorkspace.DataCreateAddin.ViewModel");
-                addinViewModel.IsActive = true;
-                _files.Add(addinViewModel);
-                ActiveDocument = addinViewModel;
+            List< ScriptBaseViewModel> scripts = ScriptBaseViewModel.ScanAddins();
+            foreach (ScriptBaseViewModel script in scripts) {
+                var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(script.GetType(), typeof(AddinMetaAttribute));
+                if (classAttribute != null)
+                {
+                    script.Title = classAttribute.Name;
+                }
+                script.IsActive = true;
+                _files.Add(script);
+                ActiveDocument = script;
             }
         }
 

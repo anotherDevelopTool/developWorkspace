@@ -496,6 +496,7 @@
                             <Fluent:RibbonGroupBox Header="{DynamicResource  mainwindow.lang.tools}">
                                 <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.dbsupport}" Icon="Images\dbtool.png" LargeIcon="Images\dbtool.png" Command="{Binding NewDbUtilCommand}" Name="btndbutil" />
                                 <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.script}" Icon="Images\csscript.png" 	LargeIcon="Images\csscript.png" Command="{Binding NewScriptCommand}" Name="btncsscript" />
+                                <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.addin}" Icon="Images\csscript.png" 	LargeIcon="Images\csscript.png" Command="{Binding LoadAddinCommand}" Name="btncsscript1" />
                             </Fluent:RibbonGroupBox>
                             <Fluent:RibbonGroupBox Header="{DynamicResource  mainwindow.lang.tools.common}">
                                 <Fluent:CheckBox  x:Name="chkDummyData" Margin="15" IsChecked="{Binding FileStats.IsVisible, Mode=TwoWay}" >Output</Fluent:CheckBox>
@@ -655,6 +656,11 @@
                                         <view:CSScriptRunView/>
                                     </DataTemplate>
                                 </local:PanesTemplateSelector.CSScriptRunViewTemplate>
+                                <local:PanesTemplateSelector.ScriptAddinViewTemplate>
+                                    <DataTemplate>
+                                        <view:ScriptAddinView/>
+                                    </DataTemplate>
+                                </local:PanesTemplateSelector.ScriptAddinViewTemplate>
                                 <local:PanesTemplateSelector.DataExcelUtilViewTemplate>
                                     <DataTemplate>
                                         <view:DataExcelUtilView/>

@@ -56,6 +56,11 @@
             get;
             set;
         }
+        public DataTemplate ScriptAddinViewTemplate
+        {
+            get;
+            set;
+        }
         public DataTemplate DataExcelUtilViewTemplate
         {
             get;
@@ -66,8 +71,8 @@
         {
             var itemAsLayoutContent = item as LayoutContent;
 
-            if (item is AddinBaseViewModel)
-                return (item as AddinBaseViewModel).GetDataTemplate();
+            if (item is ScriptBaseViewModel)
+                return ScriptAddinViewTemplate;
 
             if (item is Model.FileViewModel)
                 return FileViewTemplate;

@@ -148,6 +148,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="View\ScriptAddinView.xaml.cs">
+      <DependentUpon>ScriptAddinView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\DetailsDialog.xaml.cs">
       <DependentUpon>DetailsDialog.xaml</DependentUpon>
     </Compile>
@@ -273,6 +276,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </AdditionalFiles>
+    <Page Include="View\ScriptAddinView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\DetailsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

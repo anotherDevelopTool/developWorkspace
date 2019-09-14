@@ -94,6 +94,7 @@
     <Compile Include="Ilogger.cs" />
     <Compile Include="Library\Dump.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Model\ScriptBaseViewModel.cs" />
     <Compile Include="Model\AddinBaseViewModel.cs" />
     <Compile Include="Model\FileBaseViewModel.cs" />
     <Compile Include="Model\PaneViewModel.cs" />

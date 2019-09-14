@@ -21,6 +21,7 @@
             <system:String x:Key="mainwindow.lang.tools">ツール</system:String>
             <system:String x:Key="mainwindow.lang.tools.dbsupport">DB開発支援</system:String>
             <system:String x:Key="mainwindow.lang.tools.script">スクリプト</system:String>
+            <system:String x:Key="mainwindow.lang.tools.addin">Addin</system:String>
             <system:String x:Key="mainwindow.lang.tools.common">共通</system:String>
             <system:String x:Key="mainwindow.lang.tools.setting">設定</system:String>
             <system:String x:Key="dbsupport.lang.tools.select">選択</system:String>

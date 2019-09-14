@@ -13,4 +13,12 @@ namespace DevelopWorkspace.Base
         public string Date { get; set; }
         public string Description { get; set; }
     }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class MethodMetaAttribute : Attribute
+    {
+        public string Name { get; set; }
+        public string Date { get; set; }
+        public string Description { get; set; }
+    }
 }
