@@ -33,7 +33,7 @@ using System.Threading;
 using Xceed.Wpf.AvalonDock.Layout;
 using System.Windows.Media;
 using DevelopWorkspace.Base;
-using Fluent;
+
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -52,25 +52,25 @@ public class Script
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import")]
+        [MethodMeta(Name = "delete", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import")]
         public void EventHandler2(object sender, RoutedEventArgs e)
         {
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "export")]
+        [MethodMeta(Name = "import", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "export")]
         public void EventHandler3(object sender, RoutedEventArgs e)
         {
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import1")]
+        [MethodMeta(Name = "export", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import1")]
         public void EventHandler4(object sender, RoutedEventArgs e)
         {
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import")]
+        [MethodMeta(Name = "setting", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import")]
         public void EventHandler5(object sender, RoutedEventArgs e)
         {
 
@@ -97,23 +97,39 @@ public class Script
 
     }
   
-    public class MainWindow : RibbonWindow
+    public class MainWindow : Window
     {
         private Label label1;
 
         public MainWindow(string strXaml)
         {
-            Width = 300;
-            Height = 300;
+            Width = 600;
+            Height = 800;
 
             Grid grid = new Grid();
             Content = grid;
 
+            StackPanel parent = new StackPanel();
+			grid.Children.Add(parent);            
 
-//            var wsettings = new System.Xaml.XamlObjectWriterSettings ();
-//            wsettings.RootObjectInstance = new Script.UserControl1();
             ViewModel model = new ViewModel();
-            grid.Children.Add(model.getView(strXaml));   
+
+            
+                var methods = model.GetType().GetMethods().Where(m => m.GetCustomAttributes(typeof(MethodMetaAttribute), false).Length > 0).ToList();
+                for (int i = 0; i < methods.Count; i++)
+                {
+                    var method = methods[i];
+                    var methodAttribute = (MethodMetaAttribute)Attribute.GetCustomAttribute(methods[i], typeof(MethodMetaAttribute));
+                    Button btn = new Button();
+ 					btn.Content = methodAttribute.Name;;
+                	parent.Children.Add(btn);
+                	btn.Click += (obj, subargs) =>
+                    {
+                		method.Invoke(model, new object[] { obj, subargs });
+                		};
+                }            
+    
+            parent.Children.Add(model.getView(strXaml));               
             
             
             model.install(strXaml);
