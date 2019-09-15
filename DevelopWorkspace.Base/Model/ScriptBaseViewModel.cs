@@ -38,9 +38,10 @@
         }
         public void install(string strXaml)
         {
+            
             var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(AddinMetaAttribute));
             System.IO.File.Copy(this.GetType().Assembly.Location, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".dll"), true);
-            System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".xaml"), strXaml);
+            if (!string.IsNullOrEmpty(strXaml)) System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".xaml"), strXaml);
         }
 
         public static ScriptBaseViewModel GetViewModel(string addinAssemblyPath, string typeViewModel)
