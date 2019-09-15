@@ -46,31 +46,31 @@ public class Script
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
 
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件")]
+        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "update")]
         public void EventHandler1(object sender, RoutedEventArgs e)
         {
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件")]
+        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import")]
         public void EventHandler2(object sender, RoutedEventArgs e)
         {
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件")]
+        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "export")]
         public void EventHandler3(object sender, RoutedEventArgs e)
         {
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件")]
+        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import1")]
         public void EventHandler4(object sender, RoutedEventArgs e)
         {
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件")]
+        [MethodMeta(Name = "update", Date = "2009-07-20", Description = "单体测试数据生成辅助工具插件",LargeIcon = "import")]
         public void EventHandler5(object sender, RoutedEventArgs e)
         {
 
