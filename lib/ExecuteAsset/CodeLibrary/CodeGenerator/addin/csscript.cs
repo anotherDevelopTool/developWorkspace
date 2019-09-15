@@ -77,7 +77,7 @@ public class Script
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
 
-
+        //主要画面的控件在这里初始化，提供给各个方法共用
         public override UserControl getView(string strXaml){
 
             StringReader strreader = new StringReader(strXaml);
@@ -96,7 +96,7 @@ public class Script
 
 
     }
-  
+    //下面的代码是固定代码一般情况下无需修改
     public class MainWindow : Window
     {
         private Label label1;
