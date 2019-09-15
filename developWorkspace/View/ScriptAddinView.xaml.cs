@@ -45,12 +45,6 @@ namespace DevelopWorkspace.Main.View
     [Serializable()]
     public partial class ScriptAddinView : UserControl
     {
-        static bool IsAppDomainInited = false;
-        static AppDomain singleAppDomain;
-        TreeView codeLibraryTreeView;
-        PropertyGrid propertygrid1;
-        TwoLineLabel basicInfoLabel;
-        ScriptConfig scriptConfig;
         ScriptBaseViewModel model;
         public ScriptAddinView()
         {
@@ -83,17 +77,39 @@ namespace DevelopWorkspace.Main.View
                     var methodAttribute = (MethodMetaAttribute)Attribute.GetCustomAttribute(methods[i], typeof(MethodMetaAttribute));
                     buttonList[i].Header = methodAttribute.Name;
                     buttonList[i].ToolTip = methodAttribute.Description;
-                    string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", methodAttribute.Name + ".png");
+                    string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", methodAttribute.LargeIcon + ".png");
                     if (File.Exists(iconfile))
                     {
                         var uri = new Uri(iconfile);
                         buttonList[i].LargeIcon = new BitmapImage(uri);
                     }
+                    else {
+                        try
+                        {
+                            var resourceString = "/DevelopWorkspace;component/Images/" + methodAttribute.LargeIcon + ".png";
+                            buttonList[i].LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                        }
+                        catch (Exception ex) {
+                            var resourceString = "/DevelopWorkspace;component/Images/" + "plugin" + ".png";
+                            buttonList[i].LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                        }
+                    }
                     
-
                     buttonList[i].Click += (obj, subargs) =>
                     {
-                        method.Invoke(model, new object[] { obj,subargs});
+
+                        Base.Services.BusyWorkService(new Action(() =>
+                        {
+                            try
+                            {
+                                method.Invoke(model, new object[] { obj, subargs });
+                            }
+                            catch (Exception ex)
+                            {
+                                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                            }
+                        }));
+                        
                     };
                 }
 
@@ -116,9 +132,5 @@ namespace DevelopWorkspace.Main.View
 
             }));
         }
-
-
-
-
     }
 }

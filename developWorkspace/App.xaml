@@ -47,6 +47,12 @@
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.deleteclause">ExcelシートにあるデータをDBへ反映する前にDbデータを削除する条件をカスタマイズできる。デフォルトは1 =0であり、削除処理を行わないである</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.sql">SQL文</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.sql">直接SQL文を入力するか、スキーマのコンテキストメニューから取得入力できる</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.script">スクリプト</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.select">選択</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.select.hint">スクリプトを選択してください</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.execute.hint">スクリプトを実行してください</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.execute">実行</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.setting">設定</system:String>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

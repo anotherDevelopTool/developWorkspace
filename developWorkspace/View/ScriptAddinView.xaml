@@ -12,8 +12,8 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <SolidColorBrush x:Key="EditorSelectionBrush"  Color="Red"/>
-       <Fluent:RibbonTabItem x:Key="RibbonTabTool" Header="SciptAddin commands" ReduceOrder="(P),(P),(P),(P),(P)">
-            <Fluent:RibbonGroupBox x:Name="ribbonGroupBox" Header="スクリプト">
+       <Fluent:RibbonTabItem x:Key="RibbonTabTool" Header="sipt addin commands" ReduceOrder="(P),(P),(P),(P),(P)">
+            <Fluent:RibbonGroupBox x:Name="ribbonGroupBox" Header="commands">
                 <Fluent:Button   x:Name="btn_1" ToolTip="スクリプトを実行してください"  Header="実行" Icon="Images\run.png" LargeIcon="Images\run.png"/>
             </Fluent:RibbonGroupBox>
         </Fluent:RibbonTabItem>

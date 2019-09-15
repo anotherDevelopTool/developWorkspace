@@ -13,9 +13,9 @@
     <UserControl.Resources>
         <SolidColorBrush x:Key="EditorSelectionBrush"  Color="Red"/>
        <Fluent:RibbonTabItem x:Key="RibbonTabTool" Header="script commands" ReduceOrder="(P),(P),(P),(P),(P)">
-            <Fluent:RibbonGroupBox Header="スクリプト">
+            <Fluent:RibbonGroupBox Header="{DynamicResource  script.lang.tools.ribbon.groupbox.script}">
 
-                <Fluent:DropDownButton  Header="選択" ToolTip="スクリプトを選択してください" ResizeMode="Both" Icon="Images\csscript.png" LargeIcon="Images\csscript.png">
+                <Fluent:DropDownButton  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.select}" ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.select.hint}" ResizeMode="Both" Icon="Images\csscript.png" LargeIcon="Images\csscript.png">
                             <TreeView Name="codeLibraryTreeView"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
@@ -26,10 +26,10 @@
                         SelectedItemChanged="TreeView_SelectedItemChanged"/>
           </Fluent:DropDownButton>
 
-                <Fluent:Button  Click="Button_Click"  ToolTip="スクリプトを実行してください"  Header="実行" Icon="Images\run.png" LargeIcon="Images\run.png"/>
+                <Fluent:Button  Click="Button_Click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.execute.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.execute}" Icon="Images\run.png" LargeIcon="Images\run.png"/>
           </Fluent:RibbonGroupBox>
-           
-            <Fluent:RibbonGroupBox Header="設定">
+
+            <Fluent:RibbonGroupBox Header="{DynamicResource  script.lang.tools.ribbon.groupbox.setting}">
                 <Fluent:DropDownButton  ResizeMode="Both" Icon="Images\setting.png" LargeIcon="Images\script_setting.png">
                     <extoolkit:PropertyGrid Name="propertygrid1"
                         HorizontalAlignment="Left"

@@ -156,6 +156,8 @@
                 {
                     script.Title = classAttribute.Name;
                 }
+                SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, classAttribute.Red, classAttribute.Green, classAttribute.Blue));
+                script.ThemeColorBrush = brush;
                 script.IsActive = true;
                 _files.Add(script);
                 ActiveDocument = script;
