@@ -94,7 +94,7 @@
 
 
       </TabControl.Resources>
-      <TabItem  Header="Data Source">
+      <TabItem  Header="Data Source" ToolTip="① please copy-paste json/xml/csv text to dataSource ② select convertRule ③ convert...">
         <avalonEdit:EdiTextEditor x:Name="dataSource"
                     IsReadOnly="False"
                     ShowLineNumbers="True"

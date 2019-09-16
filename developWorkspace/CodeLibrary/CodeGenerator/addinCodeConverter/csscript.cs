@@ -47,7 +47,9 @@ using NVelocity.Runtime;
 using Microsoft.CSharp;
 using System.Text.RegularExpressions;
 using ICSharpCode.AvalonEdit.Highlighting;
-class XmlToGenericObject
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.FileIO;
+class ConvertUtil
 {
     public static int DataSourceType(string dataSource)
     {
@@ -136,6 +138,47 @@ class XmlToGenericObject
         }
     }
 
+    public static Dictionary<string, object> ReadCsvFileTextFieldParser(string csvText, string delimiter = "\t")
+    {
+
+        var list = new List<Dictionary<string, string>>();
+        var fieldDict = new Dictionary<int, string>();
+
+        using (TextFieldParser parser = new TextFieldParser(new StringReader(csvText)))
+        {
+            parser.SetDelimiters(delimiter);
+
+            bool headerParsed = false;
+
+            while (!parser.EndOfData)
+            {
+                //Processing row
+                string[] rowFields = parser.ReadFields();
+                if (!headerParsed)
+                {
+                    for (int i = 0; i < rowFields.Length; i++)
+                    {
+                        fieldDict.Add(i, rowFields[i]);
+                    }
+                    headerParsed = true;
+                }
+                else
+                {
+                    var rowData = new Dictionary<string, string>();
+                    for (int i = 0; i < rowFields.Length; i++)
+                    {
+                        rowData[fieldDict[i]] = rowFields[i];
+                    }
+                    list.Add(rowData);
+                }
+            }
+        }
+        Dictionary<string, object> ret = new Dictionary<string, object>();
+        ret["rowdata"] = list;
+        return ret;
+    }
+
+
 }
 
 public class Script
@@ -165,19 +208,19 @@ public class Script
 
                 dynamic dic = new Dictionary<string, object>();
                 //XML type
-                if (XmlToGenericObject.DataSourceType(dataSource.Text) == 1)
+                if (ConvertUtil.DataSourceType(dataSource.Text) == 1)
                 {
 
                     //这个是演示XmlToGenericObject如何使用，需要结合VM模板一起使用
                     System.IO.File.WriteAllText(@"C:\Users\Public\contacts1.xml", dataSource.Text);
                     var xDoc = XDocument.Load(new StreamReader(@"C:\Users\Public\contacts1.xml"));
-                    XmlToGenericObject.Parse(dic, xDoc.Elements().First());
+                    ConvertUtil.Parse(dic, xDoc.Elements().First());
                 }
                 //JSON type
-                else if (XmlToGenericObject.DataSourceType(dataSource.Text) == 2)
+                else if (ConvertUtil.DataSourceType(dataSource.Text) == 2)
                 {
                     Newtonsoft.Json.Linq.JObject htmlAttributes = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(dataSource.Text);
-                    dic = (Dictionary<string, object>)XmlToGenericObject.ToCollections(htmlAttributes);
+                    dic = (Dictionary<string, object>)ConvertUtil.ToCollections(htmlAttributes);
 
                     //如果需要对某些字段进行定制，需要如下增加属性的方式提供给vecolity使用
                     //var mappings = (Dictionary<string, object>)dic["mappings"];
@@ -193,6 +236,11 @@ public class Script
                     //    }
                     //}
                 }
+                //CSV format with tab delimiter
+                else {
+                    dic = ConvertUtil.ReadCsvFileTextFieldParser(dataSource.Text);
+                }
+
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
 
                 VelocityContext vltContext = new VelocityContext();
@@ -243,6 +291,13 @@ public class Script
             convertRule.Text = getResByExt("4.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
+        [MethodMeta(Name = "TableSchemeCsv", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        public void EventHandler9(object sender, RoutedEventArgs e)
+        {
+            currentExt = "9.ConvertRule";
+            convertRule.Text = getResByExt("9.ConvertRule");
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
         public override UserControl getView(string strXaml)
         {
             StringReader strreader = new StringReader(strXaml);
@@ -261,14 +316,14 @@ public class Script
             dataSource.TextChanged += (obj, subargs) =>
             {
                 //XML type
-                if (XmlToGenericObject.DataSourceType(dataSource.Text) == 1)
+                if (ConvertUtil.DataSourceType(dataSource.Text) == 1)
                 {
                     typeConverter = new HighlightingDefinitionTypeConverter();
                     csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("XML");
                     this.dataSource.SyntaxHighlighting = csSyntaxHighlighter;
                 }
                 //JSON etc
-                else if (XmlToGenericObject.DataSourceType(dataSource.Text) == 2)
+                else if (ConvertUtil.DataSourceType(dataSource.Text) == 2)
                 {
                     typeConverter = new HighlightingDefinitionTypeConverter();
                     csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("C#");

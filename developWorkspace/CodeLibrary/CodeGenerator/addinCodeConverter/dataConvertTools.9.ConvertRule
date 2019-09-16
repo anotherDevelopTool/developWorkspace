@@ -1,0 +1,6 @@
+#foreach ( $ColumnInfo in $root.rowdata )
+  ${ColumnInfo.IsKey}
+  ${ColumnInfo.ColumnName}
+  ${ColumnInfo.Remark}
+  ${ColumnInfo.DataTypeName}
+#end
