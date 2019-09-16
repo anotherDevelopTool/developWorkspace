@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "rylson compiler demo",
+  "Description": "rylson compiler demo",
+  "Path": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\Professional\\roslyn\\roslyn\\syntaxRoot",
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\Professional\\roslyn\\roslyn\\syntaxRoot\\ScriptConfig.json"
+}

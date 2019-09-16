@@ -1,0 +1,24 @@
+<Script>
+  <run>
+    <title>nodejs</title>
+    <description>nodejs</description>
+  </run>
+  <codeBlock>
+    <row>1</row>
+    <col>1</col>
+    <type>xml</type>
+    <file>input_xml.xml</file>
+  </codeBlock>
+  <codeBlock>
+    <row>1</row>
+    <col>2</col>
+    <type>xml</type>
+    <file>input_xslt.xsl</file>
+  </codeBlock>
+  <codeBlock>
+    <row>2</row>
+    <col>1</col>
+    <type>nodejs</type>
+    <file>csscript.cs</file>
+  </codeBlock>
+</Script>
