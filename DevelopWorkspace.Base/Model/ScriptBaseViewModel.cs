@@ -33,8 +33,21 @@
             else {
                 return new UserControl();
             }
-            
-
+        }
+        public string getResByExt(string ext)
+        {
+            var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(AddinMetaAttribute));
+            Uri assemblyUri = new Uri(this.GetType().Assembly.CodeBase);
+            string addinDir = Path.GetDirectoryName(assemblyUri.LocalPath);
+            string extfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext);
+            if (File.Exists(extfile))
+            {
+                return System.IO.File.ReadAllText(extfile);
+            }
+            else
+            {
+                return "";
+            }
         }
         public void install(string strXaml)
         {
@@ -43,7 +56,11 @@
             System.IO.File.Copy(this.GetType().Assembly.Location, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".dll"), true);
             if (!string.IsNullOrEmpty(strXaml)) System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".xaml"), strXaml);
         }
-
+        public void saveResByExt(string strXaml,string ext)
+        {
+            var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(AddinMetaAttribute));
+             System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext), strXaml);
+        }
         public static ScriptBaseViewModel GetViewModel(string addinAssemblyPath, string typeViewModel)
         {
             System.Reflection.Assembly addinAssembly = System.Reflection.Assembly.UnsafeLoadFrom(addinAssemblyPath);

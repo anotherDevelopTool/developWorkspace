@@ -126,7 +126,6 @@ namespace DevelopWorkspace.Main.View
                 propertygrid1 = Base.Utils.WPF.FindLogicaChild<PropertyGrid>(ribbonTabTool, "propertygrid1");
                 //basicInfoLabel = Base.Utils.WPF.FindLogicaChild<TwoLineLabel>(ribbonTabTool, "basicInfoLabel");
 
-
                 scriptConfig = JsonConfig<ScriptConfig>.load();
                 propertygrid1.SelectedObject = scriptConfig;
 
