@@ -278,6 +278,7 @@ public class Script
                 object[,] value2_copy = targetSheet.Range(targetSheet.Cells(1, 1), targetSheet.Cells(targetSheet.UsedRange.Rows.Count, targetSheet.UsedRange.Columns.Count)).Value2;
     
                 List<string> headerList = new List<string>();
+                List<Sale> sales = new List<Sale>();
                 //header
                 for (int iidx = 1; iidx < value2_copy.GetLength(1); iidx++) {
                     headerList.Add(value2_copy[1, iidx].ToString());
@@ -290,10 +291,15 @@ public class Script
                         System.Diagnostics.Debug.WriteLine(value2_copy[iidx, jjdx].ToString());
                         invokeSetByName(sale, headerList[jjdx-1], value2_copy[iidx, jjdx].ToString());
                     }
-                    var response = client.Index(sale, idx => idx.Index( slectetedIndex));
+                    //var response = client.Index(sale, idx => idx.Index( slectetedIndex));
+                    sales.Add(sale);
                     DevelopWorkspace.Base.Logger.WriteLine(iidx.ToString());
                     
                 }
+                //注意id没有设定
+                //如果有问题的话 参考这个链接 https://qiita.com/mino_s2000/items/191817f9d1d16320c478
+                var response = client.Bulk(idx => idx.Index( slectetedIndex).IndexMany(sales));
+
                 DevelopWorkspace.Base.Logger.WriteLine("Process called");
                 
                 var searchResults = client.Search<Sale>(s => s
