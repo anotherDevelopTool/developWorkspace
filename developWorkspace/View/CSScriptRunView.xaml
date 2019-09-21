@@ -27,7 +27,8 @@
           </Fluent:DropDownButton>
 
                 <Fluent:Button  Click="Button_Click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.execute.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.execute}" Icon="Images\run.png" LargeIcon="Images\run.png"/>
-          </Fluent:RibbonGroupBox>
+                <Fluent:Button  Click="Save_click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.execute.save.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.save}" Icon="Images\save.png" LargeIcon="Images\save.png"/>
+            </Fluent:RibbonGroupBox>
 
             <Fluent:RibbonGroupBox Header="{DynamicResource  script.lang.tools.ribbon.groupbox.setting}">
                 <Fluent:DropDownButton  ResizeMode="Both" Icon="Images\setting.png" LargeIcon="Images\script_setting.png">
@@ -281,15 +282,13 @@
     <heid:BusyDecorator x:Name="busy" BusyStyle="{StaticResource busyStyle}">
         <DockPanel LastChildFill="True">
             <Grid ShowGridLines="False">
-                <TabControl  TabStripPlacement="Left">
+                <TabControl  BorderThickness="0" TabStripPlacement="Left">
                     <TabControl.Resources>
                         <Style
-            TargetType="{x:Type TabItem}">
-                            <Setter
-                Property="Template">
+                            TargetType="{x:Type TabItem}">
+                            <Setter Property="Template">
                                 <Setter.Value>
-                                    <ControlTemplate
-                        TargetType="{x:Type TabItem}">
+                                    <ControlTemplate TargetType="{x:Type TabItem}">
                                         <Grid>
 
                                             <Border
@@ -405,7 +404,7 @@
                                ShowLineNumbers="True"
                                SyntaxHighlighting="C#"
                                HorizontalScrollBarVisibility="Auto" 
-                               VerticalScrollBarVisibility="Auto" FontFamily="Consolas" >
+                               VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas" >
 
                     </avalonEdit:EdiTextEditor>
 
@@ -417,7 +416,7 @@
                                ShowLineNumbers="True"
                                SyntaxHighlighting="XML"
                                HorizontalScrollBarVisibility="Auto" 
-                               VerticalScrollBarVisibility="Auto" Margin="5,5" FontFamily="Consolas">
+                               VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas">
 
                     </avalonEdit:EdiTextEditor>
                           </TabItem>
@@ -428,7 +427,7 @@
                                ShowLineNumbers="True"
                                SyntaxHighlighting="XML"
                                HorizontalScrollBarVisibility="Auto" 
-                               VerticalScrollBarVisibility="Auto" Margin="5,5" FontFamily="Consolas">
+                               VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas">
 
                     </avalonEdit:EdiTextEditor>
       </TabItem>

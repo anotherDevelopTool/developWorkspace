@@ -1171,21 +1171,28 @@ namespace DevelopWorkspace.Main.View
 
                         Regex regex = new Regex(@"^\s{0,}select\b", RegexOptions.IgnoreCase);
 
+                        string commandText = "";
+
                         if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText))
                         {
                             if(regex.Match(this.txtOutput.Text).Success)
-                                cmd.CommandText = $"select * from ({this.txtOutput.Text}) subquery where {limitCondition}";
+                                commandText = $"select * from ({this.txtOutput.Text}) subquery where {limitCondition}";
                             else
-                                cmd.CommandText = this.txtOutput.Text;
+                                commandText = this.txtOutput.Text;
 
                         }
                         else
                         {
                             if (regex.Match(this.txtOutput.SelectedText).Success)
-                                cmd.CommandText = $"select * from ({this.txtOutput.SelectedText}) subquery where {limitCondition}";
+                                commandText = $"select * from ({this.txtOutput.SelectedText}) subquery where {limitCondition}";
                             else
-                                cmd.CommandText = this.txtOutput.SelectedText;
+                                commandText = this.txtOutput.SelectedText;
                         }
+                        //有时从项目文件里取出的代码带有/*parameter*/的注解，为了能够无需删除它后方可执行的麻烦这里略作替换 
+                        //似乎用不上，属于SQL本身的语法
+                        //commandText = Regex.Replace(commandText, @"/\*.+?\*/", m => "", RegexOptions.IgnoreCase); // Append the rest of the match
+
+                        cmd.CommandText = commandText;
                         DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, Base.Level.DEBUG);
 
                         List<string> titleList = new List<string>();

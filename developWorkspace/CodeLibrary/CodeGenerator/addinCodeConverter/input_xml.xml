@@ -11,8 +11,8 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 
-  <StackPanel>
-    <TabControl   Height="600" TabStripPlacement="Left">
+  <Grid ShowGridLines="False">
+    <TabControl   Height="Auto" BorderThickness="0" TabStripPlacement="Left">
       <TabControl.Resources>
         <Style TargetType="{x:Type TabItem}">
           <Setter Property="Template">
@@ -118,6 +118,6 @@
       </TabItem>
 
     </TabControl>
-  </StackPanel>
+  </Grid>
 
 </UserControl>

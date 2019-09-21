@@ -52,6 +52,8 @@
             <system:String x:Key="script.lang.tools.ribbon.groupbox.select.hint">スクリプトを選択してください</system:String>
             <system:String x:Key="script.lang.tools.ribbon.groupbox.execute.hint">スクリプトを実行してください</system:String>
             <system:String x:Key="script.lang.tools.ribbon.groupbox.execute">実行</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.save.hint">保存</system:String>
+            <system:String x:Key="script.lang.tools.ribbon.groupbox.save">保存</system:String>
             <system:String x:Key="script.lang.tools.ribbon.groupbox.setting">設定</system:String>
         </ResourceDictionary>
     </Application.Resources>

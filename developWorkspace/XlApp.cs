@@ -901,8 +901,20 @@
                                         //这里主要时针对日期型如orale的date，timestamp类型，支持用户直接使用SYSDATE, CURRENT_TIMESTAMP内置函数
                                         if (!string.IsNullOrEmpty(dataTypeConditionList[iCol - 1].UpdateFormatString))
                                         {
-                                            if(Regex.Match(cellString, "[0-9]{4}").Success)
-                                                lstRowData.Add(dataTypeConditionList[iCol - 1].UpdateFormatString.FormatWith(new { ColumnValue = cellString }));
+                                            string updateFormatString = dataTypeConditionList[iCol - 1].UpdateFormatString;
+                                            if (Regex.Match(cellString, "^[0-9]{4}").Success)
+                                            {
+                                                //目前只做简单的格式不一致的变换（2019/09/21 -> 2019-09-21）
+                                                if (updateFormatString.IndexOf("/") > 0 && cellString.Length > 5 && cellString.IndexOf("-") > 0)
+                                                {
+                                                    cellString = cellString.Replace("-", "/");
+                                                }
+                                                else if (updateFormatString.IndexOf("-") > 0 && cellString.Length > 5 && cellString.IndexOf("/") > 0)
+                                                {
+                                                    cellString = cellString.Replace("/", "-");
+                                                }
+                                                lstRowData.Add(updateFormatString.FormatWith(new { ColumnValue = cellString }));
+                                            }
                                             else
                                                 lstRowData.Add(cellString);
                                         }

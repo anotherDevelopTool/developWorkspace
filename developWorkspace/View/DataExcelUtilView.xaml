@@ -647,7 +647,7 @@ x:Name="dataview"
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid ShowGridLines="False">
-        <TabControl Name="tabControl1" TabStripPlacement="Left" SelectionChanged="tabControl1_SelectionChanged">
+        <TabControl Name="tabControl1" TabStripPlacement="Left" BorderThickness="0" SelectionChanged="tabControl1_SelectionChanged">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabItem}">
                     <Setter Property="Template">
@@ -761,7 +761,7 @@ x:Name="dataview"
             </TabControl.Resources>
             <TabItem Name="tabItem1" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.schema}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.schema}">
                 <Grid>
-                    <ListView Name="trvFamilies"  ItemsSource="{Binding}" KeyDown="trvFamilies_KeyDown" SelectionMode="Single" SelectionChanged="trvFamilies_SelectionChanged">
+                    <ListView Name="trvFamilies"  ItemsSource="{Binding}" KeyDown="trvFamilies_KeyDown" BorderThickness="0" SelectionMode="Single" SelectionChanged="trvFamilies_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <EventSetter Event="KeyUp" Handler="trvFamilies_KeyDown"/>
@@ -930,6 +930,7 @@ x:Name="dataview"
                                    IsReadOnly="False" 
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
                         <avalonEdit:EdiTextEditor.ContextMenu>

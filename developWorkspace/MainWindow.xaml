@@ -466,7 +466,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Fluent:Ribbon Grid.Row="0" IsQuickAccessToolBarVisible="False" Margin="1,1,2,5"  AutomaticStateManagement="True" x:Name="ribbon" SelectedTabChanged="ribbon_SelectedTabChanged">
+                    <Fluent:Ribbon Grid.Row="0" IsQuickAccessToolBarVisible="False" Margin="1,1,2,0" BorderThickness="0"  AutomaticStateManagement="True" x:Name="ribbon" SelectedTabChanged="ribbon_SelectedTabChanged">
                         <Fluent:Ribbon.ToolBarItems>
                             <Fluent:Button Size="Small" Icon="Images\images-help.png" Click="about_Click">
                             </Fluent:Button>
@@ -591,7 +591,7 @@
                                    ActiveContent="{Binding ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}"
    								   behav:DropFileCommand.DropCommand="comm:AppCommand.LoadFile"
                                    AllowDrop="True"
-                                   Grid.Row="1" ActiveContentChanged="dockManager_ActiveContentChanged" Loaded="dockManager_Loaded" Initialized="dockManager_Initialized" LayoutChanged="dockManager_LayoutChanged">
+                                   Grid.Row="1" Margin="1,0,1,0" BorderThickness="0" ActiveContentChanged="dockManager_ActiveContentChanged" Loaded="dockManager_Loaded" Initialized="dockManager_Initialized" LayoutChanged="dockManager_LayoutChanged">
 
                         <avalonDock:DockingManager.Theme>
                             <avalonDock:GenericTheme/>

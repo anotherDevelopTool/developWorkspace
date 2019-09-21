@@ -87,6 +87,8 @@ namespace DevelopWorkspace.Main.View
         TwoLineLabel basicInfoLabel;
         ScriptConfig scriptConfig;
         PaneViewModel model;
+        DataSet selectedScriptDataSet;
+        string selectedScriptPath;
         public CSScriptRunView()
         {
             //BusyWorkServiceの外側で処理を入れる場合、this.DataContextがうまく取得できない場合があるので要注意
@@ -683,8 +685,8 @@ public class Script
                 config.Path = (item.Tag as FileInfo).Directory.ToString();
                 //Load Script
                 System.IO.StringReader xmlReader = new System.IO.StringReader(System.IO.File.ReadAllText((item.Tag as FileInfo).FullName));
-                DataSet dataSet = new DataSet();
-                dataSet.ReadXml(xmlReader);
+                selectedScriptDataSet = new DataSet();
+                selectedScriptDataSet.ReadXml(xmlReader);
                 //if (dataSet.Tables["run"].Columns.Contains("appdomain"))
                 //{
                 //    appdomainMode = dataSet.Tables["run"].Rows[0]["appdomain"].ToString();
@@ -695,9 +697,10 @@ public class Script
                 //        config.AppDomain = Main.EngineDomain.shared;
                 //    }
                 //}
-                foreach (System.Data.DataRow codeBlk in dataSet.Tables["codeBlock"].Rows)
+                selectedScriptPath = (item.Tag as FileInfo).Directory.FullName;
+                foreach (System.Data.DataRow codeBlk in selectedScriptDataSet.Tables["codeBlock"].Rows)
                 {
-                    this[Convert.ToInt16(codeBlk["row"]), Convert.ToInt16(codeBlk["col"])] = System.IO.File.ReadAllText((item.Tag as FileInfo).Directory + @"\" + codeBlk["file"].ToString());
+                    this[Convert.ToInt16(codeBlk["row"]), Convert.ToInt16(codeBlk["col"])] = System.IO.File.ReadAllText(selectedScriptPath + @"\" + codeBlk["file"].ToString());
                 }
                 if (config.ScriptLanguage == Main.Language.csharp)
                 {
@@ -727,7 +730,24 @@ public class Script
             }
         }
 
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
 
+        }
 
+        private void Save_click(object sender, RoutedEventArgs e)
+        {
+            if (selectedScriptDataSet == null) return;
+            foreach (System.Data.DataRow codeBlk in selectedScriptDataSet.Tables["codeBlock"].Rows)
+            {
+                string writtingfile = System.IO.Path.Combine(selectedScriptPath, codeBlk["file"].ToString());
+                string writtingContent = this[Convert.ToInt16(codeBlk["row"]), Convert.ToInt16(codeBlk["col"])];
+                if (string.IsNullOrWhiteSpace(writtingContent)) { }
+                else
+                {
+                    System.IO.File.WriteAllText(writtingfile, writtingContent);
+                }
+            }
+        }
     }
 }
