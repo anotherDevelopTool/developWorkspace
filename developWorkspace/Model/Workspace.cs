@@ -149,19 +149,26 @@
 
         private void OnLoad(object parameter)
         {
-            List< ScriptBaseViewModel> scripts = ScriptBaseViewModel.ScanAddins();
-            foreach (ScriptBaseViewModel script in scripts) {
-                var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(script.GetType(), typeof(AddinMetaAttribute));
-                if (classAttribute != null)
-                {
-                    script.Title = classAttribute.Name;
-                }
-                SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, classAttribute.Red, classAttribute.Green, classAttribute.Blue));
-                script.ThemeColorBrush = brush;
-                script.IsActive = true;
-                _files.Add(script);
-                ActiveDocument = script;
-            }
+            // 主程序初始化时做遍历并在反映到ribbon上
+            //List< ScriptBaseViewModel> scripts = ScriptBaseViewModel.ScanAddins();
+            //foreach (ScriptBaseViewModel script in scripts) {
+            //    var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(script.GetType(), typeof(AddinMetaAttribute));
+            //    if (classAttribute != null)
+            //    {
+            //        script.Title = classAttribute.Name;
+            //    }
+            //    SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, classAttribute.Red, classAttribute.Green, classAttribute.Blue));
+            //    script.ThemeColorBrush = brush;
+            //    script.IsActive = true;
+            //    _files.Add(script);
+            //    ActiveDocument = script;
+            //}
+            AddinMetaAttribute attribute = parameter as AddinMetaAttribute;
+            ScriptBaseViewModel instance = ScriptBaseViewModel.LoadViewModel(attribute);
+            instance.IsActive = true;
+            instance.Title = attribute.Name;
+            _files.Add(instance);
+            ActiveDocument = instance;
         }
 
         #endregion

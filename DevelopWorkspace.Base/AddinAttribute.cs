@@ -15,6 +15,7 @@ namespace DevelopWorkspace.Base
         public string Name { get; set; }
         public string Date { get; set; }
         public string Description { get; set; }
+        public string LargeIcon { get; set; }
         public byte Red {
             get { return red; }
             set { red = value; } }

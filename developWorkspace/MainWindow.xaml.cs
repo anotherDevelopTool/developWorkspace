@@ -17,6 +17,12 @@ using Fluent;
 
 using Button = Fluent.Button;
 using System.Linq.Expressions;
+using System.IO;
+using System.Windows.Media.Imaging;
+using DevelopWorkspace.Base.Model;
+using System.Collections.Generic;
+using DevelopWorkspace.Main.Model;
+using System.Windows.Controls.Primitives;
 
 namespace DevelopWorkspace.Main
 {
@@ -87,6 +93,7 @@ namespace DevelopWorkspace.Main
 
         public event RibbonSelectionChangeEventHandler ribbonSelectionChangeEvent;
         public event WorksheetActiveChangeEventHandler WorksheetActiveChangeEvent;
+
         
 
         System.Timers.Timer excelWatchTimer = null;
@@ -285,7 +292,7 @@ namespace DevelopWorkspace.Main
 
             ribbonSelectionChangeEvent += new RibbonSelectionChangeEventHandler(RibbonSelectionChangeEventFunc);
             WorksheetActiveChangeEvent += MainWindow_WorksheetActiveChangeEvent;
-
+            ScriptBaseViewModel.AddinInstalledEvent += MainWindow_AddinInstalledEvent;
             //Excel切换监视
             if (AppConfig.SysConfig.This.WatchExcelActivity)
             {
@@ -325,8 +332,40 @@ namespace DevelopWorkspace.Main
                 Application.Current.Resources.Add(message.MessageId, message.Content);
             }
 
+            // addins
+            List<AddinMetaAttribute> addinsAttribute = ScriptBaseViewModel.ScanAddinsJson();
+            foreach (var attribute in addinsAttribute) {
+                Button addin = new Button();
+                addin.Header = attribute.Name;
+                addin.ToolTip = attribute.Description;
+                string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon + ".png");
+                if (File.Exists(iconfile))
+                {
+                    var uri = new Uri(iconfile);
+                    addin.LargeIcon = new BitmapImage(uri);
+                }
+                else
+                {
+                    try
+                    {
+                        var resourceString = "/DevelopWorkspace;component/Images/" + ( string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon ) + ".png";
+                        addin.LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
 
+                this.tools.Items.Add(addin);
 
+                addin.Command = (this.DataContext as Workspace).LoadAddinCommand;
+                //This sets a binding that binds the 'Name' property in PersonViewModel
+                //Leave constructor parameter emtpy to bind to the object itself i.e. new Binding() { Source = Person }; will bind to person
+                //var binding = new Binding(nameof(PersonViewModel.Name)) { Source = person };
+                var binding = new Binding() { Source = attribute };
+                //This sets the binding to the button and button CommandParameterProperty
+                var bindingExpression = BindingOperations.SetBinding(addin, ButtonBase.CommandParameterProperty, binding);
+            }
 
             //2019/03/15
             Base.Services.cancelLongTimeTask = this.cancelLongTimeTask;
@@ -363,6 +402,44 @@ namespace DevelopWorkspace.Main
             {
                 System.Windows.Application.Current.Shutdown();
             }
+        }
+
+        private void MainWindow_AddinInstalledEvent(object sender, AddinInstalledEventArgs e)
+        {
+            AddinMetaAttribute attribute = e.MetaAttriute;
+            Button selectedButton = null;
+            foreach(Fluent.Button button in this.tools.Items) {
+                if (button.Header.Equals(attribute.Name)) {
+                    selectedButton = button;
+                    break;
+                }
+            }
+            if (selectedButton == null) {
+                selectedButton = new Button();
+                this.tools.Items.Add(selectedButton);
+            }
+            selectedButton.Header = attribute.Name;
+            selectedButton.ToolTip = attribute.Description;
+            string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon + ".png");
+            if (File.Exists(iconfile))
+            {
+                var uri = new Uri(iconfile);
+                selectedButton.LargeIcon = new BitmapImage(uri);
+            }
+            else
+            {
+                try
+                {
+                    var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon) + ".png";
+                    selectedButton.LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+            selectedButton.Command = (this.DataContext as Workspace).LoadAddinCommand;
+            var binding = new Binding() { Source = attribute };
+            var bindingExpression = BindingOperations.SetBinding(selectedButton, ButtonBase.CommandParameterProperty, binding);
         }
 
         private void MainWindow_WorksheetActiveChangeEvent(object sender, WorksheetActiveChangeEventArgs e)

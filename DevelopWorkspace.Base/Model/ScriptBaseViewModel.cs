@@ -7,6 +7,8 @@
     using System.Windows.Controls;
     using System.Reflection;
     using System.IO;
+    using Newtonsoft.Json;
+    using System.Text;
 
     /// <summary>
     /// Base class that shares common properties, methods, and intefaces
@@ -15,11 +17,12 @@
     /// </summary>
     public abstract class ScriptBaseViewModel : PaneViewModel
     {
-        
         abstract public UserControl getView(string strXaml);
         //abstract public UserControl getView();
         //abstract public void install(string strXaml);
         //
+        public static event AddinInstalledEventHandler AddinInstalledEvent;
+
         public UserControl getView()
         {
             var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(AddinMetaAttribute));
@@ -53,8 +56,12 @@
         {
             
             var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(AddinMetaAttribute));
-            System.IO.File.Copy(this.GetType().Assembly.Location, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".dll"), true);
+            File.Copy(this.GetType().Assembly.Location, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".dll"), true);
+            string json = JsonConvert.SerializeObject(classAttribute, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".json"), json);
             if (!string.IsNullOrEmpty(strXaml)) System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + ".xaml"), strXaml);
+            AddinInstalledEvent(null, new AddinInstalledEventArgs(classAttribute));
+
         }
         public void saveResByExt(string strXaml,string ext)
         {
@@ -68,7 +75,14 @@
             System.Reflection.ConstructorInfo ctorViewModel = typViewModel.GetConstructor(Type.EmptyTypes);
             return ctorViewModel.Invoke(new Object[] { }) as ScriptBaseViewModel;
         }
-
+        public static ScriptBaseViewModel LoadViewModel(AddinMetaAttribute attribute)
+        {
+            string addinAssemblyPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins",attribute.Name + ".dll");
+            System.Reflection.Assembly addinAssembly = System.Reflection.Assembly.LoadFrom(addinAssemblyPath);
+            var currentType = addinAssembly.GetTypes().Where(t => t != typeof(ScriptBaseViewModel) && typeof(ScriptBaseViewModel).IsAssignableFrom(t)).First();
+            System.Reflection.ConstructorInfo ctorViewModel = currentType.GetConstructor(Type.EmptyTypes);
+            return ctorViewModel.Invoke(new Object[] { }) as ScriptBaseViewModel;
+        }
         public static List<ScriptBaseViewModel> ScanAddins()
         {
             string addinScanPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"addins");
@@ -98,7 +112,20 @@
             }
             return listType;
         }
+        public static List<AddinMetaAttribute> ScanAddinsJson()
+        {
+            string addinScanPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins");
+            var addinJsonList = System.IO.Directory.EnumerateFiles(addinScanPath, "*.json", System.IO.SearchOption.TopDirectoryOnly);
+            List<AddinMetaAttribute> listType = new List<AddinMetaAttribute>();
 
+            foreach (string currentJson in addinJsonList)
+            {
+                string json = File.ReadAllText(currentJson, Encoding.UTF8);
+                AddinMetaAttribute attribute = (AddinMetaAttribute)JsonConvert.DeserializeObject(json, typeof(AddinMetaAttribute));
+                listType.Add(attribute);
+            }
+            return listType;
+        }
 
 
     }

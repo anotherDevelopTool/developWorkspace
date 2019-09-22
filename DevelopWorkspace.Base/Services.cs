@@ -31,8 +31,18 @@ namespace DevelopWorkspace.Base
             TableName = tableName;
         }
     }
+    public class AddinInstalledEventArgs : System.EventArgs
+    {
+        public AddinMetaAttribute MetaAttriute { get; set; }
+        public AddinInstalledEventArgs(AddinMetaAttribute attribute)
+        {
+            MetaAttriute = attribute;
+        }
+    }
     public delegate void RibbonSelectionChangeEventHandler(object sender, RibbonSelectionChangeEventArgs e);
     public delegate void WorksheetActiveChangeEventHandler(object sender, WorksheetActiveChangeEventArgs e);
+    public delegate void AddinInstalledEventHandler(object sender, AddinInstalledEventArgs e);
+
     public abstract class Services
     {
 
