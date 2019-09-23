@@ -382,28 +382,40 @@ namespace DevelopWorkspace.Main
 
             backgroundWorker.RunWorkerAsync();
 
-            //todo trial version
-            string passFile = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.password");
-            string trialInfo = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.trial");
+            ////todo trial version
+            //string passFile = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.password");
+            //string trialInfo = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.trial");
 
-            SoftwareLocker.TrialMaker t = new SoftwareLocker.TrialMaker("DevelopWorkspace", passFile,
-                trialInfo,
-                "Wechat:catsamurai\nMobile: CN +86-13664256548\ne-mail:xujingjiang@outlook.com",
-                90, 210, "745");
+            //SoftwareLocker.TrialMaker t = new SoftwareLocker.TrialMaker("DevelopWorkspace", passFile,
+            //    trialInfo,
+            //    "Wechat:catsamurai\nMobile: CN +86-13664256548\ne-mail:xujingjiang@outlook.com",
+            //    90, 210, "745");
 
-            byte[] MyOwnKey = { 97, 250, 1, 5, 84, 21, 7, 63,
-            4, 54, 87, 56, 123, 10, 3, 62,
-            7, 9, 20, 36, 37, 21, 101, 57};
-            t.TripleDESKey = MyOwnKey;
+            //byte[] MyOwnKey = { 97, 250, 1, 5, 84, 21, 7, 63,
+            //4, 54, 87, 56, 123, 10, 3, 62,
+            //7, 9, 20, 36, 37, 21, 101, 57};
+            //t.TripleDESKey = MyOwnKey;
 
-            SoftwareLocker.TrialMaker.RunTypes RT = t.ShowDialog();
-            bool is_trial;
-            if (RT == SoftwareLocker.TrialMaker.RunTypes.Expired)
+            //SoftwareLocker.TrialMaker.RunTypes RT = t.ShowDialog();
+            //bool is_trial;
+            //if (RT == SoftwareLocker.TrialMaker.RunTypes.Expired)
+            //{
+            //    System.Windows.Application.Current.Shutdown();
+            //}
+
+        }
+        private static bool CanLoadResource(Uri uri)
+        {
+            try
             {
-                System.Windows.Application.Current.Shutdown();
+                Application.GetResourceStream(uri);
+                return true;
+            }
+            catch (IOException)
+            {
+                return false;
             }
         }
-
         private void MainWindow_AddinInstalledEvent(object sender, AddinInstalledEventArgs e)
         {
             AddinMetaAttribute attribute = e.MetaAttriute;
@@ -420,8 +432,8 @@ namespace DevelopWorkspace.Main
             }
             selectedButton.Header = attribute.Name;
             selectedButton.ToolTip = attribute.Description;
-            string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon + ".png");
-            if (File.Exists(iconfile))
+            string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", attribute.LargeIcon + ".png");
+            if (!string.IsNullOrEmpty(attribute.LargeIcon) && File.Exists(iconfile))
             {
                 var uri = new Uri(iconfile);
                 selectedButton.LargeIcon = new BitmapImage(uri);
@@ -431,7 +443,13 @@ namespace DevelopWorkspace.Main
                 try
                 {
                     var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon) + ".png";
-                    selectedButton.LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                    if (CanLoadResource(new Uri(resourceString, UriKind.Relative)))
+                    {
+                        selectedButton.LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                    }
+                    else {
+                        selectedButton.LargeIcon = new BitmapImage(new Uri("/DevelopWorkspace;component/Images/plugin.png", UriKind.Relative));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -698,17 +716,26 @@ namespace DevelopWorkspace.Main
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            AppConfig.SysConfig.This.Top = this.Top;
-            AppConfig.SysConfig.This.Left = this.Left;
-            AppConfig.SysConfig.This.Height = this.Height;
-            AppConfig.SysConfig.This.Width = this.Width;
-            AppConfig.SysConfig.This.Maximized = false;
-            AppConfig.JsonConfig<AppConfig.SysConfig>.flush(AppConfig.SysConfig.This);
-            if(AppConfig.DatabaseConfig.This !=null) AppConfig.JsonConfig<AppConfig.DatabaseConfig>.flush(AppConfig.DatabaseConfig.This);
+            try
+            {
+                AppConfig.SysConfig.This.Top = this.Top;
+                AppConfig.SysConfig.This.Left = this.Left;
+                AppConfig.SysConfig.This.Height = this.Height;
+                AppConfig.SysConfig.This.Width = this.Width;
+                AppConfig.SysConfig.This.Maximized = false;
+                AppConfig.JsonConfig<AppConfig.SysConfig>.flush(AppConfig.SysConfig.This);
+                if (AppConfig.DatabaseConfig.This != null) AppConfig.JsonConfig<AppConfig.DatabaseConfig>.flush(AppConfig.DatabaseConfig.This);
 
-            //
-            if(excelWatchTimer != null ) excelWatchTimer.Enabled = false;
-            UnInstallExcelWatch();
+                //
+                if (excelWatchTimer != null) excelWatchTimer.Enabled = false;
+                UnInstallExcelWatch();
+
+                this.busy.Shutdown();
+                Dispatcher.InvokeShutdown();
+            }
+            catch (Exception ex) {
+
+            }
         }
 
         private void ribbon_SelectedTabChanged(object sender, SelectionChangedEventArgs e)

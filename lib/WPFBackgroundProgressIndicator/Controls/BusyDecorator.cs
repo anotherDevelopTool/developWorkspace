@@ -58,7 +58,10 @@ namespace Heidesoft.Components.Controls
         //进度信息显示
         public void SetIndicator(string indicatorMessage) {
             BackgroundVisualHost.SetIndicator(this, indicatorMessage);
-
+        }
+        public void Shutdown()
+        {
+            BackgroundVisualHost.Shutdown(this);
         }
         static void OnIsShowingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

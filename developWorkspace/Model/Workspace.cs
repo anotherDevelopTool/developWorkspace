@@ -165,6 +165,8 @@
             //}
             AddinMetaAttribute attribute = parameter as AddinMetaAttribute;
             ScriptBaseViewModel instance = ScriptBaseViewModel.LoadViewModel(attribute);
+            SolidColorBrush brush = new SolidColorBrush(Color.FromArgb(180, attribute.Red, attribute.Green, attribute.Blue));
+            instance.ThemeColorBrush = brush;
             instance.IsActive = true;
             instance.Title = attribute.Name;
             _files.Add(instance);

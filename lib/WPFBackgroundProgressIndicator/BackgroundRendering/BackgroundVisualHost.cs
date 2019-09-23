@@ -89,7 +89,16 @@ namespace Heidesoft.Components.BackgroundRendering
             if (host == null) return;
             host.SetIndicator(indicatorMessage);
         }
+        //进度信息显示
+        internal static void Shutdown(UIElement element)
+        {
+            var root = element.VisualAncestors().OfType<UIElement>().LastOrDefault();
+            if (root == null) return;
 
+            var host = GetBackgroundHost(root);
+            if (host == null) return;
+            host.Shutdown();
+        }
         //从VisualTree中寻找特定的UIelement
         public static T FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
         {
@@ -367,6 +376,10 @@ namespace Heidesoft.Components.BackgroundRendering
                     //else blk.Width = 360;
                     blk.Text = indicatorMessage;
                 });
+            }
+            internal void Shutdown()
+            {
+                backgroundDispatcher.InvokeShutdown();
             }
             //TODO 2019/3/14 根据字符串的长度自动调整宽度
             private Size MeasureString(string candidate, TextBlock blk)

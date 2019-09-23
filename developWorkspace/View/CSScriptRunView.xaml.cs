@@ -89,6 +89,7 @@ namespace DevelopWorkspace.Main.View
         PaneViewModel model;
         DataSet selectedScriptDataSet;
         string selectedScriptPath;
+        DropDownButton popupSelectScript;
         public CSScriptRunView()
         {
             //BusyWorkServiceの外側で処理を入れる場合、this.DataContextがうまく取得できない場合があるので要注意
@@ -114,6 +115,7 @@ namespace DevelopWorkspace.Main.View
                 Base.Services.RegRibbon(this.DataContext as Base.Model.PaneViewModel, new List<object> { ribbonTabTool });
                 model = this.DataContext as Base.Model.PaneViewModel;
                 Base.Services.ActiveModel = this.DataContext as Base.Model.PaneViewModel;
+                popupSelectScript = Base.Utils.WPF.FindLogicaChild<DropDownButton> (ribbonTabTool, "popupSelectScript");
                 codeLibraryTreeView = Base.Utils.WPF.FindLogicaChild<TreeView>(ribbonTabTool, "codeLibraryTreeView");
                 StartupSetting startup = AppDomain.CurrentDomain.GetData("StartupSetting") as StartupSetting;
                 DirectoryInfo codeLibrary = new DirectoryInfo(System.IO.Path.Combine(startup.homeDir, "CodeLibrary"));
@@ -321,9 +323,6 @@ public class Script
                             if (ex.StackTrace != null) DevelopWorkspace.Base.Logger.WriteLine(ex.StackTrace, Level.ERROR);
                         }
                     }
-                    busy.IsBusyIndicatorShowing = false;
-                    busy.ClearValue(BusyDecorator.FadeTimeProperty);
-
                 });
             }
         }
@@ -406,8 +405,6 @@ public class Script
                     {
                         DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Level.ERROR);
                     }
-                    busy.IsBusyIndicatorShowing = false;
-                    busy.ClearValue(BusyDecorator.FadeTimeProperty);
                 });
             }
         }
@@ -453,8 +450,6 @@ public class Script
                     {
                         DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Level.ERROR);
                     }
-                    busy.IsBusyIndicatorShowing = false;
-                    busy.ClearValue(BusyDecorator.FadeTimeProperty);
                });
             }
         }
@@ -462,129 +457,128 @@ public class Script
         //C#,java支持(TODO)
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            try
+            Base.Services.BusyWorkService(new Action(() =>
             {
-                busy.FadeTime = TimeSpan.Zero;
-                busy.IsBusyIndicatorShowing = true;
-                // in order for setting the opacity to take effect, you have to delay the task slightly to ensure WPF has time to process the updated visual
-                #region
-                //Dispatcher.BeginInvoke(new Action(() =>
-                //{
-                //    if (appdomainMode == "SINGLE")
-                //    {
-                //        //2017.5.27 appdomain对应
-                //        Object obj = singleAppDomain.CreateInstanceAndUnwrap(typeof(ScriptExecutor).Assembly.FullName, typeof(ScriptExecutor).FullName);
-                //        Type type = obj.GetType();
-                //        MethodInfo method = type.GetMethod("executeScript");
-                //        string[,] inputs = new string[2, 3];
-                //        inputs[1, 1] = this[1, 1];
-                //        inputs[1, 2] = this[1, 2];
-                //        try
-                //        {
-                //            method.Invoke(obj, new object[] { ScriptContent.Text, inputs });
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
-                //            DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message);
-                //        }
-                //        finally
-                //        {
-                //            //卸载appdomain，什么时候更合适需要斟酌
-                //            //AppDomain.Unload(MySampleDomain);
-                //        }
-                //    }
-                //    else if (appdomainMode == "REQUESTED")
-                //    {
-                //        //利用appdoman的特性来隔离脚本的执行环境，防止主appdomain的程序及随着执行脚本是不断在如程序集但是得不到及时地卸载等问题
-                //        //隔离后主appdomain内的对象在新的appdomain都不能直接使用 
-                //        //脚本内打断点可以使用主动调用System.Diagnostics.Debugger.Break();
-                //        AppDomainSetup setup = new AppDomainSetup();
-                //        setup.ApplicationName = "ApplicationLoader";
-                //        setup.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
-                //        StartupSetting startup = AppDomain.CurrentDomain.GetData("StartupSetting") as StartupSetting;
-
-                //        setup.PrivateBinPath = startup.searchDirs.Aggregate((total, next) => total + ";" + next);
-                //        setup.CachePath = setup.ApplicationBase;
-                //        //setup.ShadowCopyFiles = "true";
-                //        //setup.ShadowCopyDirectories = setup.ApplicationBase;
-                //        //AppDomain.CurrentDomain.SetShadowCopyFiles();
-                //        AppDomain requestedDomain = AppDomain.CreateDomain("requestedDomain", new System.Security.Policy.Evidence(), setup);
-
-                //        //为了全局的logger对象可以在所有的appdomain内都可以参照到使用setdata/getdata,注意这个对象需要继承MarshalByRefObject
-                //        requestedDomain.SetData("logger", AppDomain.CurrentDomain.GetData("logger"));
-                //        requestedDomain.SetData("StartupSetting", AppDomain.CurrentDomain.GetData("StartupSetting"));
-                //        requestedDomain.AssemblyResolve += new ResolveEventHandler(App.CurrentDomain_AssemblyResolve);
-                //        //2017.5.27 appdomain对应
-                //        Object obj = requestedDomain.CreateInstanceAndUnwrap(typeof(ScriptExecutor).Assembly.FullName, typeof(ScriptExecutor).FullName);
-
-                //        Type type = obj.GetType();
-                //        MethodInfo method = type.GetMethod("executeScript");
-                //        string[,] inputs = new string[2, 3];
-                //        inputs[1, 1] = this[1, 1];
-                //        inputs[1, 2] = this[1, 2];
-                //        try
-                //        {
-                //            method.Invoke(obj, new object[] { ScriptContent.Text, inputs });
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
-                //            DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message);
-                //        }
-                //        finally
-                //        {
-                //            //卸载appdomain，什么时候更合适需要斟酌
-                //            AppDomain.Unload(requestedDomain);
-                //        }
-                //    }
-                //    else//(appdomainMode == "SHARED")
-                //    {
-                //        try
-                //        {
-                //            StartupSetting startup = AppDomain.CurrentDomain.GetData("StartupSetting") as StartupSetting;
-
-                //            CSScript.GlobalSettings.SearchDirs = startup.searchDirs.Aggregate((total, next) => total + ";" + next);
-
-                //            foreach (var dir in startup.searchDirs)
-                //            {
-                //                CSScript.GlobalSettings.AddSearchDir(dir);
-                //            }
-
-                //            AsmHelper scriptAsm = new AsmHelper(CSScript.LoadCode(ScriptContent.Text, null, false));
-                //            scriptAsm.Invoke("Script.Main", this);
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
-                //        }
-                //    }
-
-                //    busy.IsBusyIndicatorShowing = false;
-                //    busy.ClearValue(BusyDecorator.FadeTimeProperty);
-                //}), DispatcherPriority.Background);
-                #endregion
-                ScriptConfig latestConfig = propertygrid1.SelectedObject as ScriptConfig;
-                if(latestConfig.ScriptLanguage == Main.Language.csharp){
-                    Dispatcher.BeginInvoke(actionCSharpScript, DispatcherPriority.Background);
-                }
-                else if (latestConfig.ScriptLanguage == Main.Language.java)
+                try
                 {
-                    Dispatcher.BeginInvoke(actionJavaScript, DispatcherPriority.Background);
-                }
-                else if (latestConfig.ScriptLanguage == Main.Language.javascript)
-                {
-                    Dispatcher.BeginInvoke(actionNodeJsScript, DispatcherPriority.Background);
-                }
+                    // in order for setting the opacity to take effect, you have to delay the task slightly to ensure WPF has time to process the updated visual
+                    #region
+                    //Dispatcher.BeginInvoke(new Action(() =>
+                    //{
+                    //    if (appdomainMode == "SINGLE")
+                    //    {
+                    //        //2017.5.27 appdomain对应
+                    //        Object obj = singleAppDomain.CreateInstanceAndUnwrap(typeof(ScriptExecutor).Assembly.FullName, typeof(ScriptExecutor).FullName);
+                    //        Type type = obj.GetType();
+                    //        MethodInfo method = type.GetMethod("executeScript");
+                    //        string[,] inputs = new string[2, 3];
+                    //        inputs[1, 1] = this[1, 1];
+                    //        inputs[1, 2] = this[1, 2];
+                    //        try
+                    //        {
+                    //            method.Invoke(obj, new object[] { ScriptContent.Text, inputs });
+                    //        }
+                    //        catch (Exception ex)
+                    //        {
+                    //            DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
+                    //            DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message);
+                    //        }
+                    //        finally
+                    //        {
+                    //            //卸载appdomain，什么时候更合适需要斟酌
+                    //            //AppDomain.Unload(MySampleDomain);
+                    //        }
+                    //    }
+                    //    else if (appdomainMode == "REQUESTED")
+                    //    {
+                    //        //利用appdoman的特性来隔离脚本的执行环境，防止主appdomain的程序及随着执行脚本是不断在如程序集但是得不到及时地卸载等问题
+                    //        //隔离后主appdomain内的对象在新的appdomain都不能直接使用 
+                    //        //脚本内打断点可以使用主动调用System.Diagnostics.Debugger.Break();
+                    //        AppDomainSetup setup = new AppDomainSetup();
+                    //        setup.ApplicationName = "ApplicationLoader";
+                    //        setup.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
+                    //        StartupSetting startup = AppDomain.CurrentDomain.GetData("StartupSetting") as StartupSetting;
 
-            }
-            catch (Exception ex)
-            {
-                DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
-                DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message, Level.ERROR);
-            }
+                    //        setup.PrivateBinPath = startup.searchDirs.Aggregate((total, next) => total + ";" + next);
+                    //        setup.CachePath = setup.ApplicationBase;
+                    //        //setup.ShadowCopyFiles = "true";
+                    //        //setup.ShadowCopyDirectories = setup.ApplicationBase;
+                    //        //AppDomain.CurrentDomain.SetShadowCopyFiles();
+                    //        AppDomain requestedDomain = AppDomain.CreateDomain("requestedDomain", new System.Security.Policy.Evidence(), setup);
+
+                    //        //为了全局的logger对象可以在所有的appdomain内都可以参照到使用setdata/getdata,注意这个对象需要继承MarshalByRefObject
+                    //        requestedDomain.SetData("logger", AppDomain.CurrentDomain.GetData("logger"));
+                    //        requestedDomain.SetData("StartupSetting", AppDomain.CurrentDomain.GetData("StartupSetting"));
+                    //        requestedDomain.AssemblyResolve += new ResolveEventHandler(App.CurrentDomain_AssemblyResolve);
+                    //        //2017.5.27 appdomain对应
+                    //        Object obj = requestedDomain.CreateInstanceAndUnwrap(typeof(ScriptExecutor).Assembly.FullName, typeof(ScriptExecutor).FullName);
+
+                    //        Type type = obj.GetType();
+                    //        MethodInfo method = type.GetMethod("executeScript");
+                    //        string[,] inputs = new string[2, 3];
+                    //        inputs[1, 1] = this[1, 1];
+                    //        inputs[1, 2] = this[1, 2];
+                    //        try
+                    //        {
+                    //            method.Invoke(obj, new object[] { ScriptContent.Text, inputs });
+                    //        }
+                    //        catch (Exception ex)
+                    //        {
+                    //            DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
+                    //            DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message);
+                    //        }
+                    //        finally
+                    //        {
+                    //            //卸载appdomain，什么时候更合适需要斟酌
+                    //            AppDomain.Unload(requestedDomain);
+                    //        }
+                    //    }
+                    //    else//(appdomainMode == "SHARED")
+                    //    {
+                    //        try
+                    //        {
+                    //            StartupSetting startup = AppDomain.CurrentDomain.GetData("StartupSetting") as StartupSetting;
+
+                    //            CSScript.GlobalSettings.SearchDirs = startup.searchDirs.Aggregate((total, next) => total + ";" + next);
+
+                    //            foreach (var dir in startup.searchDirs)
+                    //            {
+                    //                CSScript.GlobalSettings.AddSearchDir(dir);
+                    //            }
+
+                    //            AsmHelper scriptAsm = new AsmHelper(CSScript.LoadCode(ScriptContent.Text, null, false));
+                    //            scriptAsm.Invoke("Script.Main", this);
+                    //        }
+                    //        catch (Exception ex)
+                    //        {
+                    //            DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
+                    //        }
+                    //    }
+
+                    //    busy.IsBusyIndicatorShowing = false;
+                    //    busy.ClearValue(BusyDecorator.FadeTimeProperty);
+                    //}), DispatcherPriority.Background);
+                    #endregion
+                    ScriptConfig latestConfig = propertygrid1.SelectedObject as ScriptConfig;
+                    if(latestConfig.ScriptLanguage == Main.Language.csharp){
+                        actionCSharpScript();
+                    }
+                    else if (latestConfig.ScriptLanguage == Main.Language.java)
+                    {
+                        actionJavaScript();
+                    }
+                    else if (latestConfig.ScriptLanguage == Main.Language.javascript)
+                    {
+                        actionNodeJsScript();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
+                    DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message, Level.ERROR);
+                }
+            }));
         }
-
         private void run_MouseEnter(object sender, MouseEventArgs e)
         {
             //popLink.IsOpen = true;
@@ -596,72 +590,75 @@ public class Script
         }
         private void loadCodeLibraryTree(System.IO.DirectoryInfo root, ItemsControl treeView, bool bRoot)
         {
-            ItemsControl treeViewItem = null;
-            if (bRoot == true)
+            Base.Services.BusyWorkService(new Action(() =>
             {
-                treeViewItem = treeView;
-            }
-            else
-            {
-                treeViewItem = new TreeViewItem();
-                (treeViewItem as TreeViewItem).Header = root.Name;
-                treeView.Items.Add(treeViewItem);
-            }
+                ItemsControl treeViewItem = null;
+                if (bRoot == true)
+                {
+                    treeViewItem = treeView;
+                }
+                else
+                {
+                    treeViewItem = new TreeViewItem();
+                    (treeViewItem as TreeViewItem).Header = root.Name;
+                    treeView.Items.Add(treeViewItem);
+                }
 
-            System.IO.FileInfo[] files = null;
-            System.IO.DirectoryInfo[] subDirs = null;
+                System.IO.FileInfo[] files = null;
+                System.IO.DirectoryInfo[] subDirs = null;
 
-            // First, process all the files directly under this folder
-            try
-            {
-                files = root.GetFiles("setting.xml");
-            }
-            // This is thrown if even one of the files requires permissions greater
-            // than the application provides.
-            //catch (UnauthorizedAccessException e)
-            //{
-            // This code just writes out the message and continues to recurse.
-            // You may decide to do something different here. For example, you
-            // can try to elevate your privileges and access the file again.
-            //log.Add(e.Message);
-            //}
+                // First, process all the files directly under this folder
+                try
+                {
+                    files = root.GetFiles("setting.xml");
+                }
+                // This is thrown if even one of the files requires permissions greater
+                // than the application provides.
+                //catch (UnauthorizedAccessException e)
+                //{
+                // This code just writes out the message and continues to recurse.
+                // You may decide to do something different here. For example, you
+                // can try to elevate your privileges and access the file again.
+                //log.Add(e.Message);
+                //}
 
-            catch (System.IO.DirectoryNotFoundException e)
-            {
-                //Console.WriteLine(e.Message);
-            }
+                catch (System.IO.DirectoryNotFoundException e)
+                {
+                    //Console.WriteLine(e.Message);
+                }
 
-            foreach (System.IO.FileInfo fi in files)
-            {
-                //2019/02/26暂时ScriptConfig和setting.xml共存，日后需要统一成ScriptConfig,废弃掉xml
-                ScriptConfig config = JsonConfig<ScriptConfig>.load(System.IO.Path.GetDirectoryName(fi.FullName));
+                foreach (System.IO.FileInfo fi in files)
+                {
+                    //2019/02/26暂时ScriptConfig和setting.xml共存，日后需要统一成ScriptConfig,废弃掉xml
+                    ScriptConfig config = JsonConfig<ScriptConfig>.load(System.IO.Path.GetDirectoryName(fi.FullName));
 
-                System.IO.StringReader xmlReader = new System.IO.StringReader(System.IO.File.ReadAllText(fi.FullName));
-                DataSet dataSet = new DataSet();
-                dataSet.ReadXml(xmlReader);
+                    System.IO.StringReader xmlReader = new System.IO.StringReader(System.IO.File.ReadAllText(fi.FullName));
+                    DataSet dataSet = new DataSet();
+                    dataSet.ReadXml(xmlReader);
 
-                //TreeViewItem childTreeViewItem = new TreeViewItem();
-                //childTreeViewItem.Header = dataSet.Tables["run"].Rows[0]["title"];
-                //childTreeViewItem.Tag = fi;
-                //treeViewItem.Items.Add(childTreeViewItem);
-                (treeViewItem as TreeViewItem).Header = config.Title;
-                treeViewItem.Tag = fi;
+                    //TreeViewItem childTreeViewItem = new TreeViewItem();
+                    //childTreeViewItem.Header = dataSet.Tables["run"].Rows[0]["title"];
+                    //childTreeViewItem.Tag = fi;
+                    //treeViewItem.Items.Add(childTreeViewItem);
+                    (treeViewItem as TreeViewItem).Header = config.Title;
+                    treeViewItem.Tag = fi;
 
-                // In this example, we only access the existing FileInfo object. If we
-                // want to open, delete or modify the file, then
-                // a try-catch block is required here to handle the case
-                // where the file has been deleted since the call to TraverseTree().
-                //Console.WriteLine(fi.FullName);
-            }
+                    // In this example, we only access the existing FileInfo object. If we
+                    // want to open, delete or modify the file, then
+                    // a try-catch block is required here to handle the case
+                    // where the file has been deleted since the call to TraverseTree().
+                    //Console.WriteLine(fi.FullName);
+                }
 
-            // Now find all the subdirectories under this directory.
-            subDirs = root.GetDirectories();
+                // Now find all the subdirectories under this directory.
+                subDirs = root.GetDirectories();
 
-            foreach (System.IO.DirectoryInfo dirInfo in subDirs)
-            {
-                // Resursive call for each subdirectory.
-                loadCodeLibraryTree(dirInfo, treeViewItem, false);
-            }
+                foreach (System.IO.DirectoryInfo dirInfo in subDirs)
+                {
+                    // Resursive call for each subdirectory.
+                    loadCodeLibraryTree(dirInfo, treeViewItem, false);
+                }
+            }));
         }
 
         private void TreeView_Loaded(object sender, RoutedEventArgs e)
@@ -671,63 +668,70 @@ public class Script
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             var tree = sender as TreeView;
-            if (tree.SelectedItem is TreeViewItem)
+            Base.Services.BusyWorkService(new Action(() =>
             {
-                var item = tree.SelectedItem as TreeViewItem;
-                if (item.Tag == null) return;
-
-                //TODO
-                //在共有配置的基础上进一步覆盖自己的属性
-                ScriptConfig latestConfig = propertygrid1.SelectedObject as ScriptConfig;
-                JsonConfig<ScriptConfig>.flush(latestConfig);
-
-                ScriptConfig config = JsonConfig<ScriptConfig>.load((item.Tag as FileInfo).Directory.ToString());
-                config.Path = (item.Tag as FileInfo).Directory.ToString();
-                //Load Script
-                System.IO.StringReader xmlReader = new System.IO.StringReader(System.IO.File.ReadAllText((item.Tag as FileInfo).FullName));
-                selectedScriptDataSet = new DataSet();
-                selectedScriptDataSet.ReadXml(xmlReader);
-                //if (dataSet.Tables["run"].Columns.Contains("appdomain"))
-                //{
-                //    appdomainMode = dataSet.Tables["run"].Rows[0]["appdomain"].ToString();
-                //    if(Enum.IsDefined(typeof(Main.EngineDomain), appdomainMode)){
-                //        config.AppDomain = (Main.EngineDomain)Enum.Parse(typeof(Main.EngineDomain), appdomainMode);
-                //    }
-                //    else{
-                //        config.AppDomain = Main.EngineDomain.shared;
-                //    }
-                //}
-                selectedScriptPath = (item.Tag as FileInfo).Directory.FullName;
-                foreach (System.Data.DataRow codeBlk in selectedScriptDataSet.Tables["codeBlock"].Rows)
+                if (tree.SelectedItem is TreeViewItem)
                 {
-                    this[Convert.ToInt16(codeBlk["row"]), Convert.ToInt16(codeBlk["col"])] = System.IO.File.ReadAllText(selectedScriptPath + @"\" + codeBlk["file"].ToString());
-                }
-                if (config.ScriptLanguage == Main.Language.csharp)
-                {
-                    var typeConverter = new HighlightingDefinitionTypeConverter();
-                    var csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("C#");
-                    //JavaScript,SQL,Ruby,XML,ASP/XHTML
-                    this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
-                }
-                else if (config.ScriptLanguage == Main.Language.java)
-                {
-                    var typeConverter = new HighlightingDefinitionTypeConverter();
-                    var csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("Java");
-                    this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
-                }
+                    var item = tree.SelectedItem as TreeViewItem;
+                    if (item.Tag == null) return;
 
-                //config.Title = dataSet.Tables["run"].Rows[0]["title"].ToString();
-                //config.Description = dataSet.Tables["run"].Rows[0]["description"].ToString();
-                //config.FirstInputType = dataSet.Tables["codeBlock"].Rows[0]["type"].ToString();
-                //if (dataSet.Tables["codeBlock"].Rows.Count > 1) config.SecondInputType = dataSet.Tables["codeBlock"].Rows[1]["type"].ToString();
-                //if (dataSet.Tables["codeBlock"].Rows.Count > 2) config.ScriptLanguage = dataSet.Tables["codeBlock"].Rows[2]["type"].ToString();
+                    //TODO
+                    //在共有配置的基础上进一步覆盖自己的属性
+                    ScriptConfig latestConfig = propertygrid1.SelectedObject as ScriptConfig;
+                    JsonConfig<ScriptConfig>.flush(latestConfig);
+
+                    ScriptConfig config = JsonConfig<ScriptConfig>.load((item.Tag as FileInfo).Directory.ToString());
+                    config.Path = (item.Tag as FileInfo).Directory.ToString();
+                    //Load Script
+                    System.IO.StringReader xmlReader = new System.IO.StringReader(System.IO.File.ReadAllText((item.Tag as FileInfo).FullName));
+                    selectedScriptDataSet = new DataSet();
+                    selectedScriptDataSet.ReadXml(xmlReader);
+                    //if (dataSet.Tables["run"].Columns.Contains("appdomain"))
+                    //{
+                    //    appdomainMode = dataSet.Tables["run"].Rows[0]["appdomain"].ToString();
+                    //    if(Enum.IsDefined(typeof(Main.EngineDomain), appdomainMode)){
+                    //        config.AppDomain = (Main.EngineDomain)Enum.Parse(typeof(Main.EngineDomain), appdomainMode);
+                    //    }
+                    //    else{
+                    //        config.AppDomain = Main.EngineDomain.shared;
+                    //    }
+                    //}
+                    selectedScriptPath = (item.Tag as FileInfo).Directory.FullName;
+                    foreach (System.Data.DataRow codeBlk in selectedScriptDataSet.Tables["codeBlock"].Rows)
+                    {
+                        this[Convert.ToInt16(codeBlk["row"]), Convert.ToInt16(codeBlk["col"])] = System.IO.File.ReadAllText(selectedScriptPath + @"\" + codeBlk["file"].ToString());
+                    }
+                    if (config.ScriptLanguage == Main.Language.csharp)
+                    {
+                        var typeConverter = new HighlightingDefinitionTypeConverter();
+                        var csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("C#");
+                        //JavaScript,SQL,Ruby,XML,ASP/XHTML
+                        this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
+                    }
+                    else if (config.ScriptLanguage == Main.Language.java)
+                    {
+                        var typeConverter = new HighlightingDefinitionTypeConverter();
+                        var csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("Java");
+                        this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
+                    }
+
+                    //config.Title = dataSet.Tables["run"].Rows[0]["title"].ToString();
+                    //config.Description = dataSet.Tables["run"].Rows[0]["description"].ToString();
+                    //config.FirstInputType = dataSet.Tables["codeBlock"].Rows[0]["type"].ToString();
+                    //if (dataSet.Tables["codeBlock"].Rows.Count > 1) config.SecondInputType = dataSet.Tables["codeBlock"].Rows[1]["type"].ToString();
+                    //if (dataSet.Tables["codeBlock"].Rows.Count > 2) config.ScriptLanguage = dataSet.Tables["codeBlock"].Rows[2]["type"].ToString();
 
 
-                propertygrid1.SelectedObject = config;
-                scriptConfig = config;
-                //basicInfoLabel.Text = config.Title;
-                model.Title = $"Script[{config.Title}]";
-            }
+                    propertygrid1.SelectedObject = config;
+                    scriptConfig = config;
+                    //basicInfoLabel.Text = config.Title;
+                    model.Title = $"Script[{config.Title}]";
+
+                    popupSelectScript.IsDropDownOpen = false;
+
+                }
+            }));
+
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -737,17 +741,21 @@ public class Script
 
         private void Save_click(object sender, RoutedEventArgs e)
         {
+
             if (selectedScriptDataSet == null) return;
-            foreach (System.Data.DataRow codeBlk in selectedScriptDataSet.Tables["codeBlock"].Rows)
+            Base.Services.BusyWorkService(new Action(() =>
             {
-                string writtingfile = System.IO.Path.Combine(selectedScriptPath, codeBlk["file"].ToString());
-                string writtingContent = this[Convert.ToInt16(codeBlk["row"]), Convert.ToInt16(codeBlk["col"])];
-                if (string.IsNullOrWhiteSpace(writtingContent)) { }
-                else
+                foreach (System.Data.DataRow codeBlk in selectedScriptDataSet.Tables["codeBlock"].Rows)
                 {
-                    System.IO.File.WriteAllText(writtingfile, writtingContent);
+                    string writtingfile = System.IO.Path.Combine(selectedScriptPath, codeBlk["file"].ToString());
+                    string writtingContent = this[Convert.ToInt16(codeBlk["row"]), Convert.ToInt16(codeBlk["col"])];
+                    if (string.IsNullOrWhiteSpace(writtingContent)) { }
+                    else
+                    {
+                        System.IO.File.WriteAllText(writtingfile, writtingContent);
+                    }
                 }
-            }
+            }));
         }
     }
 }

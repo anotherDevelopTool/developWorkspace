@@ -45,6 +45,18 @@ namespace DevelopWorkspace.Main.View
     [Serializable()]
     public partial class ScriptAddinView : UserControl
     {
+        private static bool CanLoadResource(Uri uri)
+        {
+            try
+            {
+                Application.GetResourceStream(uri);
+                return true;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+        }
         ScriptBaseViewModel model;
         public ScriptAddinView()
         {
@@ -84,14 +96,14 @@ namespace DevelopWorkspace.Main.View
                         buttonList[i].LargeIcon = new BitmapImage(uri);
                     }
                     else {
-                        try
+                        var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(methodAttribute.LargeIcon) ? "plugin" : methodAttribute.LargeIcon) + ".png";
+                        if (CanLoadResource(new Uri(resourceString, UriKind.Relative)))
                         {
-                            var resourceString = "/DevelopWorkspace;component/Images/" + methodAttribute.LargeIcon + ".png";
                             buttonList[i].LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
                         }
-                        catch (Exception ex) {
-                            var resourceString = "/DevelopWorkspace;component/Images/" + "plugin" + ".png";
-                            buttonList[i].LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                        else
+                        {
+                            buttonList[i].LargeIcon = new BitmapImage(new Uri("/DevelopWorkspace;component/Images/plugin.png", UriKind.Relative));
                         }
                     }
                     

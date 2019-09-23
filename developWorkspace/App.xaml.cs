@@ -272,20 +272,20 @@ namespace DevelopWorkspace.Main
             // Create the main window, but on the UI thread.
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Invoker)delegate
             {
-                string passFile = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.password");
-                string trialInfo = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.trial");
+                //string passFile = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.password");
+                //string trialInfo = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.trial");
 
-                SoftwareLocker.TrialMaker t = new SoftwareLocker.TrialMaker("DevelopWorkspace", passFile,
-                    trialInfo,
-                    "Wechat:catsamurai\nMobile: CN +86-13664256548\ne-mail:xujingjiang@outlook.com",
-                    90, 210, "745");
+                //SoftwareLocker.TrialMaker t = new SoftwareLocker.TrialMaker("DevelopWorkspace", passFile,
+                //    trialInfo,
+                //    "Wechat:catsamurai\nMobile: CN +86-13664256548\ne-mail:xujingjiang@outlook.com",
+                //    90, 210, "745");
 
-                byte[] MyOwnKey = { 97, 250, 1, 5, 84, 21, 7, 63,
-                4, 54, 87, 56, 123, 10, 3, 62,
-                7, 9, 20, 36, 37, 21, 101, 57};
-                t.TripleDESKey = MyOwnKey;
+                //byte[] MyOwnKey = { 97, 250, 1, 5, 84, 21, 7, 63,
+                //4, 54, 87, 56, 123, 10, 3, 62,
+                //7, 9, 20, 36, 37, 21, 101, 57};
+                //t.TripleDESKey = MyOwnKey;
 
-                t.CheckRegister();
+                //t.CheckRegister();
 
                 MainWindow mainWindow = new MainWindow();
                 Application.Current.MainWindow = mainWindow;
