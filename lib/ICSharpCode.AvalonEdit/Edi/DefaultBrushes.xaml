@@ -14,8 +14,8 @@
   <!-- End of Text Editor Brushes -->
 
   <!-- Text Editor Brushes -->
-  <SolidColorBrush x:Key="EditorSelectionBrush" Color="#8080C0FF"/>
+  <SolidColorBrush x:Key="EditorSelectionBrush" Color="Aqua"/>
   <SolidColorBrush x:Key="EditorSelectionBorder" Color="#A080C0FF"/>
-  <SolidColorBrush x:Key="EditorSelectionForeground" Color="#FF000000"/>
+  <SolidColorBrush x:Key="EditorSelectionForeground" Color="White"/>
 
 </ResourceDictionary>

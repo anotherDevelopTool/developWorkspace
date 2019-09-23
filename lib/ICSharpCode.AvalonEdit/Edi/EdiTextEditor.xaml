@@ -21,14 +21,14 @@
           <ControlTemplate.Resources>
             <Style TargetType="{x:Type editing:TextArea}">
               <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-              <Setter Property="SelectionBrush" Value="{DynamicResource EditorSelectionBrush}" />
+              <Setter Property="SelectionBrush" Value="Aqua" />
               <Setter Property="FlowDirection" Value="LeftToRight" />
               <Setter Property="SelectionBorder">
                 <Setter.Value>
                   <Pen Brush="{DynamicResource EditorSelectionBorder}" Thickness="2"/>
                 </Setter.Value>
               </Setter>
-              <Setter Property="SelectionForeground" Value="{DynamicResource EditorSelectionForeground}"/>
+              <Setter Property="SelectionForeground" Value="White"/>
               <Setter Property="Template">
                 <Setter.Value>
                   <ControlTemplate TargetType="{x:Type editing:TextArea}">

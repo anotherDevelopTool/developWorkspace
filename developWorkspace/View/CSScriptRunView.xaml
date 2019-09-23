@@ -176,18 +176,18 @@
 
                     </TabControl.Resources>
                     <TabItem  Header="Script">
-                <avalonEdit:TextEditor Name="ScriptContent" 
+                <avalonEdit:EdiTextEditor Name="ScriptContent" 
                                IsReadOnly="False" 
                                ShowLineNumbers="True"
                                SyntaxHighlighting="C#"
                                HorizontalScrollBarVisibility="Auto" 
                                VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas" >
 
-                    </avalonEdit:TextEditor>
+                    </avalonEdit:EdiTextEditor>
 
       </TabItem>
                           <TabItem Header="Template">
-                <avalonEdit:TextEditor Name="Cell_1_1" 
+                <avalonEdit:EdiTextEditor Name="Cell_1_1" 
                                Grid.Row="1"
                                IsReadOnly="False" 
                                ShowLineNumbers="True"
@@ -195,10 +195,10 @@
                                HorizontalScrollBarVisibility="Auto" 
                                VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas">
 
-                    </avalonEdit:TextEditor>
+                    </avalonEdit:EdiTextEditor>
                           </TabItem>
                          <TabItem  Header="Template">
-                <avalonEdit:TextEditor Name="Cell_1_2" 
+                <avalonEdit:EdiTextEditor Name="Cell_1_2" 
                                Grid.Row="1"
                                IsReadOnly="False" 
                                ShowLineNumbers="True"
@@ -206,7 +206,7 @@
                                HorizontalScrollBarVisibility="Auto" 
                                VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas">
 
-                    </avalonEdit:TextEditor>
+                    </avalonEdit:EdiTextEditor>
       </TabItem>
          </TabControl>
 
