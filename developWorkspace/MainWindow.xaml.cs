@@ -730,8 +730,8 @@ namespace DevelopWorkspace.Main
                 if (excelWatchTimer != null) excelWatchTimer.Enabled = false;
                 UnInstallExcelWatch();
 
-                this.busy.Shutdown();
-                Dispatcher.InvokeShutdown();
+                //this.busy.Shutdown();
+                //Dispatcher.InvokeShutdown();
             }
             catch (Exception ex) {
 
