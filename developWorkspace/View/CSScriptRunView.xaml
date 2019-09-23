@@ -198,7 +198,7 @@
                     </avalonEdit:EdiTextEditor>
                           </TabItem>
                          <TabItem  Header="Template">
-                <avalonEdit:EdiTextEditor Name="Cell_1_2" 
+                            <avalonEdit:EdiTextEditor Name="Cell_1_2" 
                                Grid.Row="1"
                                IsReadOnly="False" 
                                ShowLineNumbers="True"
@@ -206,9 +206,20 @@
                                HorizontalScrollBarVisibility="Auto" 
                                VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas">
 
-                    </avalonEdit:EdiTextEditor>
-      </TabItem>
-         </TabControl>
+                            </avalonEdit:EdiTextEditor>
+                        </TabItem>
+                        <TabItem  Header="Template">
+                            <avalonEdit:EdiTextEditor Name="Cell_1_3" 
+                                           Grid.Row="1"
+                                           IsReadOnly="False" 
+                                           ShowLineNumbers="True"
+                                           SyntaxHighlighting="XML"
+                                           HorizontalScrollBarVisibility="Auto" 
+                                           VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas">
+
+                            </avalonEdit:EdiTextEditor>
+                        </TabItem>
+        </TabControl>
 
             </Grid>
 

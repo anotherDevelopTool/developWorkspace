@@ -208,12 +208,14 @@ public class Script
             {
                 if (row == 1 && col == 1) return this.Cell_1_1.Text;
                 else if (row == 1 && col == 2) return this.Cell_1_2.Text;
+                else if (row == 1 && col == 3) return this.Cell_1_3.Text;
                 else return this.ScriptContent.Text;
             }
             set
             {
                 if (row == 1 && col == 1) this.Cell_1_1.Text = value;
                 else if (row == 1 && col == 2) this.Cell_1_2.Text = value;
+                else if (row == 1 && col == 3) this.Cell_1_3.Text = value;
                 else this.ScriptContent.Text = value;
             }
         }
@@ -243,7 +245,7 @@ public class Script
                         Object obj = singleAppDomain.CreateInstanceAndUnwrap(typeof(ScriptExecutor).Assembly.FullName, typeof(ScriptExecutor).FullName);
                         Type type = obj.GetType();
                         MethodInfo method = type.GetMethod("executeScript");
-                        string[] inputs = new string[] { this[1, 1], this[1, 2] };
+                        string[] inputs = new string[] { this[1, 1], this[1, 2], this[1, 3] };
                         try
                         {
                             method.Invoke(obj, new object[] { ScriptContent.Text, inputs });
@@ -287,7 +289,7 @@ public class Script
 
                         Type type = obj.GetType();
                         MethodInfo method = type.GetMethod("executeScript");
-                        string[] inputs = new string[] { this[1, 1], this[1, 2] };
+                        string[] inputs = new string[] { this[1, 1], this[1, 2], this[1, 3] };
                         try
                         {
                             method.Invoke(obj, new object[] { ScriptContent.Text, inputs });
@@ -310,7 +312,7 @@ public class Script
 
                         ScriptExecutor executor = new ScriptExecutor();
                         
-                        string[] inputs = new string[] { this[1, 1], this[1, 2] };
+                        string[] inputs = new string[] { this[1, 1], this[1, 2], this[1, 3] };
                         try
                         {
                             executor.executeScript(ScriptContent.Text, inputs);
