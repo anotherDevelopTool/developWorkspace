@@ -899,9 +899,13 @@
                                         //如果值里面有单引号，需要如下特殊处理
                                         if (cellString.IndexOf("'") >= 0) cellString = cellString.Replace("'", "''");
                                         //这里主要时针对日期型如orale的date，timestamp类型，支持用户直接使用SYSDATE, CURRENT_TIMESTAMP内置函数
+                                        //2019/09/25 日期型为主键时目前的逻辑会导致timestamp的值经过变化后得到的和原值不同导致insert/update的判断有误
+                                        //如果日期字段为主键的话例外处理
+                                        //if (dicShema[SCHEMA_IS_KEY][iCol - 1] != "*" && !string.IsNullOrEmpty(dataTypeConditionList[iCol - 1].UpdateFormatString))
                                         if (!string.IsNullOrEmpty(dataTypeConditionList[iCol - 1].UpdateFormatString))
                                         {
                                             string updateFormatString = dataTypeConditionList[iCol - 1].UpdateFormatString;
+                                            
                                             if (Regex.Match(cellString, "^[0-9]{4}").Success)
                                             {
                                                 //目前只做简单的格式不一致的变换（2019/09/21 -> 2019-09-21）
@@ -1100,15 +1104,24 @@
                                                               //2019/03/08
                                                               dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME ? dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"{ fullTableName }.{column_name.token}" }) : $"{ fullTableName }.{column_name.token}"));
 
-                    var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
-                                           join column_name in lstColumnNameWithIdx
-                                           on keyWithIdx.idx equals column_name.idx
-                                           select string.Format("SUB_DUAL.{0}",
-                                           column_name.token));
+                    //var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
+                    //                       join column_name in lstColumnNameWithIdx
+                    //                       on keyWithIdx.idx equals column_name.idx
+                    //                       select string.Format("SUB_DUAL.{0}",
+                    //                       column_name.token));
                     //所有表数据主键拼接结合检索SQL
                     string batchSelectSql = "select ";
                     string joinOnConditionSql = "\nleft join " + fullTableName + " on ";
                     joinOnConditionSql += lstJoinCondtion.Aggregate((total, next) => total + " and " + next);
+
+                    //2019/09/26 如果有日期型尤其时timestamp型需要再次变化
+                    var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
+                                           join column_name in lstColumnNameWithIdx
+                                           on keyWithIdx.idx equals column_name.idx
+                                           join dataCondition in lstDataConditionWithIdx
+                                           on keyWithIdx.idx equals dataCondition.idx
+                                           select dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.TIMESTAMP ? dataCondition.token.ExcelFormatString.FormatWith(new { ColumnName = $"SUB_DUAL.{column_name.token}" }) : $"SUB_DUAL.{column_name.token}");
+
                     batchSelectSql += lstSelectColumn.Aggregate((total, next) => total + "," + next);
                     batchSelectSql += string.Format(",{0}.{1} UpdateFLG from ( ", fullTableName, workArea[tableKEY].Schemas[SCHEMA_COLUMN_NAME][lstKeyWithIdx.First().idx]);
 
