@@ -1100,9 +1100,10 @@
                                            join dataCondition in lstDataConditionWithIdx
                                            on keyWithIdx.idx equals dataCondition.idx
                                            select string.Format("SUB_DUAL.{0}={1}",
-                                           column_name.token, /*tableKEY,*/
-                                                              //2019/03/08
-                                                              dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME ? dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"{ fullTableName }.{column_name.token}" }) : $"{ fullTableName }.{column_name.token}"));
+                                            column_name.token, $"{ fullTableName }.{column_name.token}"));
+                    //column_name.token, /*tableKEY,*/
+                    //                   //2019/03/08
+                    //                   dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME ? dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"{ fullTableName }.{column_name.token}" }) : $"{ fullTableName }.{column_name.token}"));
 
                     //var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
                     //                       join column_name in lstColumnNameWithIdx
@@ -1120,7 +1121,9 @@
                                            on keyWithIdx.idx equals column_name.idx
                                            join dataCondition in lstDataConditionWithIdx
                                            on keyWithIdx.idx equals dataCondition.idx
-                                           select dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.TIMESTAMP ? dataCondition.token.ExcelFormatString.FormatWith(new { ColumnName = $"SUB_DUAL.{column_name.token}" }) : $"SUB_DUAL.{column_name.token}");
+                                           select 
+                                                dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME || dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.TIMESTAMP ? 
+                                                    dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"SUB_DUAL.{column_name.token}", AliasColumnName = column_name.token }) : $"SUB_DUAL.{column_name.token}");
 
                     batchSelectSql += lstSelectColumn.Aggregate((total, next) => total + "," + next);
                     batchSelectSql += string.Format(",{0}.{1} UpdateFLG from ( ", fullTableName, workArea[tableKEY].Schemas[SCHEMA_COLUMN_NAME][lstKeyWithIdx.First().idx]);
@@ -1231,17 +1234,20 @@
                             bool isHit = false;
                             for (resIdx = 0; resIdx < rowResult.Count - 1; resIdx++)
                             {
-                                //字符字段被单引号括起来的原因，和数据库取出来时不一致啦，这里做下补丁处理，如果不考虑这个因素，完全可以使用LINQ描述这段逻辑
-                                if (row.Value[resIdx].StartsWith("'"))
-                                {
-                                    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
-                                }
-                                else
-                                {
-                                    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != rowResult[resIdx]) break;
-                                }
+                                // 2019/09/26 yhou由于日期型被格式化，取出的内容和实际的存在一个被格式化，一个没有被格式化导致不能使用==进行比较
+                                ////字符字段被单引号括起来的原因，和数据库取出来时不一致啦，这里做下补丁处理，如果不考虑这个因素，完全可以使用LINQ描述这段逻辑
+                                //if (row.Value[resIdx].StartsWith("'"))
+                                //{
+                                //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
+                                //}
+                                //else
+                                //{
+                                //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != rowResult[resIdx]) break;
+                                //}
+                                if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break; 
+
                                 //2019/02/25 如果所有的键值都相等则认为是更新
-                                if (resIdx == rowResult.Count - 2) isHit = true;
+                                    if (resIdx == rowResult.Count - 2) isHit = true;
                             }
                             if (isHit)
                             {
