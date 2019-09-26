@@ -1065,11 +1065,12 @@
                     var lstExcepColumnIdx = (from columnTypeWithIdx in lstColumnTypeWithIdx join dataCondition in workArea[tableKEY].DataTypeConditionList on columnTypeWithIdx.token equals dataCondition.DataTypeName where dataCondition.ProcessKbn == (int)ColumnProcessFlg.BINARY select columnTypeWithIdx.idx);
 
                     //对于没有主键的表，则不做任何处理
-                    if (lstKeyWithIdx.Count() == 0)
-                    {
-                        DevelopWorkspace.Base.Logger.WriteLine(string.Format("do nothing with table:{0} where primarykey does not exist", tableKEY),Level.WARNING);
-                        continue;
-                    }
+                    //2019/9/26
+                    //if (lstKeyWithIdx.Count() == 0)
+                    //{
+                    //    DevelopWorkspace.Base.Logger.WriteLine(string.Format("do nothing with table:{0} where primarykey does not exist", tableKEY),Level.WARNING);
+                    //    continue;
+                    //}
 
                     if (!string.IsNullOrEmpty(workArea[tableKEY].DeleteSql))
                     {
@@ -1089,178 +1090,180 @@
                         cmd.CommandText = workArea[tableKEY].CreateTableSql;
                         cmd.ExecuteNonQuery();
                     }
-
-                    //TODO 主键时datetime时sql文需要to_char，但是有时候postgres的实际类型和datetime不匹配时仍有错误发生 gession数据库tcd_tcdata表时再现
-                    //selectDataSql += DateTimeFormatter.FormatWith(ci);
-                    //TableInfo ti = (from tableinfo in tableList where tableinfo.TableName.ToUpper() == tableKEY.ToUpper() select tableinfo).FirstOrDefault();
-                    //TODO 格式需要export和apply前后一致？
-                    var lstJoinCondtion = (from keyWithIdx in lstKeyWithIdx
-                                           join column_name in lstColumnNameWithIdx
-                                           on keyWithIdx.idx equals column_name.idx
-                                           join dataCondition in lstDataConditionWithIdx
-                                           on keyWithIdx.idx equals dataCondition.idx
-                                           select string.Format("SUB_DUAL.{0}={1}",
-                                            column_name.token, $"{ fullTableName }.{column_name.token}"));
-                    //column_name.token, /*tableKEY,*/
-                    //                   //2019/03/08
-                    //                   dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME ? dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"{ fullTableName }.{column_name.token}" }) : $"{ fullTableName }.{column_name.token}"));
-
-                    //var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
-                    //                       join column_name in lstColumnNameWithIdx
-                    //                       on keyWithIdx.idx equals column_name.idx
-                    //                       select string.Format("SUB_DUAL.{0}",
-                    //                       column_name.token));
-                    //所有表数据主键拼接结合检索SQL
-                    string batchSelectSql = "select ";
-                    string joinOnConditionSql = "\nleft join " + fullTableName + " on ";
-                    joinOnConditionSql += lstJoinCondtion.Aggregate((total, next) => total + " and " + next);
-
-                    //2019/09/26 如果有日期型尤其时timestamp型需要再次变化
-                    var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
-                                           join column_name in lstColumnNameWithIdx
-                                           on keyWithIdx.idx equals column_name.idx
-                                           join dataCondition in lstDataConditionWithIdx
-                                           on keyWithIdx.idx equals dataCondition.idx
-                                           select 
-                                                dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME || dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.TIMESTAMP ? 
-                                                    dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"SUB_DUAL.{column_name.token}", AliasColumnName = column_name.token }) : $"SUB_DUAL.{column_name.token}");
-
-                    batchSelectSql += lstSelectColumn.Aggregate((total, next) => total + "," + next);
-                    batchSelectSql += string.Format(",{0}.{1} UpdateFLG from ( ", fullTableName, workArea[tableKEY].Schemas[SCHEMA_COLUMN_NAME][lstKeyWithIdx.First().idx]);
-
-                    List<KeyValuePair<string, int>> lstKeyCollision = new List<KeyValuePair<string, int>>();
-                    #region 所有表数据主键拼接结合检索SQL
-
-                    List<string> dividedSqlList = new List<string>();
-                    string dividedSql = batchSelectSql;
-                    for (int rowIdx = 0; rowIdx < workArea[tableKEY].Rows.Count; rowIdx++)
-                    {
-                        KeyValuePair<int, List<string>> row = workArea[tableKEY].Rows[rowIdx];
-                        var lstRowDataWithIdx = row.Value.Select((token, idx) => new { token, idx });
-                        //Postsql的时候需要 text类型提示 oracle的时候需要from dual对应
-                        //TODO 2019/03/05 需要进一步测试对应
-                        var lstUnionSelect = (from columnNameWithIdx in lstColumnNameWithIdx
-                                              join keyWithIdx in lstKeyWithIdx
-                                               on columnNameWithIdx.idx equals keyWithIdx.idx
-                                              join rowDataWithIdx in lstRowDataWithIdx
-                                               on columnNameWithIdx.idx equals rowDataWithIdx.idx
-                                              select string.Format("{0} {1} as {2}", rowDataWithIdx.token.StartsWith("'") ? append_column_type : "", rowDataWithIdx.token, columnNameWithIdx.token));
-
-                        //使用这个数据结构判断是否有主键冲突
-                        lstKeyCollision.Add(new KeyValuePair<string, int>(
-                            (from keyWithIdx in lstKeyWithIdx
-                             join rowDataWithIdx in lstRowDataWithIdx
-                              on keyWithIdx.idx equals rowDataWithIdx.idx
-                             select rowDataWithIdx.token).Aggregate((total, next) => total + "," + next),
-                            row.Key));
-
-
-                        string unionSelectSql = "select ";
-                        unionSelectSql += lstUnionSelect.Aggregate((total, next) => total + "," + next);
-                        unionSelectSql += append_dual;
-                        //2019/02/25 SQL字符串长度过大会导致数据库错误，这里进行分割处理
-                        if ((rowIdx + 1) % DatabaseConfig.This.sqlRoundupSize == 0 || rowIdx == workArea[tableKEY].Rows.Count - 1)
-                        {
-                            dividedSql += string.Format("{0}) SUB_DUAL", unionSelectSql);
-                            dividedSqlList.Add(dividedSql);
-                            dividedSql = batchSelectSql;
-                        }
-                        else
-                        {
-                            dividedSql += string.Format("{0} union\n", unionSelectSql);
-                        }
-
-                        //if (rowIdx == workArea[tableKEY].Rows.Count - 1)
-                        //{
-                        //    batchSelectSql += string.Format("{0}) SUB_DUAL", unionSelectSql);
-                        //}
-                        //else
-                        //{
-                        //    batchSelectSql += string.Format("{0} union\n", unionSelectSql);
-                        //}
-                    }
-                    #endregion
-
-                    //首先判断目前数据是否有主键冲突
-                    var groupCollisions = from keyCollision in lstKeyCollision group keyCollision by keyCollision.Key into g where g.Count() > 1 select g;
-                    bool bCollisionOccur = false;
-                    foreach (var groupCollision in groupCollisions)
-                    {
-                        bCollisionOccur = true;
-                        foreach (var collision in groupCollision)
-                        {
-                            DevelopWorkspace.Base.Logger.WriteLine(string.Format("primary key collision occured at {0} row，keys:{1}", collision.Value, collision.Key),Level.ERROR);
-                        }
-                    }
-                    if (bCollisionOccur) throw new Exception("");
-
-
+                    //有主健时需要判断update/insert
                     //更新还是新规的判定结果一括取得备用
                     List<List<string>> BatchSelectResult = new List<List<string>>();
-
-                    foreach (var eachSql in dividedSqlList)
+                    if (lstKeyWithIdx.Count() != 0)
                     {
-                        string selectUionSql = eachSql;
-                        selectUionSql += joinOnConditionSql;
-                        DevelopWorkspace.Base.Logger.WriteLine(selectUionSql,Level.DEBUG);
-                        cmd.CommandText = selectUionSql;
-                        using (DbDataReader rdr = cmd.ExecuteReader())
+                        //TODO 主键时datetime时sql文需要to_char，但是有时候postgres的实际类型和datetime不匹配时仍有错误发生 gession数据库tcd_tcdata表时再现
+                        //selectDataSql += DateTimeFormatter.FormatWith(ci);
+                        //TableInfo ti = (from tableinfo in tableList where tableinfo.TableName.ToUpper() == tableKEY.ToUpper() select tableinfo).FirstOrDefault();
+                        //TODO 格式需要export和apply前后一致？
+                        var lstJoinCondtion = (from keyWithIdx in lstKeyWithIdx
+                                               join column_name in lstColumnNameWithIdx
+                                               on keyWithIdx.idx equals column_name.idx
+                                               join dataCondition in lstDataConditionWithIdx
+                                               on keyWithIdx.idx equals dataCondition.idx
+                                               select string.Format("SUB_DUAL.{0}={1}",
+                                                column_name.token, $"{ fullTableName }.{column_name.token}"));
+                        //column_name.token, /*tableKEY,*/
+                        //                   //2019/03/08
+                        //                   dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME ? dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"{ fullTableName }.{column_name.token}" }) : $"{ fullTableName }.{column_name.token}"));
+
+                        //var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
+                        //                       join column_name in lstColumnNameWithIdx
+                        //                       on keyWithIdx.idx equals column_name.idx
+                        //                       select string.Format("SUB_DUAL.{0}",
+                        //                       column_name.token));
+                        //所有表数据主键拼接结合检索SQL
+                        string batchSelectSql = "select ";
+                        string joinOnConditionSql = "\nleft join " + fullTableName + " on ";
+                        joinOnConditionSql += lstJoinCondtion.Aggregate((total, next) => total + " and " + next);
+
+                        //2019/09/26 如果有日期型尤其时timestamp型需要再次变化
+                        var lstSelectColumn = (from keyWithIdx in lstKeyWithIdx
+                                               join column_name in lstColumnNameWithIdx
+                                               on keyWithIdx.idx equals column_name.idx
+                                               join dataCondition in lstDataConditionWithIdx
+                                               on keyWithIdx.idx equals dataCondition.idx
+                                               select
+                                                    dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.DATETIME || dataCondition.token.ProcessKbn == (int)ColumnProcessFlg.TIMESTAMP ?
+                                                        dataCondition.token.DatabaseFormatString.FormatWith(new { ColumnName = $"SUB_DUAL.{column_name.token}", AliasColumnName = column_name.token }) : $"SUB_DUAL.{column_name.token}");
+
+                        batchSelectSql += lstSelectColumn.Aggregate((total, next) => total + "," + next);
+                        batchSelectSql += string.Format(",{0}.{1} UpdateFLG from ( ", fullTableName, workArea[tableKEY].Schemas[SCHEMA_COLUMN_NAME][lstKeyWithIdx.First().idx]);
+
+                        List<KeyValuePair<string, int>> lstKeyCollision = new List<KeyValuePair<string, int>>();
+                        #region 所有表数据主键拼接结合检索SQL
+
+                        List<string> dividedSqlList = new List<string>();
+                        string dividedSql = batchSelectSql;
+                        for (int rowIdx = 0; rowIdx < workArea[tableKEY].Rows.Count; rowIdx++)
                         {
-                            while (rdr.Read())
+                            KeyValuePair<int, List<string>> row = workArea[tableKEY].Rows[rowIdx];
+                            var lstRowDataWithIdx = row.Value.Select((token, idx) => new { token, idx });
+                            //Postsql的时候需要 text类型提示 oracle的时候需要from dual对应
+                            //TODO 2019/03/05 需要进一步测试对应
+                            var lstUnionSelect = (from columnNameWithIdx in lstColumnNameWithIdx
+                                                  join keyWithIdx in lstKeyWithIdx
+                                                   on columnNameWithIdx.idx equals keyWithIdx.idx
+                                                  join rowDataWithIdx in lstRowDataWithIdx
+                                                   on columnNameWithIdx.idx equals rowDataWithIdx.idx
+                                                  select string.Format("{0} {1} as {2}", rowDataWithIdx.token.StartsWith("'") ? append_column_type : "", rowDataWithIdx.token, columnNameWithIdx.token));
+
+                            //使用这个数据结构判断是否有主键冲突
+                            lstKeyCollision.Add(new KeyValuePair<string, int>(
+                                (from keyWithIdx in lstKeyWithIdx
+                                 join rowDataWithIdx in lstRowDataWithIdx
+                                  on keyWithIdx.idx equals rowDataWithIdx.idx
+                                 select rowDataWithIdx.token).Aggregate((total, next) => total + "," + next),
+                                row.Key));
+
+
+                            string unionSelectSql = "select ";
+                            unionSelectSql += lstUnionSelect.Aggregate((total, next) => total + "," + next);
+                            unionSelectSql += append_dual;
+                            //2019/02/25 SQL字符串长度过大会导致数据库错误，这里进行分割处理
+                            if ((rowIdx + 1) % DatabaseConfig.This.sqlRoundupSize == 0 || rowIdx == workArea[tableKEY].Rows.Count - 1)
                             {
-                                List<string> rowResult = new List<string>();
-                                for (int idx = 0; idx < rdr.FieldCount; idx++)
-                                {
-                                    rowResult.Add(rdr[idx].ToString());
-                                }
-                                BatchSelectResult.Add(rowResult);
+                                dividedSql += string.Format("{0}) SUB_DUAL", unionSelectSql);
+                                dividedSqlList.Add(dividedSql);
+                                dividedSql = batchSelectSql;
+                            }
+                            else
+                            {
+                                dividedSql += string.Format("{0} union\n", unionSelectSql);
+                            }
+
+                            //if (rowIdx == workArea[tableKEY].Rows.Count - 1)
+                            //{
+                            //    batchSelectSql += string.Format("{0}) SUB_DUAL", unionSelectSql);
+                            //}
+                            //else
+                            //{
+                            //    batchSelectSql += string.Format("{0} union\n", unionSelectSql);
+                            //}
+                        }
+                        #endregion
+
+                        //首先判断目前数据是否有主键冲突
+                        var groupCollisions = from keyCollision in lstKeyCollision group keyCollision by keyCollision.Key into g where g.Count() > 1 select g;
+                        bool bCollisionOccur = false;
+                        foreach (var groupCollision in groupCollisions)
+                        {
+                            bCollisionOccur = true;
+                            foreach (var collision in groupCollision)
+                            {
+                                DevelopWorkspace.Base.Logger.WriteLine(string.Format("primary key collision occured at {0} row，keys:{1}", collision.Value, collision.Key), Level.ERROR);
                             }
                         }
+                        if (bCollisionOccur) throw new Exception("");
+
+                        foreach (var eachSql in dividedSqlList)
+                        {
+                            string selectUionSql = eachSql;
+                            selectUionSql += joinOnConditionSql;
+                            DevelopWorkspace.Base.Logger.WriteLine(selectUionSql, Level.DEBUG);
+                            cmd.CommandText = selectUionSql;
+                            using (DbDataReader rdr = cmd.ExecuteReader())
+                            {
+                                while (rdr.Read())
+                                {
+                                    List<string> rowResult = new List<string>();
+                                    for (int idx = 0; idx < rdr.FieldCount; idx++)
+                                    {
+                                        rowResult.Add(rdr[idx].ToString());
+                                    }
+                                    BatchSelectResult.Add(rowResult);
+                                }
+                            }
+                        }
+
                     }
-
-
                     for (int rowIdx = 0; rowIdx < workArea[tableKEY].Rows.Count; rowIdx++)
                     {
 
                         iRewindRow = workArea[tableKEY].Rows.Count - rowIdx;
-
                         KeyValuePair<int, List<string>> row = workArea[tableKEY].Rows[rowIdx];
                         var lstRowDataWithIdx = row.Value.Select((token, idx) => new { token, idx });
                         bool IsUpdateRowData = false;
                         //根据结果组装UPDATE文或者INSERT文
-                        foreach (List<string> rowResult in BatchSelectResult)
+                        if (lstKeyWithIdx.Count() != 0)
                         {
-                            int resIdx = 0;
-                            bool isHit = false;
-                            for (resIdx = 0; resIdx < rowResult.Count - 1; resIdx++)
+                            foreach (List<string> rowResult in BatchSelectResult)
                             {
-                                // 2019/09/26 yhou由于日期型被格式化，取出的内容和实际的存在一个被格式化，一个没有被格式化导致不能使用==进行比较
-                                ////字符字段被单引号括起来的原因，和数据库取出来时不一致啦，这里做下补丁处理，如果不考虑这个因素，完全可以使用LINQ描述这段逻辑
-                                //if (row.Value[resIdx].StartsWith("'"))
-                                //{
-                                //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
-                                //}
-                                //else
-                                //{
-                                //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != rowResult[resIdx]) break;
-                                //}
-                                if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break; 
-
-                                //2019/02/25 如果所有的键值都相等则认为是更新
-                                    if (resIdx == rowResult.Count - 2) isHit = true;
-                            }
-                            if (isHit)
-                            {
-                                //2019/02/25 如果找到一致的记录后，这之后就不会再有一致的数据了，为了提高性能下一次不作为比较对象,顾删除之
-                                BatchSelectResult.Remove(rowResult);
-                                //2019/02/25 isHit为真时UpdateFLG是不可能为空的
-                                if (!string.IsNullOrEmpty(rowResult[resIdx]))
+                                int resIdx = 0;
+                                bool isHit = false;
+                                for (resIdx = 0; resIdx < rowResult.Count - 1; resIdx++)
                                 {
-                                    IsUpdateRowData = true;
+                                    // 2019/09/26 yhou由于日期型被格式化，取出的内容和实际的存在一个被格式化，一个没有被格式化导致不能使用==进行比较
+                                    ////字符字段被单引号括起来的原因，和数据库取出来时不一致啦，这里做下补丁处理，如果不考虑这个因素，完全可以使用LINQ描述这段逻辑
+                                    //if (row.Value[resIdx].StartsWith("'"))
+                                    //{
+                                    //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
+                                    //}
+                                    //else
+                                    //{
+                                    //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != rowResult[resIdx]) break;
+                                    //}
+                                    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break;
+
+                                    //2019/02/25 如果所有的键值都相等则认为是更新
+                                    if (resIdx == rowResult.Count - 2) isHit = true;
+                                }
+                                if (isHit)
+                                {
+                                    //2019/02/25 如果找到一致的记录后，这之后就不会再有一致的数据了，为了提高性能下一次不作为比较对象,顾删除之
+                                    BatchSelectResult.Remove(rowResult);
+                                    //2019/02/25 isHit为真时UpdateFLG是不可能为空的
+                                    if (!string.IsNullOrEmpty(rowResult[resIdx]))
+                                    {
+                                        IsUpdateRowData = true;
+                                        break;
+                                    }
+                                    //2019/02/25 如果所有的键值都相等则认为是更新
                                     break;
                                 }
-                                //2019/02/25 如果所有的键值都相等则认为是更新
-                                break;
                             }
                         }
                         //目前这个版本针对blob，clob类型没有做对应，将来是否有需要？只有到那时候才知道
