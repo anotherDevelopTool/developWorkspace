@@ -1,54 +1,216 @@
-using System;
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
+using Antlr4.Runtime;
+using Java.Code;
+using DevelopWorkspace.Base;
+using Heidesoft.Components.Controls;
+using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.CSharp;
-using System.IO;
-using System.Collections.Generic;
+using Microsoft.VisualBasic.FileIO;
+using Microsoft.VisualBasic;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using NVelocity.App;
+using NVelocity.Runtime;
+using NVelocity;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Text;
-using System.Windows;
+using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-//using System.Windows.Shapes;
-using System.Xml;
-using System.Windows.Markup;
-using WPFMediaKit;
-using DevelopWorkspace.Base;
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using Heidesoft.Components.Controls;
-using System.Windows.Threading;
-using System.Linq;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Windows.Interop;
-using System.Diagnostics;
-using System.Threading;
-using Xceed.Wpf.AvalonDock.Layout;
+using System.Windows.Markup;
+using System.Windows.Media.Imaging;
 using System.Windows.Media;
-using DevelopWorkspace.Base;
-using System.Xml;
-using System.Xml.Xsl;
+using System.Windows.Navigation;
+using System.Windows.Threading;
+using System.Windows;
 using System.Xml.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using NVelocity;
-using NVelocity.App;
-using NVelocity.Runtime;
-using Microsoft.CSharp;
-using System.Text.RegularExpressions;
-using ICSharpCode.AvalonEdit.Highlighting;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.FileIO;
+using System.Xml.Xsl;
+using System.Xml;
+using System;
+using WPFMediaKit;
+using Xceed.Wpf.AvalonDock.Layout;
+
+class JavaCodeUtility
+{
+
+    public class Clazz
+    {
+        public String name;
+        public List<Method> methods;
+        public List<Property> properties;
+    }
+
+    public class Method
+    {
+        public String type;
+        public String name;
+        public List<Parameter> parameteres;
+    }
+    public class Property
+    {
+        public String type;
+        public String name;
+    }
+    public class Parameter
+    {
+        public String type;
+        public String name;
+    }
+    public class Instruction
+    {
+        public String name;
+    }
+
+    // 2019/09/29
+    // java parser visitor
+    public class CompilationUnitVisitor : JavaParserBaseVisitor<List<Clazz>>
+    {
+        public override List<Clazz> VisitCompilationUnit([NotNull] JavaParser.CompilationUnitContext context)
+        {
+            //context和typeDeclaration是1对多的关系，下面这样的语句不能正确取回值对象，需要获取路径要明确才可以
+            //var retClazz = context.Accept(new TypeDeclarationVisitor());
+            var visitor = new TypeDeclarationVisitor();
+            //var retClazz = context.typeDeclaration()[0].Accept(visitor);
+            List<Clazz> clazzes = new List<Clazz>();
+            context.typeDeclaration().ToList().ForEach(ctx => clazzes.Add(ctx.Accept(visitor)));
+
+            return clazzes;
+        }
+    }
+    public class TypeDeclarationVisitor : JavaParserBaseVisitor<Clazz>
+    {
+        public override Clazz VisitTypeDeclaration([NotNull] JavaParser.TypeDeclarationContext context)
+        {
+            var retClazz = context.classDeclaration().Accept(new ClassVisitor());
+            return retClazz;
+        }
+    }
+    public class ClassVisitor : JavaParserBaseVisitor<Clazz>
+    {
+        public override Clazz VisitClassDeclaration([NotNull] JavaParser.ClassDeclarationContext context)
+        {
+
+            List<Method> methods = new List<Method>();
+            List<Property> properties = new List<Property>();
+            var memberVisitor = new MemberVisitor();
+
+            context.classBody().classBodyDeclaration().ToList().ForEach(
+                ctx =>
+                {
+                    var member = ctx.Accept(memberVisitor);
+                    if (member != null)
+                    {
+                        if (member.GetType().IsAssignableFrom(typeof(Method)))
+                        {
+                            methods.Add((Method)member);
+                        }
+                        else if (member.GetType().IsAssignableFrom(typeof(Property)))
+                        {
+                            properties.Add((Property)member);
+                        }
+                    }
+                }
+            );
+            return new Clazz() { name = context.IDENTIFIER().ToString(), methods = methods, properties = properties };
+        }
+    }
+
+    public class MemberVisitor : JavaParserBaseVisitor<object>
+    {
+        public override object VisitMemberDeclaration([NotNull] JavaParser.MemberDeclarationContext context)
+        {
+            object returnObject = null;
+            //分歧处理
+            //memberDeclaration
+            //    : methodDeclaration
+            //    | genericMethodDeclaration
+            //    | fieldDeclaration
+            //    | constructorDeclaration
+            //    | genericConstructorDeclaration
+            //    | interfaceDeclaration
+            //    | annotationTypeDeclaration
+            //    | classDeclaration
+            //    | enumDeclaration
+            if (context.fieldDeclaration() != null)
+            {
+                returnObject = context.fieldDeclaration().Accept(new PropertyVisitor());
+            }
+            else if (context.methodDeclaration() != null)
+            {
+                returnObject = context.methodDeclaration().Accept(new MethodVisitor());
+            }
+            return returnObject;
+        }
+    }
+
+    public class MethodVisitor : JavaParserBaseVisitor<Method>
+    {
+        public override Method VisitMethodDeclaration([NotNull] JavaParser.MethodDeclarationContext context)
+        {
+            var typeString = context.typeTypeOrVoid().Accept(new TypeTypeOrVoidVisitor());
+            var parameteres = context.formalParameters().Accept(new FormalParametersVisitor());
+            return new Method() { type = typeString, name = context.IDENTIFIER().GetText().ToString(), parameteres = parameteres };
+        }
+    }
+    public class PropertyVisitor : JavaParserBaseVisitor<Property>
+    {
+        public override Property VisitFieldDeclaration([NotNull] JavaParser.FieldDeclarationContext context)
+        {
+            var typeString = context.typeType().Accept(new TypeVisitor());
+            return new Property() { type = typeString, name = context.variableDeclarators().GetText().ToString() };
+        }
+    }
+
+    public class FormalParametersVisitor : JavaParserBaseVisitor<List<Parameter>>
+    {
+        public override List<Parameter> VisitFormalParameters([NotNull] JavaParser.FormalParametersContext context)
+        {
+            List<Parameter> parameteres = new List<Parameter>();
+            if (context.formalParameterList() != null) context.formalParameterList().formalParameter().ToList().ForEach(
+                ctx => parameteres.Add(
+                new Parameter()
+                {
+                    //这里1对一的关系，直接取对象的子context,
+                    type = ctx.typeType().GetText().ToString(),
+                    name = ctx.variableDeclaratorId().GetText().ToString()
+                }
+                )
+            );
+
+            return parameteres;
+
+        }
+    }
+
+    public class TypeTypeOrVoidVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitTypeTypeOrVoid([NotNull] JavaParser.TypeTypeOrVoidContext context)
+        {
+
+            return context.GetText();
+        }
+    }
+    public class TypeVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitTypeType([NotNull] JavaParser.TypeTypeContext context)
+        {
+
+            return context.GetText();
+        }
+    }
+
+}
 class ConvertUtil
 {
     public static int DataSourceType(string dataSource)
@@ -70,7 +232,18 @@ class ConvertUtil
             {
                 dataSourceType = 2;
             }
+            else
+            {
+                string JAVA_PATTERN = @"^\s{0,}public[ ]+?class";
+                regex = new Regex(JAVA_PATTERN, RegexOptions.Multiline);
+                result = regex.Match(dataSource);
+                if (result.Success)
+                {
+                    dataSourceType = 3;
+                }
+            }
         }
+        DevelopWorkspace.Base.Logger.WriteLine(dataSourceType.ToString(), Level.DEBUG);
         return dataSourceType;
     }
 
@@ -236,8 +409,24 @@ public class Script
                     //    }
                     //}
                 }
+                //JAVA type
+                else if (ConvertUtil.DataSourceType(dataSource.Text) == 3)
+                {
+                    //IList<InsurancePolicyData> insurancePolicyDataList = new List<InsurancePolicyData>();
+                    var stream = new AntlrInputStream(dataSource.Text);
+                    var lexer = new JavaLexer(stream);
+                    var tokens = new CommonTokenStream(lexer);
+                    var parser = new JavaParser(tokens);
+
+                    parser.BuildParseTree = true;
+
+                    var visitor = new JavaCodeUtility.CompilationUnitVisitor();
+                    var results = visitor.Visit(parser.compilationUnit());
+                    DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(results), Level.DEBUG);
+                }
                 //CSV format with tab delimiter
-                else {
+                else
+                {
                     dic = ConvertUtil.ReadCsvFileTextFieldParser(dataSource.Text);
                 }
 
@@ -327,6 +516,13 @@ public class Script
                 {
                     typeConverter = new HighlightingDefinitionTypeConverter();
                     csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("C#");
+                    this.dataSource.SyntaxHighlighting = csSyntaxHighlighter;
+                }
+                //Java etc
+                else if (ConvertUtil.DataSourceType(dataSource.Text) == 3)
+                {
+                    typeConverter = new HighlightingDefinitionTypeConverter();
+                    csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("Java");
                     this.dataSource.SyntaxHighlighting = csSyntaxHighlighter;
                 }
             };

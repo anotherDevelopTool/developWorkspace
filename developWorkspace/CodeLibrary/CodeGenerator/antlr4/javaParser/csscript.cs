@@ -24,10 +24,10 @@ public class Script
             target = AppDomain.CurrentDomain.BaseDirectory + @"antlr4\" + "antlr4-csharp-4.6.6-complete.jar",
             runtime = AppDomain.CurrentDomain.BaseDirectory + @"antlr4\" + "Antlr4.Runtime.dll",
             csc = @"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc",
-            name_space = "Code.Generator",
+            name_space = "Java.Code",
             dest = AppDomain.CurrentDomain.BaseDirectory + @"compiled\",
             start_rule = "file",
-            grammar = "Code.Generator",
+            grammar = "Java.Code",
             lexer = AppDomain.CurrentDomain.BaseDirectory + @"compiled\JavaLexer.g4",
             parser = AppDomain.CurrentDomain.BaseDirectory + @"compiled\JavaParser.g4"
         };

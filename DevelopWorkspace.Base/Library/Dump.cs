@@ -43,12 +43,12 @@ namespace DevelopWorkspace.Base
         /// <summary>
         /// true = display private members of the class/struct
         /// </summary>
-        public bool DisplayPrivate = false;
+        public bool DisplayPrivate = true;
 
         /// <summary>
         /// Limit tree depth to this (default 5)
         /// </summary>
-        public int MaxDepth = 5;
+        public int MaxDepth = 10;
 
         /// <summary>
         /// Use full class names

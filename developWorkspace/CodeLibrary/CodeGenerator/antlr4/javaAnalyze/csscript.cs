@@ -50,7 +50,7 @@ public class CompilationUnitVisitor : JavaParserBaseVisitor<List<Clazz>>
 {
     public override List<Clazz> VisitCompilationUnit([NotNull] JavaParser.CompilationUnitContext context)
     {
-        //context和typeDeclaration是1对多的关系，下面这样的语句不能正确取回值对象，需要获取路径要明确才可以
+        //context鍜宼ypeDeclaration鏄?瀵瑰鐨勫叧绯伙紝涓嬮潰杩欐牱鐨勮鍙ヤ笉鑳芥纭彇鍥炲�煎璞★紝闇�瑕佽幏鍙栬矾寰勮鏄庣‘鎵嶅彲浠?
         //var retClazz = context.Accept(new TypeDeclarationVisitor());
         var visitor = new TypeDeclarationVisitor();
         //var retClazz = context.typeDeclaration()[0].Accept(visitor);
@@ -103,7 +103,7 @@ public class MemberVisitor : JavaParserBaseVisitor<object>
     public override object VisitMemberDeclaration([NotNull] JavaParser.MemberDeclarationContext context)
     {
         object returnObject = null;
-        //分歧处理
+        //鍒嗘澶勭悊
         //memberDeclaration
         //    : methodDeclaration
         //    | genericMethodDeclaration
@@ -153,7 +153,7 @@ public class FormalParametersVisitor : JavaParserBaseVisitor<List<Parameter>>
             ctx => parameteres.Add(
             new Parameter()
             {
-                //这里1对一的关系，直接取对象的子context,
+                //杩欓噷1瀵逛竴鐨勫叧绯伙紝鐩存帴鍙栧璞＄殑瀛恈ontext,
                 type = ctx.typeType().GetText().ToString(),
                 name = ctx.variableDeclaratorId().GetText().ToString()
             }
