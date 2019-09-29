@@ -160,7 +160,16 @@
     <None Include="CodeLibrary\CodeGenerator\addin\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="CodeLibrary\CodeGenerator\antlr4\java\ScriptConfig.json">
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\JavaLexer.g4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\JavaParser.g4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\ScriptConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaParser\ScriptConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\antlr4\CSV\csscript.cs">
@@ -265,7 +274,10 @@
     <None Include="CodeLibrary\CodeGenerator\addinElastic\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="CodeLibrary\CodeGenerator\antlr4\java\csscript.cs">
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaParser\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="View\ScriptAddinView.xaml.cs">
@@ -1194,22 +1206,32 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeLibrary\CodeGenerator\antlr4\java\input_xml.xml">
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaParser\input_xml.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeLibrary\CodeGenerator\antlr4\java\JavaLexer.g4">
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaParser\JavaLexer.g4">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeLibrary\CodeGenerator\antlr4\java\setting.xml">
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaParser\setting.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeLibrary\CodeGenerator\antlr4\java\JavaParser.g4">
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaParser\JavaParser.g4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\input_xml.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\setting.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

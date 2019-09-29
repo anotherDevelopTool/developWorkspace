@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DevelopWorkspace.Base.Utils
@@ -48,40 +49,64 @@ namespace DevelopWorkspace.Base.Utils
         }
         public static string executeExternCommand(string cliCommand)
         {
-            ProcessStartInfo start = new ProcessStartInfo("cmd.exe");
-            start.FileName = "cmd.exe";            // 设定程序名
-            start.Arguments = " /c " + cliCommand;
-            start.CreateNoWindow = true;           // 不显示dos 窗口
-            start.UseShellExecute = false;         // 是否指定操作系统外壳进程启动程序，没有这行，调试时编译器会通知你加上的...orz
-            start.RedirectStandardInput = true;
-            start.RedirectStandardOutput = true;   // 重新定向标准输入、输出流
+            StringBuilder output = new StringBuilder();
+            StringBuilder error = new StringBuilder();
 
-            start.RedirectStandardError = true;    // 重新定向标准输入、输出流
-
-            Process p = Process.Start(start);
-            StreamReader reader = p.StandardOutput;         // 截取输出流
-            StreamReader readerError = p.StandardError;     // 截取输出流
-            string line = reader.ReadLine();                // 每次读一行
-            while (!reader.EndOfStream)                     // 不为空则读取
+            using (Process process = new Process())
             {
-                DevelopWorkspace.Base.Logger.WriteLine(line);
-                line = reader.ReadLine();
-            }
-            DevelopWorkspace.Base.Logger.WriteLine(line);
-            line = readerError.ReadLine();                  // 每次读一行
-            while (!readerError.EndOfStream)                // 不为空则读取
-            {
-                DevelopWorkspace.Base.Logger.WriteLine(line);
-                line = readerError.ReadLine();
-            }
-            DevelopWorkspace.Base.Logger.WriteLine(line);
+                process.StartInfo.FileName = "cmd.exe";            // 设定程序名;
+                process.StartInfo.Arguments = " /c " + cliCommand;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.CreateNoWindow = true;           // 不显示dos 窗口
 
-            p.WaitForExit();    // 等待程序执行完退出进程
-            p.Close();          // 关闭进程
-            reader.Close();     // 关闭流
 
-            return "";
+                using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+                {
+                    process.OutputDataReceived += (sender, e) => {
+                        if (e.Data == null)
+                        {
+                            outputWaitHandle.Set();
+                        }
+                        else
+                        {
+                            output.AppendLine(e.Data);
+                        }
+                    };
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data == null)
+                        {
+                            errorWaitHandle.Set();
+                        }
+                        else
+                        {
+                            error.AppendLine(e.Data);
+                        }
+                    };
+
+                    process.Start();
+
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    if (process.WaitForExit(5000) &&
+                        outputWaitHandle.WaitOne(5000) &&
+                        errorWaitHandle.WaitOne(5000))
+                    {
+                    }
+                    else
+                    {
+                        // Timed out.
+                    }
+                }
+            }
+            DevelopWorkspace.Base.Logger.WriteLine(output.ToString());
+            DevelopWorkspace.Base.Logger.WriteLine(error.ToString());
+            
+            return output.Append(error).ToString();
         }
-
     }
 }
