@@ -93,6 +93,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AddinsCache.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Codec\CodeSupport.cs" />
+    <Compile Include="Codec\Rule.cs" />
     <Compile Include="Excel.cs" />
     <Compile Include="ExtensionHelper.cs" />
     <Compile Include="Ilogger.cs" />

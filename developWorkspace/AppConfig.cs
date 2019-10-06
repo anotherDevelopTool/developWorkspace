@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DevelopWorkspace.Base;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,84 +20,6 @@ namespace DevelopWorkspace.Main
             public int red { get; set; }
             public int green { get; set; }
             public int blue { get; set; }
-        }
-        public class ConfigBase: INotifyPropertyChanged
-        {
-            [ReadOnly(true)]
-            public string typeName { get; set; }
-            [ReadOnly(true)]
-            public string jsonfile { get; set; }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            protected virtual void RaisePropertyChanged(string propertyName)
-            {
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        public class JsonConfig<T> where T : ConfigBase, new()
-        {
-            public static T load()
-            {
-                string jsonfile = System.IO.Path.Combine(StartupSetting.instance.homeDir, $"{ typeof(T).Name}.json");
-                T t = internalLoad(jsonfile);
-                t.jsonfile = jsonfile;
-                return t;
-            }
-            public static T load(string path)
-            {
-                string jsonfile = System.IO.Path.Combine(path, $"{ typeof(T).Name}.json");
-                T t = internalLoad(jsonfile);
-                t.jsonfile = jsonfile;
-                return t;
-            }
-            static T internalLoad(string filepath)
-            {
-                T t;
-                if (System.IO.File.Exists(filepath))
-                {
-                    string json = File.ReadAllText(filepath, Encoding.UTF8);
-                    t = (T)JsonConvert.DeserializeObject(json, typeof(T));
-                    t.jsonfile = filepath;
-                    if (t.typeName == null) t.typeName = typeof(T).Name;
-                    if (!typeof(T).Name.Equals(t.typeName))
-                    {
-                        DevelopWorkspace.Base.Logger.WriteLine($"can't load json:{filepath} correctly with typename incorresponding");
-                        throw new Exception($"can't load json:{filepath} correctly with typename incorresponding");
-                    }
-                }
-                else
-                {
-                    if (filepath.Equals(System.IO.Path.Combine(StartupSetting.instance.homeDir, $"{ typeof(T).Name}.json")))
-                    {
-                        //t = new T();
-                        //JsonConvert.DeserializeObject的动作式样是先实例化T，之后对它的属性进行覆盖，如果属性是集合，则进行追加
-                        //这样默认的构造体里就不能进行赋值行为，另建一个带参构造体通过它进行实例化
-                        t = (T)Activator.CreateInstance(typeof(T), 0);
-                    }
-                    else
-                    {
-                        t = internalLoad((System.IO.Path.Combine(StartupSetting.instance.homeDir, $"{ typeof(T).Name}.json")));
-                    }
-
-                }
-                return t;
-            }
-            public static void flush(T userSetting)
-            {
-                //在反序列化时会激活属性set方法，这个时候jsonfile可能还么有来得及设定
-                if (!string.IsNullOrEmpty(userSetting.jsonfile))
-                {
-                    try
-                    {
-                        string json = JsonConvert.SerializeObject(userSetting, Newtonsoft.Json.Formatting.Indented);
-                        File.WriteAllText(userSetting.jsonfile, json, Encoding.UTF8);
-                    }
-                    catch (Exception ex) {
-                        DevelopWorkspace.Base.Logger.WriteLine(ex.Message);
-                    }
-                }
-            }
         }
 
         public class ScriptConfig : ConfigBase

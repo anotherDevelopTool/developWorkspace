@@ -607,7 +607,6 @@ x:Name="dataview"
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="select Sql" Click="MakeSelSql"></MenuItem>
-                                <MenuItem Header="convert schema into json" Click="Schema2Json"></MenuItem>
                                 <MenuItem Header="convert schema into xml" Click="Schema2Xml"></MenuItem>
                                 <!--<MenuItem Header="schema XmlSerializer" Click="XmlSerializer"></MenuItem>-->
                             </ContextMenu>

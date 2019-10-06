@@ -52,6 +52,14 @@
                 return "";
             }
         }
+        public string getResPathByExt(string ext)
+        {
+            var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(AddinMetaAttribute));
+            Uri assemblyUri = new Uri(this.GetType().Assembly.CodeBase);
+            string addinDir = Path.GetDirectoryName(assemblyUri.LocalPath);
+            string extfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext);
+            return extfile;
+        }
         public void install(string strXaml)
         {
             

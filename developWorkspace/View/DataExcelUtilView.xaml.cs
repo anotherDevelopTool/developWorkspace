@@ -221,7 +221,7 @@ namespace DevelopWorkspace.Main.View
                 this.btnDrawDataToExcel.IsEnabled = false;
                 this.btnMakeDiff.IsEnabled = false;
 
-                databaseConfig = JsonConfig<DatabaseConfig>.load();
+                databaseConfig = JsonConfig<DatabaseConfig>.load(StartupSetting.instance.homeDir);
                 propertygrid1.SelectedObject = databaseConfig;
 
                 //这里面的代码MainWindow和插件之间互相参照，代码需要整理.尤其ribbon的状态管理等目前依然有为解决BUG
@@ -882,14 +882,6 @@ namespace DevelopWorkspace.Main.View
             if (ti == null) return;
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("SQL");
             this.txtOutput.Text = ti.SelectDataSQL;
-            Clipboard.SetText(this.txtOutput.Text);
-        }
-        private void Schema2Json(object sender, RoutedEventArgs e)
-        {
-            TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
-            if (ti == null) return;
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(ti, Newtonsoft.Json.Formatting.Indented);
-            this.txtOutput.Text = json;
             Clipboard.SetText(this.txtOutput.Text);
         }
         private void XmlSerializer(object sender, RoutedEventArgs e)

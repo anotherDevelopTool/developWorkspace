@@ -270,7 +270,7 @@ namespace DevelopWorkspace.Main
         {
             ICSharpCode.AvalonEdit.Edi.HighlightingExtension.RegisterCustomHighlightingPatterns(StartupSetting.instance.homeDir, null);
             InitializeComponent();
-            this.propertygrid.SelectedObject = AppConfig.JsonConfig<AppConfig.SysConfig>.load();
+            this.propertygrid.SelectedObject = JsonConfig<AppConfig.SysConfig>.load(StartupSetting.instance.homeDir);
             this.DataContext = Model.Workspace.This;
             //对COMMAND的具体动作进行绑定
             Model.Workspace.This.InitCommandBinding(this);
@@ -723,8 +723,8 @@ namespace DevelopWorkspace.Main
                 AppConfig.SysConfig.This.Height = this.Height;
                 AppConfig.SysConfig.This.Width = this.Width;
                 AppConfig.SysConfig.This.Maximized = false;
-                AppConfig.JsonConfig<AppConfig.SysConfig>.flush(AppConfig.SysConfig.This);
-                if (AppConfig.DatabaseConfig.This != null) AppConfig.JsonConfig<AppConfig.DatabaseConfig>.flush(AppConfig.DatabaseConfig.This);
+                JsonConfig<AppConfig.SysConfig>.flush(AppConfig.SysConfig.This);
+                if (AppConfig.DatabaseConfig.This != null) JsonConfig<AppConfig.DatabaseConfig>.flush(AppConfig.DatabaseConfig.This);
 
                 //
                 if (excelWatchTimer != null) excelWatchTimer.Enabled = false;
