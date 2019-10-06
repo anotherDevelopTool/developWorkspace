@@ -45,6 +45,24 @@ using Xceed.Wpf.Toolkit.PropertyGrid;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 public class Script
 {
+    //--------------------------rule setting begin ------------------------------
+    //Func<string, string> CONVERT_LOWERCASE = (originalString) => originalString.ToLower();
+    public static List<ConvertRule> convertRules = new List<ConvertRule>()
+    {
+        new ConvertRule(){ SchemaKey ="name",        SchemaAlias ="alias1",ConvertFunc = ConvertFunc.CONVERT_FIELD },
+        new ConvertRule(){ SchemaKey ="DataTypeName",SchemaAlias ="alias2",ConvertFunc = ConvertFunc.CONVERT_PROPERTY },
+        new ConvertRule(){ SchemaKey ="name",        SchemaAlias ="alias3",ConvertFunc = ConvertFunc.CONVERT_UPPERCASE },
+        new ConvertRule(){ SchemaKey ="name",        SchemaAlias ="alias4",ConvertFunc = ConvertFunc.CONVERT_LOWERCASE }
+    };
+
+    public static List<RenameRule> renameRules = new List<RenameRule>()
+    {
+        new RenameRule(){ SchemaKey ="type",SchemaAlias ="typeString" },
+        new RenameRule(){ SchemaKey ="項目名",SchemaAlias ="ColumnName" }
+
+    };
+    //--------------------------rule setting end ------------------------------
+
     //TODO 面向Addin基类化
     [AddinMeta(Name = "dataConvertTools", Date = "2009-07-20", Description = "代码变换工具")]
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
@@ -105,18 +123,7 @@ public class Script
 
                 //Func<string, string> CONVERT_LOWERCASE = (originalString) => originalString.ToLower();
 
-                List<ConvertRule> convertRules = new List<ConvertRule>()
-                {
-                    new ConvertRule(){ SchemaKey ="name",        SchemaAlias ="alias1",ConvertFunc = ConvertFunc.CONVERT_FIELD },
-                    new ConvertRule(){ SchemaKey ="DataTypeName",SchemaAlias ="alias2",ConvertFunc = ConvertFunc.CONVERT_PROPERTY },
-                    new ConvertRule(){ SchemaKey ="name",        SchemaAlias ="alias3",ConvertFunc = ConvertFunc.CONVERT_UPPERCASE },
-                    new ConvertRule(){ SchemaKey ="name",        SchemaAlias ="alias4",ConvertFunc = ConvertFunc.CONVERT_LOWERCASE }
-                };
-                List<RenameRule> renameRules = new List<RenameRule>()
-                {
-                    new RenameRule(){ SchemaKey ="type",SchemaAlias ="typeString" }
-                };
-                var convert = CodeSupport.ApplyRuleToDictionary(dic, convertRules, renameRules);
+                var convert = CodeSupport.ApplyRuleToDictionary(dic, Script.convertRules, Script.renameRules);
                 convert["Setting"] = propertygrid1.SelectedObject;
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(convert), Level.DEBUG);
@@ -474,7 +481,7 @@ class ConvertUtil
         return dataSourceType;
     }
 }
-public enum Language { csharp, java, javascript, xml }
+public enum JpaSource { CORE, FRONT, ICS }
 public class RenameRuleSetting
 {
     public string SchemaKey { set; get; }
@@ -482,11 +489,16 @@ public class RenameRuleSetting
 }
 public class CodeConfig : ConfigBase
 {
+    [System.ComponentModel.DataAnnotations.Schema.Column(Order = 1)]
     [Category("common")]
     [Editor(typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.EnumComboBoxEditor), typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.EnumComboBoxEditor))]
-    public Language ScriptLanguage { get; set; }
+    public JpaSource SelectedJpaSource { get; set; }
     [Category("common")]
-    public string Path { get; set; }
+    public string ClassName { get; set; }
+
+    [Category("common")]
+    [Editor(typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.ComboBoxEditor), typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.ComboBoxEditor))]
+    public List<RenameRule> renameRules { get; set; }
 
     public CodeConfig()
     {
