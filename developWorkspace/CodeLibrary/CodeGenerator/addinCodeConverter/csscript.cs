@@ -79,9 +79,6 @@ public class Script
         {
             try
             {
-                DevelopWorkspace.Base.Logger.WriteLine(convertRule.Text);
-
-
                 VelocityEngine vltEngine = new VelocityEngine();
                 vltEngine.Init();
 
@@ -90,8 +87,8 @@ public class Script
                 if (ConvertUtil.DataSourceType(dataSource.Text) == 1)
                 {
                     //这个是演示XmlToGenericObject如何使用，需要结合VM模板一起使用
-                    System.IO.File.WriteAllText(@"C:\Users\Public\contacts1.xml", dataSource.Text);
-                    var xDoc = XDocument.Load(new StreamReader(@"C:\Users\Public\contacts1.xml"));
+                    TextReader tr = new StringReader(dataSource.Text);
+                    var xDoc = XDocument.Load(tr);
                     CodeSupport.Parse(dic, xDoc.Elements().First());
                 }
                 //JSON type
