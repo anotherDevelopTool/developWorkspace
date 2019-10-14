@@ -162,7 +162,7 @@ namespace DevelopWorkspace.Main
             {
                 var logger = AppDomain.CurrentDomain.GetData("logger");
                 MethodInfo method = logger.GetType().GetMethod("WriteLine");
-                object[] parameters = new object[] { logtext, 3 };
+                object[] parameters = new object[] { logtext, -1 };
                 method.Invoke(logger, parameters);
             }
             else {

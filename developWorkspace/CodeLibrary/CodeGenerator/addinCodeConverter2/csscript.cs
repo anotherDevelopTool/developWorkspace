@@ -69,8 +69,8 @@ public class Script
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
-
-
+                Dictionary<string, object> Setting = dic["Setting"] as Dictionary<string, object>;
+                DevelopWorkspace.Base.Logger.WriteLine(Setting["CodePath"].ToString(), Level.DEBUG);
                 //string projectPath = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "rba-bo-api");
                 //Directory.CreateDirectory(@"C:\workspace\csharp\WPF Extended DataGrid 2015\1\2");
                 //System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext), strXaml);
@@ -143,6 +143,8 @@ public class Script
             view = XamlReader.Load(xmlreader) as UserControl;
             reogrid = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ReoGridControl>(view, "grid");
             reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
+            reogrid.CurrentWorksheet.SetSettings(WorksheetSettings.View_ShowGridLine, false);
+
             convertRule = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ICSharpCode.AvalonEdit.Edi.EdiTextEditor>(view, "convertRule");
             convertRule.Text = getResByExt("ConvertRule");
             return view;
