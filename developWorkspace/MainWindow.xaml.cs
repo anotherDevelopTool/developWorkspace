@@ -95,9 +95,11 @@ namespace DevelopWorkspace.Main
         public event WorksheetActiveChangeEventHandler WorksheetActiveChangeEvent;
 
         
-
+        //监控excel的行为以达到和developworkspace进行配合的目的
         System.Timers.Timer excelWatchTimer = null;
         readonly object syncLock = new object();
+        readonly object syncStopWatchLock = new object();
+      
         Microsoft.Office.Interop.Excel.Application excelRefOnWatch;
         string currentTableNameOnWatch = "";
         bool isUninstalled = false;
@@ -239,7 +241,14 @@ namespace DevelopWorkspace.Main
         {
             lock (syncLock)
             {
+                // when application terminated,uninstall...
                 if (isUninstalled) return;
+                // 当程序不在活跃状态下超过30秒的话则临时把监视excel的机能清除掉以防止影响excel的整体性能
+                if (IsIdlingOverSomeSeconds) {
+                    ClearExcelWatchEvent(excelRefOnWatch);
+                    procossIdOfExcel = 0;
+                    return;
+                }
 
                 int procossIdOfTopMost;
                 Microsoft.Office.Interop.Excel.Application excelRefTopMost = Excel.GetLatestActiveExcelRefOnWatch(out procossIdOfTopMost);
@@ -312,6 +321,8 @@ namespace DevelopWorkspace.Main
                 InstallExcelWatch();
             }
 
+            this.Activated += MainWindow_Activated;
+            this.Deactivated += MainWindow_Deactivated;
 
             Base.Services.BusyWorkService = new Base.Services.BusyWork(doBusyWork);
             Base.Services.BusyWorkIndicatorService = (string indicatorMessage) =>
@@ -332,7 +343,7 @@ namespace DevelopWorkspace.Main
                 Application.Current.Resources.Add(message.MessageId, message.Content);
             }
 
-            // addins
+            // addins service
             List<AddinMetaAttribute> addinsAttribute = ScriptBaseViewModel.ScanAddinsJson();
             foreach (var attribute in addinsAttribute) {
                 Button addin = new Button();
@@ -403,6 +414,38 @@ namespace DevelopWorkspace.Main
             //    System.Windows.Application.Current.Shutdown();
             //}
 
+        }
+        Stopwatch stopWatch = new Stopwatch();
+        private void MainWindow_Deactivated(object sender, EventArgs e)
+        {
+            DevelopWorkspace.Base.Logger.WriteLine($"MainWindow_Deactivated", Base.Level.TRACE);
+            lock (syncStopWatchLock)
+            {
+                stopWatch.Start();
+            }
+        }
+
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            DevelopWorkspace.Base.Logger.WriteLine($"MainWindow_Activated", Base.Level.TRACE);
+            lock (syncStopWatchLock)
+            {
+                stopWatch.Stop();
+                stopWatch = new Stopwatch();
+            }
+        }
+        private bool IsIdlingOverSomeSeconds
+        {
+            get
+            {
+                double eclapsedSeconds = 0;
+                lock (syncStopWatchLock)
+                {
+                    eclapsedSeconds = stopWatch.Elapsed.TotalSeconds;
+                }
+                DevelopWorkspace.Base.Logger.WriteLine($"IsIdlingOverSomeSeconds:{eclapsedSeconds}", Base.Level.TRACE);
+                return eclapsedSeconds > 30;
+            }
         }
         private static bool CanLoadResource(Uri uri)
         {
@@ -730,7 +773,7 @@ namespace DevelopWorkspace.Main
                 if (excelWatchTimer != null) excelWatchTimer.Enabled = false;
                 UnInstallExcelWatch();
 
-                //this.busy.Shutdown();
+                this.busy.Shutdown();
                 //Dispatcher.InvokeShutdown();
             }
             catch (Exception ex) {

@@ -839,16 +839,44 @@ namespace DevelopWorkspace.Main.View
                 }
             }));
         }
-        private string getCameralString(string _functionName) { 
-            string functionName = _functionName;
+        private string getCameralVariableString(string _functionName) { 
+            string functionName = _functionName.ToLower();
             TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
             functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
             functionName = $"{functionName.First().ToString().ToLowerInvariant()}{functionName.Substring(1)}";
             return functionName;
-
-
         }
+        private string getCameralPropertyString(string _functionName)
+        {
+            string functionName = _functionName.ToLower();
+            TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
+            functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
+            return functionName;
+        }
+        private void Schema2CodeSupport(object sender, RoutedEventArgs e)
+        {
 
+            TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
+            if (ti == null) return;
+
+            string codeString = "TableInfo{}\n";
+            codeString += "\t" + "TableName" + "\t" + ti.TableName + "\n";
+            codeString += "\t" + "Remark" + "\t" + ti.Remark + "\n";
+            codeString += "\t" + "DataSource" + "\t" + xlApp.ConnectionHistory.ConnectionHistoryName + "\n";
+
+            codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.Aggregate( (x,y) => x + "\t" + y);
+            codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty" + "\n";
+
+            ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
+            {
+                if (ci.IsIncluded)
+                {
+                    codeString += "\t" + "\t" + ci.Schemas.Aggregate((x, y) => x + "\t" + y);
+                    codeString += "\t" + getCameralVariableString(ci.Schemas[1]) + "\t" + getCameralPropertyString(ci.Schemas[1]) + "\n";
+                }
+            });
+            Clipboard.SetText(codeString);
+        }
         private void Schema2Xml(object sender, RoutedEventArgs e)
         {
 
@@ -857,6 +885,7 @@ namespace DevelopWorkspace.Main.View
             XElement root = new XElement("TableInfo");
             root.Add(new XElement("TableName", ti.TableName));
             root.Add(new XElement("Remark", ti.Remark));
+            root.Add(new XElement("DataSource", xlApp.ConnectionHistory.ConnectionHistoryName));
             XElement columns = new XElement("Columns");
             root.Add(columns);
             ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
@@ -868,7 +897,7 @@ namespace DevelopWorkspace.Main.View
                     {
                         line.Add(new XElement(xlApp.schemaList[i], ci.Schemas[i]));
                     }
-                    line.Add(new XElement("CameralColumnName", getCameralString(ci.Schemas[1])));
+                    line.Add(new XElement("CameralColumnName", getCameralVariableString(ci.Schemas[1])));
                     columns.Add(line);
                 }
             });

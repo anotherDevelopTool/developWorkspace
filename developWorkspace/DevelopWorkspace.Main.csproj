@@ -148,6 +148,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.2.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.3.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.9.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\ScriptConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="CodeLibrary\CodeGenerator\addinElastic\ScriptConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -278,6 +290,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="View\ScriptAddinView.xaml.cs">
@@ -1232,6 +1247,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CodeLibrary\CodeGenerator\antlr4\javaAnalyze\setting.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\input_xml.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\input_xslt.xsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\setting.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

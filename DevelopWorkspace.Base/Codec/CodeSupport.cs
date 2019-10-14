@@ -12,9 +12,18 @@ using System.ComponentModel;
 using System.Collections;
 using System.Globalization;
 using System.Xml.Linq;
+using unvell.ReoGrid;
 
 namespace DevelopWorkspace.Base.Codec
 {
+    public class SchemaRange
+    {
+        public object parent;
+        public object current;
+        public string key;
+        public int row;
+        public int col;
+    }
     public static class CodeSupport
     {
         //JSON：通过JSON映射成的JOBJECT转换成Dictionary，以方便vecolity使用
@@ -262,6 +271,115 @@ namespace DevelopWorkspace.Base.Codec
             {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Level.ERROR);
             }
+        }
+        public static Dictionary<string, object> getSchemaDictionary(ReoGridControl reogrid)
+        {
+            //Directory.CreateDirectory(@"C:\workspace\csharp\WPF Extended DataGrid 2015\1\2");
+            var worksheet = reogrid.GetWorksheetByName("sheet1");
+            Dictionary<string, object> retDictonary = new Dictionary<string, object>();
+            // fill data into worksheet
+            var selectedRange = worksheet.Ranges["A1:CV200"];
+
+            for (int row = 0; row < selectedRange.Rows - 1; row++)
+            {
+                for (int col = 0; col < selectedRange.Cols - 1; col++)
+                {
+                    if (selectedRange.Cells[row, col].Data != null && selectedRange.Cells[row, col].Data.ToString().EndsWith("{}"))
+                    {
+                        string nameCellString = selectedRange.Cells[row, col].Data.ToString();
+                        Dictionary<string, object>  parent = new Dictionary<string, object>();
+                        retDictonary[nameCellString.Substring(0, nameCellString.Length - 2)] = parent;
+                        col++;
+                        row++;
+                        int subRow;
+                        for (subRow = row; subRow < selectedRange.Rows - 1; subRow++)
+                        {
+                            //如果碰到sibling则跳出
+                            if (selectedRange.Cells[subRow, col - 1].Data != null && selectedRange.Cells[subRow, col - 1].Data.ToString() != "") break;
+                            if (selectedRange.Cells[subRow, col].Data != null)
+                            {
+                                string keyCellString = selectedRange.Cells[subRow, col].Data.ToString();
+                                if (keyCellString.EndsWith("[]"))
+                                {
+                                    SchemaRange schemmaRange = new SchemaRange
+                                    {
+                                        parent = parent,
+                                        key = keyCellString.Substring(0,keyCellString.Length - 2 ),
+                                        row = subRow,
+                                        col = col
+                                    };
+                                    reverseListObject(selectedRange, schemmaRange);
+                                    subRow = schemmaRange.row;
+                                }
+                                else
+                                {
+                                    parent[keyCellString] = selectedRange.Cells[subRow, col + 1].Data.ToString();
+                                }
+                            }
+                        }
+
+                        row = subRow;
+
+                    }
+
+                }
+            }
+
+            return retDictonary;
+
+        }
+
+        private static void reverseListObject(ReferenceRange selectedRange, SchemaRange schemmaRange)
+        {
+            schemmaRange.current = new List<Dictionary<string, object>>();
+            if (typeof(IDictionary).IsAssignableFrom(schemmaRange.parent.GetType()))
+            {
+
+                ((IDictionary)schemmaRange.parent)[schemmaRange.key] = schemmaRange.current;
+            }
+            else
+            {
+            }
+
+            schemmaRange.col++;
+            List<string> schemaList = new List<string>();
+            for (int idx = schemmaRange.col; idx < selectedRange.Cols - 1; idx++)
+            {
+                if (selectedRange.Cells[schemmaRange.row, idx].Data != null)
+                {
+                    schemaList.Add(selectedRange.Cells[schemmaRange.row, idx].Data.ToString());
+                }
+            }
+            schemmaRange.row++;
+            int subRow, subCol;
+            for (subRow = schemmaRange.row; subRow < selectedRange.Rows -1 ; subRow++)
+            {
+                if (selectedRange.Cells[subRow, schemmaRange.col - 1].Data != null && selectedRange.Cells[subRow, schemmaRange.col - 1].Data.ToString() != "") break;
+                Dictionary<string, object> column = new Dictionary<string, object>();
+                bool isEmptyRow = true;
+                for (subCol = schemmaRange.col; subCol < schemmaRange.col + schemaList.Count; subCol++)
+                {
+                    if (selectedRange.Cells[subRow, subCol].Data != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine(selectedRange.Cells[subRow, subCol].Data);
+                        column[schemaList[subCol - schemmaRange.col]] = selectedRange.Cells[subRow, subCol].Data.ToString();
+                        isEmptyRow = false;
+                    }
+                    else
+                    {
+                        column[schemaList[subCol - schemmaRange.col]] = "";
+                    }
+
+                }
+                if (isEmptyRow) break;
+                else
+                    ((List<Dictionary<string, object>>)schemmaRange.current).Add(column);
+            }
+
+            schemmaRange.row = subRow;
+            schemmaRange.row--;
+
+
         }
 
         //利用Dicionary可以对key进行任意追加的特性，而且velocity引擎可以按照key的名字进行取值的特性
