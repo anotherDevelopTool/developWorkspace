@@ -157,6 +157,9 @@
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.9.ConvertRule">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\ScriptConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
