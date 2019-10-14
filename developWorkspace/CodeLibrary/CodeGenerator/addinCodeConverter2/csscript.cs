@@ -70,6 +70,11 @@ public class Script
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
 
+
+                //string projectPath = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "rba-bo-api");
+                //Directory.CreateDirectory(@"C:\workspace\csharp\WPF Extended DataGrid 2015\1\2");
+                //System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext), strXaml);
+
                 VelocityContext vltContext = new VelocityContext();
                 vltContext.Put("root", dic);
 
@@ -86,6 +91,7 @@ public class Script
         [MethodMeta(Name = "保存", Date = "2009-07-20", Description = "保存", LargeIcon = "save")]
         public void EventHandler4(object sender, RoutedEventArgs e)
         {
+            reogrid.Save(getResPathByExt("xlsx"));
             saveResByExt(convertRule.Text, currentExt);
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -93,6 +99,7 @@ public class Script
         [MethodMeta(Name = "elastic mapping", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler5(object sender, RoutedEventArgs e)
         {
+            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "ConvertRule";
             convertRule.Text = getResByExt("ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -100,6 +107,7 @@ public class Script
         [MethodMeta(Name = "entity", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler6(object sender, RoutedEventArgs e)
         {
+            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "2.ConvertRule";
             convertRule.Text = getResByExt("2.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -107,6 +115,7 @@ public class Script
         [MethodMeta(Name = "model", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler7(object sender, RoutedEventArgs e)
         {
+            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "3.ConvertRule";
             convertRule.Text = getResByExt("3.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -114,6 +123,7 @@ public class Script
         [MethodMeta(Name = "builder", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler8(object sender, RoutedEventArgs e)
         {
+            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "4.ConvertRule";
             convertRule.Text = getResByExt("4.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -121,6 +131,7 @@ public class Script
         [MethodMeta(Name = "TableSchemeCsv", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler9(object sender, RoutedEventArgs e)
         {
+            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "9.ConvertRule";
             convertRule.Text = getResByExt("9.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -131,6 +142,7 @@ public class Script
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             view = XamlReader.Load(xmlreader) as UserControl;
             reogrid = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ReoGridControl>(view, "grid");
+            reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
             convertRule = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ICSharpCode.AvalonEdit.Edi.EdiTextEditor>(view, "convertRule");
             convertRule.Text = getResByExt("ConvertRule");
             return view;

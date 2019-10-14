@@ -304,7 +304,7 @@ namespace DevelopWorkspace.Base.Codec
                                     SchemaRange schemmaRange = new SchemaRange
                                     {
                                         parent = parent,
-                                        key = keyCellString.Substring(0,keyCellString.Length - 2 ),
+                                        key = keyCellString.Substring(0, keyCellString.Length - 2),
                                         row = subRow,
                                         col = col
                                     };
@@ -316,9 +316,14 @@ namespace DevelopWorkspace.Base.Codec
                                     parent[keyCellString] = selectedRange.Cells[subRow, col + 1].Data.ToString();
                                 }
                             }
+                            else {
+                                //进入下一个结构判断
+                                break;
+                            }
                         }
 
                         row = subRow;
+                        col = 0;
 
                     }
 

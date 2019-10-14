@@ -861,6 +861,7 @@ namespace DevelopWorkspace.Main.View
 
             string codeString = "TableInfo{}\n";
             codeString += "\t" + "TableName" + "\t" + ti.TableName + "\n";
+            codeString += "\t" + "ClassName" + "\t" + getCameralPropertyString(ti.TableName) + "\n";
             codeString += "\t" + "Remark" + "\t" + ti.Remark + "\n";
             codeString += "\t" + "DataSource" + "\t" + xlApp.ConnectionHistory.ConnectionHistoryName + "\n";
 
