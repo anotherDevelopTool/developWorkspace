@@ -71,9 +71,18 @@ public class Script
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
                 Dictionary<string, object> Setting = dic["Setting"] as Dictionary<string, object>;
                 DevelopWorkspace.Base.Logger.WriteLine(Setting["CodePath"].ToString(), Level.DEBUG);
+                
+                //System.Diagnostics.Process.Start(@"C:\My Documents\My Pictures");
                 //string projectPath = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "rba-bo-api");
                 //Directory.CreateDirectory(@"C:\workspace\csharp\WPF Extended DataGrid 2015\1\2");
                 //System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext), strXaml);
+
+                //System.Diagnostics.Process.Start("EXPLORER.EXE", @"/e,""C:\My Documents\My Pictures""");
+
+                //Dim args As String = String.Empty
+                //args = " /r /u /wl /wr /dl ""{0}"" /dr ""{1}"" ""{2}"" ""{3}"" "
+                //args = String.Format(args, "VSS(VisualSourceSafe上のファイル)", "Local(編集中のファイル）", _leftPath, _rightPath)
+                //Dim p As System.Diagnostics.Process = System.Diagnostics.Process.Start(WIN_MERGE_PATH, args)
 
                 VelocityContext vltContext = new VelocityContext();
                 vltContext.Put("root", dic);
