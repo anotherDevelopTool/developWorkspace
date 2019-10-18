@@ -90,24 +90,8 @@ public class ${root.TableInfo.ClassName}Dao extends $basedao {
    * 検索条件を元に${root.TableInfo.Remark}情報を検索する
    *
 #foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
-##没有找到好的获取动态字段的方法
-#set( $selectIdx = 1)
-#set( $targetIdx = 1)
-#foreach ( $keyInner in $ColumnInfoInner.keys )
-#set( $selectIdx = $selectIdx + 1)
-#if( $keyInner == $key )
-#set( $targetIdx = $selectIdx)
-#end
-#end
-#set( $selectIdx = 1)
-#set( $targetValue = "")
-#foreach ( $value in $ColumnInfoInner.values )
-#set( $selectIdx = $selectIdx + 1)
-#if( $selectIdx == $targetIdx )
-#set( $targetValue = $value)
-#end
-#end
-#if($targetValue == "*")
+##VelocityDictionary use...
+#if($ColumnInfoInner.getValue($key) == "*")
 #set( $single = "yes")
 #if($ColumnInfoInner.IsKey == "*")
 #set( $single = "yes")
@@ -175,24 +159,8 @@ public List<${root.TableInfo.ClassName}Entity>  $methodName($params) {
    * ${root.TableInfo.Remark}を一件更新する
    *
 #foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
-##没有找到好的获取动态字段的方法
-#set( $selectIdx = 1)
-#set( $targetIdx = 1)
-#foreach ( $keyInner in $ColumnInfoInner.keys )
-#set( $selectIdx = $selectIdx + 1)
-#if( $keyInner == $key )
-#set( $targetIdx = $selectIdx)
-#end
-#end
-#set( $selectIdx = 1)
-#set( $targetValue = "")
-#foreach ( $value in $ColumnInfoInner.values )
-#set( $selectIdx = $selectIdx + 1)
-#if( $selectIdx == $targetIdx )
-#set( $targetValue = $value)
-#end
-#end
-#if($targetValue == "*")
+##VelocityDictionary use...
+#if($ColumnInfoInner.getValue($key) == "*")
 #set($keynum = $keynum + 1)
 #if($ColumnInfoInner.DataTypeName.equals("int"))
 	#set($type = "Integer")
@@ -234,24 +202,8 @@ public List<${root.TableInfo.ClassName}Entity>  $methodName($params) {
    * ${root.TableInfo.Remark}を一件削除する（物理削除）
    *
 #foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
-##没有找到好的获取动态字段的方法
-#set( $selectIdx = 1)
-#set( $targetIdx = 1)
-#foreach ( $keyInner in $ColumnInfoInner.keys )
-#set( $selectIdx = $selectIdx + 1)
-#if( $keyInner == $key )
-#set( $targetIdx = $selectIdx)
-#end
-#end
-#set( $selectIdx = 1)
-#set( $targetValue = "")
-#foreach ( $value in $ColumnInfoInner.values )
-#set( $selectIdx = $selectIdx + 1)
-#if( $selectIdx == $targetIdx )
-#set( $targetValue = $value)
-#end
-#end
-#if($targetValue == "*")
+##VelocityDictionary use...
+#if($ColumnInfoInner.getValue($key) == "*")
 #set($keynum = $keynum + 1)
 #if($ColumnInfoInner.DataTypeName.equals("int"))
 	#set($type = "Integer")

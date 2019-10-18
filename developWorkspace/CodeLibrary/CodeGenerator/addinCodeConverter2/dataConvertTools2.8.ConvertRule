@@ -4,24 +4,8 @@ FROM
 WHERE
 #set( $idx = 1)
 #foreach ( $ColumnInfo in $root.TableInfo.Columns )
-##没有找到好的获取动态字段的方法
-#set( $selectIdx = 1)
-#set( $targetIdx = 1)
-#foreach ( $key in $ColumnInfo.keys )
-#set( $selectIdx = $selectIdx + 1)
-#if( $key == ${root.TableInfo.CurrentSqlKey} )
-#set( $targetIdx = $selectIdx)
-#end
-#end
-#set( $selectIdx = 1)
-#set( $targetValue = "")
-#foreach ( $value in $ColumnInfo.values )
-#set( $selectIdx = $selectIdx + 1)
-#if( $selectIdx == $targetIdx )
-#set( $targetValue = $value)
-#end
-#end
-#if($targetValue == "*")
+##VelocityDictionary use...
+#if($ColumnInfo.getValue(${root.TableInfo.CurrentSqlKey}) == "*")
 #if($ColumnInfo.DataTypeName.equals("int"))
 	#set($para = "100")
 #elseif($ColumnInfo.DataTypeName.equals("tinyint"))
