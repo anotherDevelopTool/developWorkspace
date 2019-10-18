@@ -1,73 +1,291 @@
-SELECT
-#set( $comma = " ")
+#set($classvariablename = ${root.TableInfo.ClassName.Substring(0,1).ToLower()})
+#set($classvariablename = "${classvariablename}${root.TableInfo.ClassName.Substring(1)}" )
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
 #foreach ( $ColumnInfo in $root.TableInfo.Columns )
-  $comma$ColumnInfo.ColumnName
-#set( $comma = ",")
-#end
-FROM
-  $root.TableInfo.TableName
-WHERE
-#set( $idx = 1)
-#foreach ( $ColumnInfo in $root.TableInfo.Columns )
-#if($ColumnInfo.IsKey == "*")
-#if($idx == 1 )
-  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
-#else
-  AND
-  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
-#end
-#set( $idx = $idx + 1)
+#if($ColumnInfo.IsKey.equals("*"))
+  #set($keynum = $keynum + 1)
+  #if($ColumnInfo.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfo.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfo.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfo.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfo.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfo.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfo.CameralVariable")
+  #set($comma =",")
 #end
 #end
 
-UPDATE   
-  $root.TableInfo.TableName
-SET  
-#set( $comma = " ")
-#foreach ( $ColumnInfo in $root.TableInfo.Columns )
-#if($ColumnInfo.ColumnName == "UPD_DT")
-  $comma$ColumnInfo.ColumnName = sysdate
-#elseif($ColumnInfo.ColumnName == "DEL_FLG")
-  $comma$ColumnInfo.ColumnName = 0
+#if($root.TableInfo.DataSource.EndsWith("core"))
+package ${root.Setting.RootPackage}.db.core.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.core.dao.base.RbaDao;
+	#set($jpa = "core")
+	#set($basedao = "RbaDao")
+#elseif($root.TableInfo.DataSource.EndsWith("front"))
+package jp.co.rakuten.brandavenue.backend.item.api.db.front.dao;
+	#set($jpa = "front")
+	#set($basedao = "RbaFrontDao")
+#elseif($root.TableInfo.DataSource.EndsWith("ics"))
+package ${root.Setting.RootPackage}.db.ics.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.config.ICSRepositoryConfig;
+import jp.co.rakuten.firstparty.spring.jpa.dao.Dao;
+	#set($jpa = "ics")
+	#set($basedao = "Dao")
+#elseif($root.TableInfo.DataSource.EndsWith("sale"))
+package ${root.Setting.RootPackage}.db.sale.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.config.SaleRepositoryConfig;
+import jp.co.rakuten.firstparty.spring.jpa.dao.Dao;
+	#set($jpa = "sale")
+	#set($basedao = "Dao")
 #else
-  $comma$ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
-#end
-#set( $comma = ",")   
-#end
-WHERE
-#set( $idx = 1)
-#foreach ( $ColumnInfo in $root.TableInfo.Columns )
-#if($ColumnInfo.IsKey == "*")
-#if($idx == 1 )
-  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
-#else
-  AND
-  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
-#end
-#set( $idx = $idx + 1)
-#end
+package ${root.Setting.RootPackage}.db.core.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.core.dao.base.RbaDao;
+	#set($jpa = "core")
+	#set($basedao = "RbaDao")
 #end
 
-INSERT INTO   
-  $root.TableInfo.TableName
-(  
-#set( $comma = " ")
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import jp.co.rakuten.firstparty.spring.jpa.annotation.CreateQuery;
+/**
+ * ${root.TableInfo.Remark}に関するDAOクラス
+ *
+ *
+ */
+@Repository
+public class ${root.TableInfo.ClassName}Dao extends $basedao {
+
+  private ${root.TableInfo.ClassName}Entity ${classvariablename}Entity = new ${root.TableInfo.ClassName}Entity();
+  
+#set( $loop = 1)  
 #foreach ( $ColumnInfo in $root.TableInfo.Columns )
-  $comma$ColumnInfo.ColumnName
-#set( $comma = ",")   
+    #if($loop == 1 )
+		##没有找到好的获取动态字段的方法
+		#foreach ( $key in $ColumnInfo.keys )
+			#set( $selectIdx = 1)
+			#set( $targetIdx = 1)
+			#if( $key.StartsWith("SELECT:") )
+			  #set($methodName = $key.SubString(7))
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
+
+  /**
+   * 検索条件を元に${root.TableInfo.Remark}情報を検索する
+   *
+#foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
+##没有找到好的获取动态字段的方法
+#set( $selectIdx = 1)
+#set( $targetIdx = 1)
+#foreach ( $keyInner in $ColumnInfoInner.keys )
+#set( $selectIdx = $selectIdx + 1)
+#if( $keyInner == $key )
+#set( $targetIdx = $selectIdx)
 #end
-)
-VALUES
-(
-#set( $comma = " ")
-#foreach ( $ColumnInfo in $root.TableInfo.Columns )
-#if($ColumnInfo.ColumnName == "UPD_DT")
-  $comma$ColumnInfo.ColumnName = sysdate
-#elseif($ColumnInfo.ColumnName == "DEL_FLG")
-  $comma$ColumnInfo.ColumnName = 0
+#end
+#set( $selectIdx = 1)
+#set( $targetValue = "")
+#foreach ( $value in $ColumnInfoInner.values )
+#set( $selectIdx = $selectIdx + 1)
+#if( $selectIdx == $targetIdx )
+#set( $targetValue = $value)
+#end
+#end
+#if($targetValue == "*")
+#set( $single = "yes")
+#if($ColumnInfoInner.IsKey == "*")
+#set( $single = "yes")
 #else
-  $comma$ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
+#set( $single = "no")
 #end
-#set( $comma = ",")   
+#set($keynum = $keynum + 1)
+#if($ColumnInfoInner.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfoInner.CameralVariable")
+  #set($comma =",")
+ * @param $ColumnInfoInner.CameralVariable
+   * 
 #end
-)
+#end
+   * @return ${root.TableInfo.ClassName.ToLower()}
+   */
+  @CreateQuery
+  #if($single == "yes" )
+public ${root.TableInfo.ClassName}Entity $methodName($params) {
+    return (${root.TableInfo.ClassName}Entity) getNativeQueryWithoutMax(${classvariablename}Entity).getSingleResult();
+  }
+  #else
+public List<${root.TableInfo.ClassName}Entity>  $methodName($params) {
+    return getNativeQueryWithMax(${classvariablename}Entity).getResultList();
+  }
+#end
+  
+##INSERT#############
+			#elseif( $key.StartsWith("INSERT:") )
+			  #set($methodName = $key.SubString(7))
+
+  /**
+   * ${root.TableInfo.Remark}新規登録
+   *
+   * @param ${root.TableInfo.ClassName.ToLower()}
+   *          ${root.TableInfo.ClassName.ToLower()} Entity
+   * @return create cnt
+   */
+  @CreateQuery
+  public int $methodName(${root.TableInfo.ClassName}Entity $classvariablename) {
+    return getNativeQueryWithoutMax().executeUpdate();
+  }
+##UPDATE#############
+		#elseif( $key.StartsWith("UPDATE:") )
+			  #set($methodName = $key.SubString(7))
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
+
+  /**
+   * ${root.TableInfo.Remark}を一件更新する
+   *
+#foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
+##没有找到好的获取动态字段的方法
+#set( $selectIdx = 1)
+#set( $targetIdx = 1)
+#foreach ( $keyInner in $ColumnInfoInner.keys )
+#set( $selectIdx = $selectIdx + 1)
+#if( $keyInner == $key )
+#set( $targetIdx = $selectIdx)
+#end
+#end
+#set( $selectIdx = 1)
+#set( $targetValue = "")
+#foreach ( $value in $ColumnInfoInner.values )
+#set( $selectIdx = $selectIdx + 1)
+#if( $selectIdx == $targetIdx )
+#set( $targetValue = $value)
+#end
+#end
+#if($targetValue == "*")
+#set($keynum = $keynum + 1)
+#if($ColumnInfoInner.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfoInner.CameralVariable")
+#set($comma =",")
+ * @param $ColumnInfoInner.CameralVariable
+   * 
+#end
+#end
+   * @param ${root.TableInfo.ClassName.ToLower()}
+   *          ${root.TableInfo.ClassName.ToLower()} Entity
+   * @return update cnt
+   */
+  @CreateQuery
+  public int $methodName($params, ${root.TableInfo.ClassName}Entity $classvariablename) {
+    return getNativeQueryWithoutMax().executeUpdate();
+  }
+##DELETE#############
+			#elseif( $key.StartsWith("DELETE:") )
+			  #set($methodName = $key.SubString(7))
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
+
+  /**
+   * ${root.TableInfo.Remark}を一件削除する（物理削除）
+   *
+#foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
+##没有找到好的获取动态字段的方法
+#set( $selectIdx = 1)
+#set( $targetIdx = 1)
+#foreach ( $keyInner in $ColumnInfoInner.keys )
+#set( $selectIdx = $selectIdx + 1)
+#if( $keyInner == $key )
+#set( $targetIdx = $selectIdx)
+#end
+#end
+#set( $selectIdx = 1)
+#set( $targetValue = "")
+#foreach ( $value in $ColumnInfoInner.values )
+#set( $selectIdx = $selectIdx + 1)
+#if( $selectIdx == $targetIdx )
+#set( $targetValue = $value)
+#end
+#end
+#if($targetValue == "*")
+#set($keynum = $keynum + 1)
+#if($ColumnInfoInner.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfoInner.CameralVariable")
+  #set($comma =",")
+ * @param $ColumnInfoInner.CameralVariable
+   * 
+#end
+#end
+   * @return delete cnt
+   */
+  @CreateQuery
+  public int $methodName($params) {
+    return getNativeQueryWithoutMax().executeUpdate();
+  }
+
+
+			#end
+		#end
+		#set( $loop = 2)
+	#end
+#end
+   
+}
