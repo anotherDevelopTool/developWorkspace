@@ -65,10 +65,10 @@ public class Script
                 vltEngine.Init();
 
                 //CSV format with tab delimiter
-                var dic = DevelopWorkspace.Base.Codec.CodeSupport.getSchemaDictionary(reogrid);
+                var dic = getSchemaDictionary(reogrid);
 
-				Dictionary<string, object> Setting = dic["Setting"] as Dictionary<string, object>;
-				Dictionary<string, object> tableInfo = dic["TableInfo"] as Dictionary<string, object>;
+				VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
+				VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
 
 				VelocityContext vltContext = new VelocityContext();
                 vltContext.Put("root", dic);
@@ -76,7 +76,7 @@ public class Script
 				//
 				string keyword = "";
 				string sqlMethodName = "";
-				var sqlKeys = ((List < Dictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
+				var sqlKeys = ((List < VelocityDictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
 				bool sqloutput = false;
 				foreach (var sqlKey in sqlKeys) {
 					var sqlItems = sqlKey.Split(':');
@@ -139,7 +139,7 @@ public class Script
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
 				
-				Dictionary<string, object> Setting = dic["Setting"] as Dictionary<string, object>;
+				VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
                 string project = Setting["Project"].ToString();
                 string codeTempBasePath = Setting["CodeTempBasePath"].ToString();
                 string codeTempPath = Setting["CodeTempPath"].ToString();
@@ -149,7 +149,7 @@ public class Script
 				string classname = "classname";
                 string WIN_MERGE_PATH = Setting["winmerger"].ToString();
 
-				Dictionary<string, object> tableInfo = dic["TableInfo"] as Dictionary<string, object>;
+				VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
                 if(tableInfo["DataSource"].ToString().EndsWith("core")){
 					datasource = "core";
 				}
@@ -197,7 +197,7 @@ public class Script
 				//
 				string keyword = "";
 				string sqlMethodName = "";
-				var sqlKeys = ((List < Dictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
+				var sqlKeys = ((List < VelocityDictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
 				foreach (var sqlKey in sqlKeys) {
 					var sqlItems = sqlKey.Split(':');
 					keyword = sqlItems[0];
@@ -337,17 +337,29 @@ public class Script
 			}
             return view;
         }
-
+        //help方法
 		public string objectString(object origin){
 			if(origin == null ) return "";
 			return origin.ToString();
         }
-
-        public Dictionary<string, object> getSchemaDictionary(ReoGridControl reogrid)
+        //help类，为了在velocity内取值方便
+        public class VelocityDictionary<K, V> : Dictionary<K, V> {
+            public string getValue(K key) {
+                V defaultValue;
+                TryGetValue(key, out defaultValue);
+                return objectString(defaultValue);
+            }
+            string objectString(V origin)
+            {
+                if (origin == null) return "";
+                return origin.ToString();
+            }
+        }
+        public VelocityDictionary<string, object> getSchemaDictionary(ReoGridControl reogrid)
         {
             //Directory.CreateDirectory(@"C:\workspace\csharp\WPF Extended DataGrid 2015\1\2");
             var worksheet = reogrid.GetWorksheetByName("sheet1");
-            Dictionary<string, object> retDictonary = new Dictionary<string, object>();
+            VelocityDictionary<string, object> retDictonary = new VelocityDictionary<string, object>();
             // fill data into worksheet
             var selectedRange = worksheet.Ranges["A1:CV200"];
 
@@ -358,7 +370,7 @@ public class Script
                     if (selectedRange.Cells[row, col].Data != null && selectedRange.Cells[row, col].Data.ToString().EndsWith("{}"))
                     {
                         string nameCellString = selectedRange.Cells[row, col].Data.ToString();
-                        Dictionary<string, object>  parent = new Dictionary<string, object>();
+                        VelocityDictionary<string, object>  parent = new VelocityDictionary<string, object>();
                         retDictonary[nameCellString.Substring(0, nameCellString.Length - 2)] = parent;
                         col++;
                         row++;
@@ -407,7 +419,7 @@ public class Script
 
         private void reverseListObject(ReferenceRange selectedRange, SchemaRange schemmaRange)
         {
-            schemmaRange.current = new List<Dictionary<string, object>>();
+            schemmaRange.current = new List<VelocityDictionary<string, object>>();
             if (typeof(IDictionary<string,object>).IsAssignableFrom(schemmaRange.parent.GetType()))
             {
 
@@ -431,7 +443,7 @@ public class Script
             for (subRow = schemmaRange.row; subRow < selectedRange.Rows -1 ; subRow++)
             {
                 if (selectedRange.Cells[subRow, schemmaRange.col - 1].Data != null && selectedRange.Cells[subRow, schemmaRange.col - 1].Data.ToString() != "") break;
-                Dictionary<string, object> column = new Dictionary<string, object>();
+                VelocityDictionary<string, object> column = new VelocityDictionary<string, object>();
                 bool isEmptyRow = true;
                 for (subCol = schemmaRange.col; subCol < schemmaRange.col + schemaList.Count; subCol++)
                 {
@@ -449,7 +461,7 @@ public class Script
                 }
                 if (isEmptyRow) break;
                 else
-                    ((List<Dictionary<string, object>>)schemmaRange.current).Add(column);
+                    ((List<VelocityDictionary<string, object>>)schemmaRange.current).Add(column);
             }
 
             schemmaRange.row = subRow;
