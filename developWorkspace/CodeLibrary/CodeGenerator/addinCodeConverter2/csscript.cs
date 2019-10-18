@@ -66,16 +66,59 @@ public class Script
 
                 //CSV format with tab delimiter
                 var dic = DevelopWorkspace.Base.Codec.CodeSupport.getSchemaDictionary(reogrid);
+
+				Dictionary<string, object> Setting = dic["Setting"] as Dictionary<string, object>;
+				Dictionary<string, object> tableInfo = dic["TableInfo"] as Dictionary<string, object>;
+
+				VelocityContext vltContext = new VelocityContext();
+                vltContext.Put("root", dic);
+				StringWriter vltWriter = new StringWriter();
+				//
+				string keyword = "";
+				string sqlMethodName = "";
+				var sqlKeys = ((List < Dictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
+				bool sqloutput = false;
+				foreach (var sqlKey in sqlKeys) {
+					var sqlItems = sqlKey.Split(':');
+					keyword = sqlItems[0];
+					sqlMethodName = sqlItems[1];
+					//控制当前生成的SQL
+					tableInfo["CurrentSqlKey"] = sqlKey;
+					if (keyword.Equals("SELECT") && currentExt.Equals("5.ConvertRule")) {
+						// SelectSQL
+						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+						sqloutput = true;
+		                break;
+					}
+					else if(keyword.Equals("INSERT") && currentExt.Equals("6.ConvertRule")) {
+						// InsertSQL
+						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+						sqloutput = true;
+		                break;
+					}
+					else if(keyword.Equals("UPDATE") && currentExt.Equals("7.ConvertRule")) {
+						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+						sqloutput = true;
+		                break;
+					}
+					else if(keyword.Equals("DELETE") && currentExt.Equals("8.ConvertRule")) {
+						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+						sqloutput = true;
+		                break;
+					}
+				}				
+				if( !sqloutput ){
+					vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+					DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+				}
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
-
-                VelocityContext vltContext = new VelocityContext();
-                vltContext.Put("root", dic);
-
-                StringWriter vltWriter = new StringWriter();
-                vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                
 			}
             catch (Exception ex)
             {
@@ -91,7 +134,7 @@ public class Script
                 vltEngine.Init();
 
                 //CSV format with tab delimiter
-                var dic = DevelopWorkspace.Base.Codec.CodeSupport.getSchemaDictionary(reogrid);
+                var dic = getSchemaDictionary(reogrid);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
@@ -102,13 +145,9 @@ public class Script
                 string codeTempPath = Setting["CodeTempPath"].ToString();
                 string resourceTempPath = Setting["ResourceTempPath"].ToString();
                 string codeBasePath = Setting["CodeBasePath"].ToString();
-                string codePath = Setting["CodePath"].ToString();
-                string resourcePath = Setting["ResourcePath"].ToString();
 				string datasource = "core";
 				string classname = "classname";
-
-				DevelopWorkspace.Base.Logger.WriteLine(codeTempPath);
-				DevelopWorkspace.Base.Logger.WriteLine(resourceTempPath);
+                string WIN_MERGE_PATH = Setting["winmerger"].ToString();
 
 				Dictionary<string, object> tableInfo = dic["TableInfo"] as Dictionary<string, object>;
                 if(tableInfo["DataSource"].ToString().EndsWith("core")){
@@ -121,10 +160,13 @@ public class Script
 					datasource = "ics";
 				}
 				classname = tableInfo["ClassName"].ToString();
-				DevelopWorkspace.Base.Logger.WriteLine(classname);
 				
 				string entityPath = System.IO.Path.Combine(codeTempPath,"db",datasource,"entity");
 				Directory.CreateDirectory(entityPath);
+
+				string DaoPath = System.IO.Path.Combine(codeTempPath,"db",datasource,"dao");
+				Directory.CreateDirectory(DaoPath);
+
 				entityPath = System.IO.Path.Combine(entityPath,classname + "Entity.java");
 				string sqlPath = System.IO.Path.Combine(resourceTempPath,"db",datasource,"dao",classname + "Dao");
 				Directory.CreateDirectory(sqlPath);
@@ -134,7 +176,6 @@ public class Script
 				if(tableInfo.ContainsKey("functionId")){
 					modelPath = System.IO.Path.Combine(modelPath,tableInfo["functionId"].ToString());
 				}
-
 				
                 VelocityContext vltContext = new VelocityContext();
                 vltContext.Put("root", dic);
@@ -147,38 +188,57 @@ public class Script
 				// model
 				vltWriter = new StringWriter();
                 vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("3.ConvertRule"));
-				modelPath = System.IO.Path.Combine(modelPath,"req",classname + "ReqModel.java");
+				modelPath = System.IO.Path.Combine(modelPath,"req");
+				Directory.CreateDirectory(modelPath);
+				modelPath = System.IO.Path.Combine(modelPath,classname + "ReqModel.java");
                 System.IO.File.WriteAllText(modelPath,vltWriter.GetStringBuilder().ToString());
 
-				// SelectSQL
-				vltWriter = new StringWriter();
-                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("5.ConvertRule"));
-				crudSqlPath = System.IO.Path.Combine(sqlPath,"selectByPrimaryKey.sql");
-                System.IO.File.WriteAllText(crudSqlPath,vltWriter.GetStringBuilder().ToString());
-
-				// InsertSQL
-				vltWriter = new StringWriter();
-                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("6.ConvertRule"));
-				crudSqlPath = System.IO.Path.Combine(sqlPath,"insert.sql");
-                System.IO.File.WriteAllText(crudSqlPath,vltWriter.GetStringBuilder().ToString());
-
-				// UpdateSQL
-				vltWriter = new StringWriter();
-                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("7.ConvertRule"));
-				crudSqlPath = System.IO.Path.Combine(sqlPath,"updateByPrimaryKey.sql");
-                System.IO.File.WriteAllText(crudSqlPath,vltWriter.GetStringBuilder().ToString());
-
-				// DeleteSQL
-				vltWriter = new StringWriter();
-                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("8.ConvertRule"));
-				crudSqlPath = System.IO.Path.Combine(sqlPath,"deleteByPrimaryKey.sql");
-                System.IO.File.WriteAllText(crudSqlPath,vltWriter.GetStringBuilder().ToString());
 				
-				string WIN_MERGE_PATH = @"C:\Program Files (x86)\WinMerge\WinMergeU.exe";
-				string args = "";
-				args = @" /r /u /wl /wr /dl ""{0}"" /dr ""{1}"" ""{2}"" ""{3}"" ";
-				args = String.Format(args, "generated code", "git", codeTempBasePath, codeBasePath);
-				System.Diagnostics.Process.Start(WIN_MERGE_PATH, args);
+				//
+				string keyword = "";
+				string sqlMethodName = "";
+				var sqlKeys = ((List < Dictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
+				foreach (var sqlKey in sqlKeys) {
+					var sqlItems = sqlKey.Split(':');
+					keyword = sqlItems[0];
+					sqlMethodName = sqlItems[1];
+					vltWriter = new StringWriter();
+					//控制当前生成的SQL
+					tableInfo["CurrentSqlKey"] = sqlKey;
+					if (keyword.Equals("SELECT")) {
+						// SelectSQL
+						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("5.ConvertRule"));
+					}
+					else if(keyword.Equals("INSERT")) {
+						// InsertSQL
+						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("6.ConvertRule"));
+					}
+					else if(keyword.Equals("UPDATE")) {
+						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("7.ConvertRule"));
+					}
+					else if(keyword.Equals("DELETE")) {
+						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("8.ConvertRule"));
+					}
+					crudSqlPath = System.IO.Path.Combine(sqlPath,sqlMethodName +".sql");
+					System.IO.File.WriteAllText(crudSqlPath,vltWriter.GetStringBuilder().ToString());
+				}				
+				
+				// DAO
+				vltWriter = new StringWriter();
+                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("9.ConvertRule"));
+				DaoPath = System.IO.Path.Combine(DaoPath,classname + "Dao.java");
+                System.IO.File.WriteAllText(DaoPath,vltWriter.GetStringBuilder().ToString());
+
+                if (System.IO.File.Exists(WIN_MERGE_PATH)){
+					//string WIN_MERGE_PATH = @"C:\Program Files (x86)\WinMerge\WinMergeU.exe";
+					string args = "";
+					args = @" /r /u /wl /wr /dl ""{0}"" /dr ""{1}"" ""{2}"" ""{3}"" ";
+					args = String.Format(args, "generated code", "git", codeTempBasePath, codeBasePath);
+					System.Diagnostics.Process.Start(WIN_MERGE_PATH, args);
+				}
+                else{
+                	System.Diagnostics.Process.Start(codeTempBasePath, null);
+                }
 
 
 			}
@@ -191,7 +251,7 @@ public class Script
         [MethodMeta(Name = "保存", Date = "2009-07-20", Description = "保存", LargeIcon = "save")]
         public void EventHandler4(object sender, RoutedEventArgs e)
         {
-            reogrid.Save(getResPathByExt("xlsx"));
+            //reogrid.Save(getResPathByExt("xlsx"));
             saveResByExt(convertRule.Text, currentExt);
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -207,7 +267,6 @@ public class Script
         [MethodMeta(Name = "model", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler7(object sender, RoutedEventArgs e)
         {
-            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "3.ConvertRule";
             convertRule.Text = getResByExt("3.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -215,7 +274,6 @@ public class Script
         [MethodMeta(Name = "model(client)", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler8(object sender, RoutedEventArgs e)
         {
-            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "4.ConvertRule";
             convertRule.Text = getResByExt("4.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -223,7 +281,6 @@ public class Script
         [MethodMeta(Name = "SelectSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler9(object sender, RoutedEventArgs e)
         {
-            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "5.ConvertRule";
             convertRule.Text = getResByExt("5.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -231,7 +288,6 @@ public class Script
         [MethodMeta(Name = "InsertSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler10(object sender, RoutedEventArgs e)
         {
-            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "6.ConvertRule";
             convertRule.Text = getResByExt("6.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -239,7 +295,6 @@ public class Script
         [MethodMeta(Name = "UpdateSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler11(object sender, RoutedEventArgs e)
         {
-            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "7.ConvertRule";
             convertRule.Text = getResByExt("7.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
@@ -247,9 +302,15 @@ public class Script
         [MethodMeta(Name = "DeleteSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler12(object sender, RoutedEventArgs e)
         {
-            reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
             currentExt = "8.ConvertRule";
             convertRule.Text = getResByExt("8.ConvertRule");
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+        [MethodMeta(Name = "Dao", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        public void EventHandler13(object sender, RoutedEventArgs e)
+        {
+            currentExt = "9.ConvertRule";
+            convertRule.Text = getResByExt("9.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         public override UserControl getView(string strXaml)
@@ -257,19 +318,148 @@ public class Script
             StringReader strreader = new StringReader(strXaml);
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             view = XamlReader.Load(xmlreader) as UserControl;
-            reogrid = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ReoGridControl>(view, "grid");
-            reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
+ 			System.Windows.Forms.Integration.WindowsFormsHost host = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Forms.Integration.WindowsFormsHost>(view, "host");
+            reogrid = (ReoGridControl)host.Child;
+			reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
             reogrid.CurrentWorksheet.SetSettings(WorksheetSettings.View_ShowGridLine, false);
 
+            
             convertRule = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ICSharpCode.AvalonEdit.Edi.EdiTextEditor>(view, "convertRule");
-            convertRule.Text = getResByExt("ConvertRule");
+            
+            EventHandler6(null,null);
+            
+            string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+			userName=userName.Substring(userName.IndexOf(@"\") + 1);
+			string originString;
+			for(int i=4;i<12;i++){
+				originString = objectString(reogrid.CurrentWorksheet.Ranges["A1:CV200"].Cells[i,3].Data);
+				reogrid.CurrentWorksheet.Ranges["A1:CV200"].Cells[i,3].Data = originString.Replace("os-jiangjiang.xu",userName);
+			}
             return view;
         }
 
+		public string objectString(object origin){
+			if(origin == null ) return "";
+			return origin.ToString();
+        }
 
+        public Dictionary<string, object> getSchemaDictionary(ReoGridControl reogrid)
+        {
+            //Directory.CreateDirectory(@"C:\workspace\csharp\WPF Extended DataGrid 2015\1\2");
+            var worksheet = reogrid.GetWorksheetByName("sheet1");
+            Dictionary<string, object> retDictonary = new Dictionary<string, object>();
+            // fill data into worksheet
+            var selectedRange = worksheet.Ranges["A1:CV200"];
+
+            for (int row = 0; row < selectedRange.Rows - 1; row++)
+            {
+                for (int col = 0; col < selectedRange.Cols - 1; col++)
+                {
+                    if (selectedRange.Cells[row, col].Data != null && selectedRange.Cells[row, col].Data.ToString().EndsWith("{}"))
+                    {
+                        string nameCellString = selectedRange.Cells[row, col].Data.ToString();
+                        Dictionary<string, object>  parent = new Dictionary<string, object>();
+                        retDictonary[nameCellString.Substring(0, nameCellString.Length - 2)] = parent;
+                        col++;
+                        row++;
+                        int subRow;
+                        for (subRow = row; subRow < selectedRange.Rows - 1; subRow++)
+                        {
+                            //如果碰到sibling则跳出
+                            if (selectedRange.Cells[subRow, col - 1].Data != null && selectedRange.Cells[subRow, col - 1].Data.ToString() != "") break;
+                            if (selectedRange.Cells[subRow, col].Data != null)
+                            {
+                                string keyCellString = selectedRange.Cells[subRow, col].Data.ToString();
+                                if (keyCellString.EndsWith("[]"))
+                                {
+                                    SchemaRange schemmaRange = new SchemaRange
+                                    {
+                                        parent = parent,
+                                        key = keyCellString.Substring(0, keyCellString.Length - 2),
+                                        row = subRow,
+                                        col = col
+                                    };
+                                    reverseListObject(selectedRange, schemmaRange);
+                                    subRow = schemmaRange.row;
+                                }
+                                else
+                                {
+                                    parent[keyCellString] = selectedRange.Cells[subRow, col + 1].Data.ToString();
+                                }
+                            }
+                            else {
+                                //进入下一个结构判断
+                                break;
+                            }
+                        }
+
+                        row = subRow;
+                        col = 0;
+
+                    }
+
+                }
+            }
+
+            return retDictonary;
+
+        }
+
+        private void reverseListObject(ReferenceRange selectedRange, SchemaRange schemmaRange)
+        {
+            schemmaRange.current = new List<Dictionary<string, object>>();
+            if (typeof(IDictionary<string,object>).IsAssignableFrom(schemmaRange.parent.GetType()))
+            {
+
+                ((IDictionary<string,object>)schemmaRange.parent)[schemmaRange.key] = schemmaRange.current;
+            }
+            else
+            {
+            }
+
+            schemmaRange.col++;
+            List<string> schemaList = new List<string>();
+            for (int idx = schemmaRange.col; idx < selectedRange.Cols - 1; idx++)
+            {
+                if (selectedRange.Cells[schemmaRange.row, idx].Data != null)
+                {
+                    schemaList.Add(selectedRange.Cells[schemmaRange.row, idx].Data.ToString());
+                }
+            }
+            schemmaRange.row++;
+            int subRow, subCol;
+            for (subRow = schemmaRange.row; subRow < selectedRange.Rows -1 ; subRow++)
+            {
+                if (selectedRange.Cells[subRow, schemmaRange.col - 1].Data != null && selectedRange.Cells[subRow, schemmaRange.col - 1].Data.ToString() != "") break;
+                Dictionary<string, object> column = new Dictionary<string, object>();
+                bool isEmptyRow = true;
+                for (subCol = schemmaRange.col; subCol < schemmaRange.col + schemaList.Count; subCol++)
+                {
+                    if (selectedRange.Cells[subRow, subCol].Data != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine(selectedRange.Cells[subRow, subCol].Data);
+                        column[schemaList[subCol - schemmaRange.col]] = selectedRange.Cells[subRow, subCol].Data.ToString();
+                        isEmptyRow = false;
+                    }
+                    else
+                    {
+                        column[schemaList[subCol - schemmaRange.col]] = "";
+                    }
+
+                }
+                if (isEmptyRow) break;
+                else
+                    ((List<Dictionary<string, object>>)schemmaRange.current).Add(column);
+            }
+
+            schemmaRange.row = subRow;
+            schemmaRange.row--;
+
+
+        }        
 
     }
-
+	
     public class MainWindow : Window
     {
         private Label label1;

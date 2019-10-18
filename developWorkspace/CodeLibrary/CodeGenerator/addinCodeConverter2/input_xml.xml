@@ -99,11 +99,10 @@
       <TabItem  Header="Data Source" ToolTip="① please copy-paste schema to dataSource ② select convertRule ③ convert...">
 
         <StackPanel x:Name="border">
-          <rg:ReoGridControl x:Name="grid"
-            Width="{Binding ElementName=border,Path=ActualWidth}"
-            Height="{Binding ElementName=border,Path=ActualHeight}"
-            Margin="0" />
-        </StackPanel>       
+			<WindowsFormsHost x:Name ="host" Width="{Binding ElementName=border,Path=ActualWidth}" Height="{Binding ElementName=border,Path=ActualHeight}">
+            	<rg:ReoGridControl x:Name="grid"/>
+          	</WindowsFormsHost> 
+        </StackPanel>  
       </TabItem>
       <TabItem Header="Convert Rule">
         <avalonEdit:EdiTextEditor x:Name="convertRule"
