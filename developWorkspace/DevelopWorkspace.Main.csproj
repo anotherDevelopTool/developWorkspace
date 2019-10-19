@@ -148,19 +148,76 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.2.ConvertRule">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.3.ConvertRule">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.4.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.5.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.6.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.7.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.8.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.9.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\ScriptConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.2.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.3.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.4.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.5.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.6.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.7.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.8.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.9.ConvertRule">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\ScriptConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\addinElastic\ScriptConfig.json">
@@ -296,6 +353,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="View\ScriptAddinView.xaml.cs">
@@ -528,6 +588,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </AdditionalFiles>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Page Include="View\ScriptAddinView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1265,6 +1335,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\setting.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\input_xml.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\input_xslt.xsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\setting.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

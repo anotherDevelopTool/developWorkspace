@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:DevelopWorkspace.Main.View"
              xmlns:extoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
-             xmlns:rg="clr-namespace:unvell.ReoGrid;assembly=unvell.ReoGrid"
+             xmlns:rg="clr-namespace:unvell.ReoGrid.Editor;assembly=unvell.ReoGridEditor"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 
@@ -100,7 +100,7 @@
 
         <StackPanel x:Name="border">
 			<WindowsFormsHost x:Name ="host" Width="{Binding ElementName=border,Path=ActualWidth}" Height="{Binding ElementName=border,Path=ActualHeight}">
-            	<rg:ReoGridControl x:Name="grid"/>
+            	<rg:ReoGridEditor x:Name="grid" TopLevel = "false" />
           	</WindowsFormsHost> 
         </StackPanel>  
       </TabItem>

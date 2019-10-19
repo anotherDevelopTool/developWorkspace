@@ -44,6 +44,7 @@ using unvell.ReoGrid;
 using unvell.ReoGrid.CellTypes;
 using unvell.ReoGrid.Chart;
 using unvell.ReoGrid.Drawing.Shapes;
+//css_reference unvell.ReoGridEditor.exe;
 public class Script
 {
     //TODO 面向Addin基类化
@@ -319,7 +320,17 @@ public class Script
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             view = XamlReader.Load(xmlreader) as UserControl;
  			System.Windows.Forms.Integration.WindowsFormsHost host = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Forms.Integration.WindowsFormsHost>(view, "host");
-            reogrid = (ReoGridControl)host.Child;
+            reogrid = ((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).GridControl;
+            
+            ((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            foreach( var control in (((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).Controls)){
+            	if(control is System.Windows.Forms.MenuStrip){
+            		((System.Windows.Forms.MenuStrip)control).Visible = false;
+            	}
+            	if(control is System.Windows.Forms.StatusStrip){
+            		((System.Windows.Forms.StatusStrip)control).Visible = false;
+            	}            	 
+            }
 			reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
             reogrid.CurrentWorksheet.SetSettings(WorksheetSettings.View_ShowGridLine, false);
 
