@@ -27,7 +27,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+<<<<<<< HEAD
  * ${root.TableInfo.Remark}一件に該当するエンティティクラ�? *
+=======
+ * ${root.TableInfo.Remark}一件に該当するエンティティクラ�?
+ *
+>>>>>>> 9ce2faf72dfd7e05d9b0682132f761bfb5963794
  *
  */
 @NoArgsConstructor

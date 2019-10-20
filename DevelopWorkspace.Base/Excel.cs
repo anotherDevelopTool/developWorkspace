@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -93,7 +95,16 @@ namespace DevelopWorkspace.Base
             int dwTickCount,
             int dwPendingType);
     }
+    public class DataWithSchema
+    {
+        public string TableName { get; set; }
+        public Dictionary<string, List<string>> Schemas { get; set; }
+        /// <summary>
+        /// int对应excel的所在行，为了定位DB更新时的错误行数
+        /// </summary>
+        public List<KeyValuePair<int, List<string>>> Rows = new List<KeyValuePair<int, List<string>>>();
 
+    }
 
     public class Excel
     {
@@ -490,6 +501,231 @@ namespace DevelopWorkspace.Base
             return app;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="bDbCreate">对目标DB进行表DROP及CREATE，INSERT数据的操作，否则只进行INSERT数据</param>
+        public static Dictionary<string, DataWithSchema> GetDataWithSchemaFromActivedSheet()
+        {
+            int START_ROW = 1;
+            int START_COL = 2;
+            string SCHEMA_COLUMN_NAME = "ColumnName";
+            string SCHEMA_DATATYPE_NAME = "DataTypeName";
+
+            List<string> schemaList = new List<string>() { "IsKey", "ColumnName", "Remark", "DataTypeName", "ColumnSize" };
+ 
+            int iRow = 0, iCol = 0;
+            dynamic excel = null;
+            Dictionary<string, DataWithSchema> workArea = new Dictionary<string, DataWithSchema>();
+            try
+            {
+                //2019/02/27
+                excel = Excel.GetLatestActiveExcelRef();
+                if (excel == null)
+                {
+                    DevelopWorkspace.Base.Logger.WriteLine("エクスポートされたシートと同様なフォーマットのシートを選択して、再度実行してください",Level.WARNING);
+                    return null;
+                }
+                var targetSheet = excel.ActiveWorkbook.ActiveSheet;
+                if (targetSheet.UsedRange.Rows.Count < 7)
+                {
+                    DevelopWorkspace.Base.Logger.WriteLine("エクスポートされたシートと同様なフォーマットのシートを選択して、再度実行してください", Level.WARNING);
+                    return null;
+                }
+
+                object[,] value2_copy = targetSheet.Range(targetSheet.Cells(START_ROW, START_COL),
+                                            targetSheet.Cells(targetSheet.UsedRange.Rows.Count + START_ROW,
+                                            targetSheet.UsedRange.Columns.Count + START_COL)).Value2;
+                bool bTableTokenHit = false;
+                string strTableName = "";
+
+                Dictionary<string, List<string>> dicShema = null;
+                List<string> lstRowData = null;
+
+                //收集表数据处理
+                for (iRow = 1; iRow < value2_copy.GetLength(0); iRow++)
+                {
+                    //如果整行都是空白那么判定其为表数据的结束
+                    if (bTableTokenHit)
+                    {
+                        for (iCol = 1; iCol < value2_copy.GetLength(1); iCol++)
+                        {
+                            if (value2_copy[iRow, iCol] != null)
+                                break;
+                            if (iCol == value2_copy.GetLength(1) - 1)
+                                bTableTokenHit = false;
+                        }
+                    }
+                    //find where table begin
+                    if (bTableTokenHit == false)
+                    {
+                        bTableTokenHit = true;
+                        //前两个CELL不为空以外有一个为空则认定不是表头的开始
+                        for (iCol = 1 + 2; iCol < value2_copy.GetLength(1); iCol++)
+                        {
+                            if (value2_copy[iRow, iCol] != null) bTableTokenHit = false;
+                        }
+                        if (value2_copy[iRow, 1] == null || value2_copy[iRow, 2] == null) bTableTokenHit = false;
+                        //如果是表头则开始处理表名以及其余属性行信息
+                        if (bTableTokenHit)
+                        {
+                            dicShema = new Dictionary<string, List<string>>();
+                            foreach (string keyword in schemaList)
+                            {
+                                dicShema.Add(keyword, new List<string>());
+                            }
+
+                            strTableName = value2_copy[iRow, 1].ToString();
+
+                            //缓存数据库操作
+                            workArea.Add(strTableName, new DataWithSchema() { TableName = strTableName });
+
+                            //表属性行定义取得
+                            foreach (string keyword in schemaList)
+                            {
+                                iRow++;
+                                for (iCol = 1; iCol < value2_copy.GetLength(1); iCol++)
+                                {
+                                    if (keyword == SCHEMA_COLUMN_NAME || keyword == SCHEMA_DATATYPE_NAME)
+                                    {
+                                        if (value2_copy[iRow, iCol] != null)
+                                            dicShema[keyword].Add(value2_copy[iRow, iCol].ToString());
+                                    }
+                                    else
+                                    {
+                                        dicShema[keyword].Add(value2_copy[iRow, iCol] == null ? "" : value2_copy[iRow, iCol].ToString());
+                                    }
+                                }
+                            }
+                            //2019/03/11
+                            //如果SCHEMA_COLUMN_NAME和SCHEMA_DATATYPE_NAME的长度不一致说明表的属性存在问题，处理终了
+                            if (dicShema[SCHEMA_COLUMN_NAME].Count == 0 || dicShema[SCHEMA_COLUMN_NAME].Count != dicShema[SCHEMA_DATATYPE_NAME].Count)
+                            {
+                                throw new Exception($"there are inconsistency with columnName and dataTypeName of {strTableName}");
+                            }
+                            //缓存数据库操作
+                            workArea[strTableName].Schemas = dicShema;
+
+                            iRow++;
+                        }
+                    }
+                    if (bTableTokenHit)
+                    {
+                         //process data region
+                        lstRowData = new List<string>();
+
+                        for (iCol = 1; iCol < dicShema[SCHEMA_COLUMN_NAME].Count + 1; iCol++)
+                        {
+                            if (value2_copy[iRow, iCol] == null)
+                            {
+                                lstRowData.Add(null);
+                                continue;
+                            }
+                            else
+                            {
+                                lstRowData.Add(value2_copy[iRow, iCol].ToString());
+                            }
+                        }
+                        //空白行Skip
+                        if (lstRowData.Where(o => o != "null").ToList().Count == 0) continue;
+                        workArea[strTableName].Rows.Add(new KeyValuePair<int, List<string>>(iRow, lstRowData));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Services.ErrorMessage(ex.Message);
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                return null;
+            }
+
+            finally
+            {
+                if (excel != null) Marshal.ReleaseComObject(excel);
+            }
+            return workArea;
+
+        }
+
+
+        public static void DrawDataWithSchemaToExcel(Dictionary<string, DataWithSchema> selectTableNameList)
+        {
+            dynamic excel = null;
+            try
+            {
+                //2019/02/27
+                excel = new Microsoft.Office.Interop.Excel.Application();
+                if (excel.Workbooks.Count == 0)
+                {
+                    excel.Workbooks.Add();
+                }
+                excel.Visible = true;
+                excel.ScreenUpdating = false;
+
+                int sartRow = 1;
+                int startCol = 1;
+                Range selected;
+                bool firstSheet = true;
+                foreach (var tableName in selectTableNameList.Keys)
+                {
+                    if (firstSheet)
+                    {
+                        firstSheet = !firstSheet;
+                    }
+                    else
+                    {
+                        excel.ActiveWorkbook.Worksheets.Add(System.Reflection.Missing.Value,
+                                    excel.ActiveWorkbook.Worksheets[excel.ActiveWorkbook.Worksheets.Count],
+                                    System.Reflection.Missing.Value,
+                                     System.Reflection.Missing.Value);
+                    }
+                    var targetSheet = excel.ActiveWorkbook.ActiveSheet;
+                    targetSheet.Name = tableName;
+
+                    int colWidth = selectTableNameList[tableName].Schemas["ColumnName"].Count();
+                    int rowHeight = selectTableNameList[tableName].Rows.Count();
+                    string[,] value2_copy = new string[rowHeight + 1, colWidth];
+
+                    for (int col = 0; col < colWidth; col++)
+                    {
+                        value2_copy[0, col] = selectTableNameList[tableName].Schemas["ColumnName"][col];
+                    }
+                    for (int row = 0; row < rowHeight; row++)
+                    {
+                        for (int col = 0; col < colWidth; col++)
+                        {
+                            value2_copy[row + 1, col] = selectTableNameList[tableName].Rows[row].Value[col];
+                        }
+                    }
+                    //Data拷贝到指定区域
+                    selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
+                        targetSheet.Cells(value2_copy.GetLength(0) + sartRow - 1, value2_copy.GetLength(1) + startCol - 1));
+                    selected.NumberFormat = "@";
+                    selected.Value2 = value2_copy;
+                    //TODO 2019/3/4 为了防止缓存参照过长阻碍垃圾回收
+                    value2_copy = null;
+                }
+                excel.ScreenUpdating = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Print(ex.Message);
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+            }
+
+            finally
+            {
+                if (excel != null)
+                {
+                    excel.ScreenUpdating = true;
+                    Marshal.ReleaseComObject(excel);
+                }
+            }
+        }
+
+
     }
+
 
 }

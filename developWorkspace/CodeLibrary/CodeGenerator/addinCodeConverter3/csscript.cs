@@ -314,6 +314,13 @@ public class Script
             convertRule.Text = getResByExt("9.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
+        [MethodMeta(Name = "Junit formatter", Date = "2009-07-20", Description = "read", LargeIcon = "junit")]
+        public void EventHandler14(object sender, RoutedEventArgs e)
+        {
+            var data = DevelopWorkspace.Base.Excel.GetDataWithSchemaFromActivedSheet();
+            if(data) DevelopWorkspace.Base.Excel.DrawDataWithSchemaToExcel(data);
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
         public override UserControl getView(string strXaml)
         {
             StringReader strreader = new StringReader(strXaml);

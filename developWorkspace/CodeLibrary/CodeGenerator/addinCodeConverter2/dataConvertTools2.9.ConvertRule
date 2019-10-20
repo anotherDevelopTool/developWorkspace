@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #set($classvariablename = ${root.TableInfo.ClassName.Substring(0,1).ToLower()})
 #set($classvariablename = "${classvariablename}${root.TableInfo.ClassName.Substring(1)}" )
 #set($keynum = 0)
@@ -241,3 +242,248 @@ public List<${root.TableInfo.ClassName}Entity>  $methodName($params) {
 #end
    
 }
+=======
+#set($classvariablename = ${root.TableInfo.ClassName.Substring(0,1).ToLower()})
+#set($classvariablename = "${classvariablename}${root.TableInfo.ClassName.Substring(1)}" )
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.IsKey.equals("*"))
+  #set($keynum = $keynum + 1)
+  #if($ColumnInfo.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfo.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfo.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfo.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfo.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfo.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfo.CameralVariable")
+  #set($comma =",")
+#end
+#end
+
+#if($root.TableInfo.DataSource.EndsWith("core"))
+package ${root.Setting.RootPackage}.db.core.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.core.dao.base.RbaDao;
+	#set($jpa = "core")
+	#set($basedao = "RbaDao")
+#elseif($root.TableInfo.DataSource.EndsWith("front"))
+package jp.co.rakuten.brandavenue.backend.item.api.db.front.dao;
+	#set($jpa = "front")
+	#set($basedao = "RbaFrontDao")
+#elseif($root.TableInfo.DataSource.EndsWith("ics"))
+package ${root.Setting.RootPackage}.db.ics.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.config.ICSRepositoryConfig;
+import jp.co.rakuten.firstparty.spring.jpa.dao.Dao;
+	#set($jpa = "ics")
+	#set($basedao = "Dao")
+#elseif($root.TableInfo.DataSource.EndsWith("sale"))
+package ${root.Setting.RootPackage}.db.sale.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.config.SaleRepositoryConfig;
+import jp.co.rakuten.firstparty.spring.jpa.dao.Dao;
+	#set($jpa = "sale")
+	#set($basedao = "Dao")
+#else
+package ${root.Setting.RootPackage}.db.core.dao;
+
+import jp.co.rakuten.brandavenue.backend.item.api.db.core.dao.base.RbaDao;
+	#set($jpa = "core")
+	#set($basedao = "RbaDao")
+#end
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import jp.co.rakuten.firstparty.spring.jpa.annotation.CreateQuery;
+/**
+ * ${root.TableInfo.Remark}に関するDAOクラ�?
+ *
+ *
+ */
+@Repository
+public class ${root.TableInfo.ClassName}Dao extends $basedao {
+
+  private ${root.TableInfo.ClassName}Entity ${classvariablename}Entity = new ${root.TableInfo.ClassName}Entity();
+  
+#set( $loop = 1)  
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+    #if($loop == 1 )
+		##没有找到好的获取动态字段的方法
+		#foreach ( $key in $ColumnInfo.keys )
+			#set( $selectIdx = 1)
+			#set( $targetIdx = 1)
+			#if( $key.StartsWith("SELECT:") )
+			  #set($methodName = $key.SubString(7))
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
+
+  /**
+   * 検索条件を元�?{root.TableInfo.Remark}情報を検索す�?
+   *
+#foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
+##VelocityDictionary use...
+#if($ColumnInfoInner.getValue($key) == "*")
+#set( $single = "yes")
+#if($ColumnInfoInner.IsKey == "*")
+#set( $single = "yes")
+#else
+#set( $single = "no")
+#end
+#set($keynum = $keynum + 1)
+#if($ColumnInfoInner.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfoInner.CameralVariable")
+  #set($comma =",")
+ * @param $ColumnInfoInner.CameralVariable
+   * 
+#end
+#end
+   * @return ${root.TableInfo.ClassName.ToLower()}
+   */
+  @CreateQuery
+  #if($single == "yes" )
+public ${root.TableInfo.ClassName}Entity $methodName($params) {
+    return (${root.TableInfo.ClassName}Entity) getNativeQueryWithoutMax(${classvariablename}Entity).getSingleResult();
+  }
+  #else
+public List<${root.TableInfo.ClassName}Entity>  $methodName($params) {
+    return getNativeQueryWithMax(${classvariablename}Entity).getResultList();
+  }
+#end
+  
+##INSERT#############
+			#elseif( $key.StartsWith("INSERT:") )
+			  #set($methodName = $key.SubString(7))
+
+  /**
+   * ${root.TableInfo.Remark}新規登録
+   *
+   * @param ${root.TableInfo.ClassName.ToLower()}
+   *          ${root.TableInfo.ClassName.ToLower()} Entity
+   * @return create cnt
+   */
+  @CreateQuery
+  public int $methodName(${root.TableInfo.ClassName}Entity $classvariablename) {
+    return getNativeQueryWithoutMax().executeUpdate();
+  }
+##UPDATE#############
+		#elseif( $key.StartsWith("UPDATE:") )
+			  #set($methodName = $key.SubString(7))
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
+
+  /**
+   * ${root.TableInfo.Remark}を一件更新す�?
+   *
+#foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
+##VelocityDictionary use...
+#if($ColumnInfoInner.getValue($key) == "*")
+#set($keynum = $keynum + 1)
+#if($ColumnInfoInner.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfoInner.CameralVariable")
+#set($comma =",")
+ * @param $ColumnInfoInner.CameralVariable
+   * 
+#end
+#end
+   * @param ${root.TableInfo.ClassName.ToLower()}
+   *          ${root.TableInfo.ClassName.ToLower()} Entity
+   * @return update cnt
+   */
+  @CreateQuery
+  public int $methodName($params, ${root.TableInfo.ClassName}Entity $classvariablename) {
+    return getNativeQueryWithoutMax().executeUpdate();
+  }
+##DELETE#############
+			#elseif( $key.StartsWith("DELETE:") )
+			  #set($methodName = $key.SubString(7))
+#set($keynum = 0)
+#set($params = "")
+#set($comma ="")
+
+  /**
+   * ${root.TableInfo.Remark}を一件削除する（物理削除�?
+   *
+#foreach ( $ColumnInfoInner in $root.TableInfo.Columns )
+##VelocityDictionary use...
+#if($ColumnInfoInner.getValue($key) == "*")
+#set($keynum = $keynum + 1)
+#if($ColumnInfoInner.DataTypeName.equals("int"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("number"))
+	#set($type = "Integer")
+  #elseif($ColumnInfoInner.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+  #elseif($ColumnInfoInner.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+  #else
+	#set($type = "String")
+  #end
+  #set($params = "$params$comma${type} $ColumnInfoInner.CameralVariable")
+  #set($comma =",")
+ * @param $ColumnInfoInner.CameralVariable
+   * 
+#end
+#end
+   * @return delete cnt
+   */
+  @CreateQuery
+  public int $methodName($params) {
+    return getNativeQueryWithoutMax().executeUpdate();
+  }
+
+
+			#end
+		#end
+		#set( $loop = 2)
+	#end
+#end
+   
+}
+>>>>>>> 9ce2faf72dfd7e05d9b0682132f761bfb5963794
