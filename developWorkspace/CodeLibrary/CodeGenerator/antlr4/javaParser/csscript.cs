@@ -28,10 +28,12 @@ public class Script
             dest = AppDomain.CurrentDomain.BaseDirectory + @"compiled\",
             start_rule = "file",
             grammar = "Java.Code",
+            vistor = AppDomain.CurrentDomain.BaseDirectory + @"compiled\CustomeVistor.cs",
             lexer = AppDomain.CurrentDomain.BaseDirectory + @"compiled\JavaLexer.g4",
             parser = AppDomain.CurrentDomain.BaseDirectory + @"compiled\JavaParser.g4"
         };
 
+        System.IO.File.WriteAllText(@"{vistor}".FormatWith(setting), args[0]);
         System.IO.File.WriteAllText(@"{lexer}".FormatWith(setting), args[1]);
         System.IO.File.WriteAllText(@"{parser}".FormatWith(setting), args[2]);
 

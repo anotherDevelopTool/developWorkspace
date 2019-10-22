@@ -1,7 +1,7 @@
 <Script>
   <run>
-    <title>antlr4 CSV</title>
-    <description>antlr4 CSV</description>
+    <title>parser java demo</title>
+    <description>parser java demo</description>
     <appdomain>REQUESTED</appdomain>  
   </run>
   <codeBlock>

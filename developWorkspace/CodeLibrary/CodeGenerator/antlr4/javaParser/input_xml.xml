@@ -1,7 +1,481 @@
-public class BuhinSearchCondition extends PagingCondition{
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
+namespace Java.Code
+{
+
+    public class SourcefileParser
+    {
+      public static List<JavaClazz> GetJavaClazzInformation(string javafileContent)
+      {
+        var stream = new AntlrInputStream(javafileContent);
+        var lexer = new JavaLexer(stream);
+        var tokens = new CommonTokenStream(lexer);
+        var parser = new JavaParser(tokens);
+
+        parser.BuildParseTree = true;
+        var visitor = new CompilationUnitVisitor();
+        var results = visitor.Visit(parser.compilationUnit());   
+        return  results;
+      }
+    }
+
+    public class JavaClazz
+    {
+        public String clazzName;
+        public List<Annotation> annotationList;
+        public List<string> modifierList;
+        public List<ClazzMethod> methodList;
+        public List<SourceProperty> propertyList;
+    }
+    
+    public class Modifier
+    {
+        public String modifierName;
+        public Annotation annotation;
+    }
+    public class Annotation
+    {
+        public String qualifiedName;
+        public List<KeyValuePair<string,string>> elementValuePairList;
+    }
+    public class ClazzMethod
+    {
+        public String methodType;
+        public String methodName;
+        public List<Annotation> annotationList;
+        public List<string> modifierList;
+        public List<Parameter> parametereList;
+        public List<SourceProperty> localVariableList;
+        public List<MethodCall> methodCallList;
+    }
+    public class SourceProperty
+    {
+        public String propertyType;
+        public String propertyName;
+        public List<Annotation> annotationList;
+        public List<string> modifierList;
+    }
+    public class Parameter
+    {
+        public String pararameterType;
+        public String parameterName;
+    }
+    public class BlockStatement
+    {
+        public SourceProperty sourceProperty;
+        public MethodCall methodCall;
+    }
+    public class MethodCall
+    {
+        public String calleeName;
+        public String methodName;
+    }
+    // 2019/09/29
+    // java parser visitor
+
+    public class CompilationUnitVisitor : JavaParserBaseVisitor<List<JavaClazz>>
+    {
+        public override List<JavaClazz> VisitCompilationUnit([NotNull] JavaParser.CompilationUnitContext context) {
+            //context和typeDeclaration是1对多的关系，下面这样的语句不能正确取回值对象，需要获取路径要明确才可以
+            var visitor = new TypeDeclarationVisitor();
+            List<JavaClazz> clazzes = new List<JavaClazz>();
+            context.typeDeclaration().ToList().ForEach(
+                ctx =>
+                {
+                    if(ctx.classDeclaration() != null) clazzes.Add(ctx.Accept(visitor));
+                }
+            
+            );
+            return clazzes;
+        }
+    }
+
+    public class TypeDeclarationVisitor : JavaParserBaseVisitor<JavaClazz>
+    {
+        public override JavaClazz VisitTypeDeclaration([NotNull] JavaParser.TypeDeclarationContext context)
+        {
+            var ClazzObject = context.classDeclaration().Accept(new ClassVisitor());
+            context.classOrInterfaceModifier().ToList().ForEach(
+                ctx => {
+                    if (ctx.annotation() != null)
+                    {
+                        var annotation = ctx.annotation().Accept(new AnnotationVisitor());
+                        ClazzObject.annotationList.Add(annotation);
+                    }
+                    else {
+                        var modifierName = ctx.GetText();
+                        ClazzObject.modifierList.Add(modifierName);
+                    }
+                }
+            );
+            return ClazzObject;
+        }
+    }
+    public class ClassOrInterfaceModifierVisitor : JavaParserBaseVisitor<Modifier>
+    {
+        public override Modifier VisitClassOrInterfaceModifier([NotNull] JavaParser.ClassOrInterfaceModifierContext context)
+        {
+            Modifier modifier = new Modifier();
+            if (context.annotation() != null) modifier.annotation = context.annotation().Accept(new AnnotationVisitor());
+            else modifier.modifierName = context.GetText();
+            return modifier;
+        }
+
+    }
+    public class AnnotationVisitor : JavaParserBaseVisitor<Annotation>
+    {
+        public override Annotation VisitAnnotation([NotNull] JavaParser.AnnotationContext context) {
+            Annotation annotation = new Annotation();
+            annotation.qualifiedName = context.qualifiedName().GetText();
+            if (context.elementValuePairs() != null)
+            {
+                annotation.elementValuePairList = context.elementValuePairs().Accept(new ElementValuePairsVisitor());
+            }
+            return annotation;
+        }
+
+    }
+    public class ElementValuePairsVisitor : JavaParserBaseVisitor<List<KeyValuePair<string, string>>>
+    {
+        public override List<KeyValuePair<string, string>> VisitElementValuePairs([NotNull] JavaParser.ElementValuePairsContext context)
+        {
+            List<KeyValuePair<string, string>> elementValuePairs = new List<KeyValuePair<string, string>>();
+            var elementValuePairVisitor = new ElementValuePairVisitor();
+
+            context.elementValuePair().ToList().ForEach(
+                ctx =>
+                {
+                    elementValuePairs.Add(ctx.Accept(elementValuePairVisitor));
+                }
+            );
+            return elementValuePairs;
+
+        }
+
+    }
+    public class ElementValuePairVisitor : JavaParserBaseVisitor<KeyValuePair<string,string>>
+    {
+        public override KeyValuePair<string, string> VisitElementValuePair([NotNull] JavaParser.ElementValuePairContext context)
+        {
+            KeyValuePair<string, string> keyvaluePair = new KeyValuePair<string, string>(context.IDENTIFIER().GetText(), context.elementValue().GetText());
+            return keyvaluePair;
+        }
+
+    }
 
 
-public void setSelcolumn(String selcolumn) {
-this.selcolumn = selcolumn;
-}
+    public class ClassVisitor : JavaParserBaseVisitor<JavaClazz>
+    {
+        public override JavaClazz VisitClassDeclaration([NotNull] JavaParser.ClassDeclarationContext context) {
+
+            List<ClazzMethod> methods = new List<ClazzMethod>();
+            List<SourceProperty> properties = new List<SourceProperty>();
+
+            context.classBody().classBodyDeclaration().ToList().ForEach(
+                ctx =>
+                {
+
+                    List<Annotation> annotationList = new List<Annotation>();
+                    List<string> modifierList = new List<string>();
+
+                    ctx.modifier().ToList().ForEach(grandsonCtx => {
+                        if (grandsonCtx.classOrInterfaceModifier().annotation() != null)
+                        {
+                            var annotation = grandsonCtx.classOrInterfaceModifier().annotation().Accept(new AnnotationVisitor());
+                            annotationList.Add(annotation);
+                        }
+                        else
+                        {
+                            var modifierName = grandsonCtx.classOrInterfaceModifier().GetText();
+                            modifierList.Add(modifierName);
+                        }
+                    });
+                    var member = ctx.Accept(new MemberVisitor());
+                    if (member != null) {
+                        if (member.GetType().IsAssignableFrom(typeof(ClazzMethod))) {
+                            ((ClazzMethod)member).modifierList = modifierList;
+                            ((ClazzMethod)member).annotationList = annotationList;
+                            methods.Add((ClazzMethod)member);
+                           
+                        }
+                        else if (member.GetType().IsAssignableFrom(typeof(SourceProperty)))
+                        {
+                            ((SourceProperty)member).modifierList = modifierList;
+                            ((SourceProperty)member).annotationList = annotationList;
+
+                            properties.Add((SourceProperty)member);
+                        }
+                    }
+                }
+            );
+            return new JavaClazz() { clazzName = context.IDENTIFIER().ToString(),methodList = methods, propertyList = properties, annotationList = new List<Annotation>(),modifierList = new List<string>() };
+        }
+    }
+
+    public class MemberVisitor : JavaParserBaseVisitor<object>
+    {
+        public override object VisitMemberDeclaration([NotNull] JavaParser.MemberDeclarationContext context)
+        {
+            object returnObject = null;
+            //分歧处理
+            //memberDeclaration
+            //    : methodDeclaration
+            //    | genericMethodDeclaration
+            //    | fieldDeclaration
+            //    | constructorDeclaration
+            //    | genericConstructorDeclaration
+            //    | interfaceDeclaration
+            //    | annotationTypeDeclaration
+            //    | classDeclaration
+            //    | enumDeclaration
+            if (context.fieldDeclaration() != null)
+            {
+                returnObject = context.fieldDeclaration().Accept(new PropertyVisitor());
+            }
+            //abstract等没有具体实装的方法跳过
+            else if (context.methodDeclaration() != null && context.methodDeclaration().methodBody().block() != null)
+            {
+                returnObject = context.methodDeclaration().Accept(new MethodVisitor());
+            }
+            return returnObject;
+        }
+    }
+
+    public class MethodVisitor : JavaParserBaseVisitor<ClazzMethod>
+    {
+        public override ClazzMethod VisitMethodDeclaration([NotNull] JavaParser.MethodDeclarationContext context)
+        {
+            var typeString = context.typeTypeOrVoid().Accept(new TypeTypeOrVoidVisitor());
+            var parameteres = context.formalParameters().Accept(new FormalParametersVisitor());
+            var block = context.methodBody().block().Accept(new BlockVisitor());
+
+            return new ClazzMethod() { methodType = typeString, methodName = context.IDENTIFIER().GetText().ToString(),
+                parametereList = parameteres,
+                localVariableList = block.Key,
+                methodCallList = block.Value };
+        }
+    }
+
+    public class BlockVisitor : JavaParserBaseVisitor<KeyValuePair<List<SourceProperty>, List<MethodCall>>>
+    {
+
+        List<SourceProperty> localVariableList = new List<SourceProperty>();
+        List<MethodCall> methodCallList = new List<MethodCall>();
+
+        public override KeyValuePair<List<SourceProperty>, List<MethodCall>> VisitBlock([NotNull] JavaParser.BlockContext context)
+        {
+            context.blockStatement().ToList().ForEach(
+                blockStatementCtx =>
+                {
+                    if (blockStatementCtx.localVariableDeclaration() != null)
+                    {
+                        SourceProperty property = new SourceProperty();
+                        property.propertyType = blockStatementCtx.localVariableDeclaration().typeType().GetText();
+                        property.propertyName = blockStatementCtx.localVariableDeclaration().variableDeclarators().variableDeclarator()[0].variableDeclaratorId().GetText();
+                        localVariableList.Add(property);
+                    }
+                    else if (blockStatementCtx.statement() != null)
+                    {
+                        var statement = blockStatementCtx.statement().Accept<KeyValuePair<List<SourceProperty>, List<MethodCall>>>(new StatementVisitor());
+                        localVariableList.AddRange(statement.Key);
+                        methodCallList.AddRange(statement.Value);
+                    }
+                }
+            );
+            return new KeyValuePair<List<SourceProperty>, List<MethodCall>>(localVariableList, methodCallList);
+        }
+    }
+
+    //没有对所有的pattern进行取值处理日后根据需要定制
+    public class ExpressionVisitor : JavaParserBaseVisitor<KeyValuePair<List<SourceProperty>, List<MethodCall>>>
+    {
+        List<SourceProperty> localVariableList = new List<SourceProperty>();
+        List<MethodCall> methodCallList = new List<MethodCall>();
+        public override KeyValuePair<List<SourceProperty>, List<MethodCall>> VisitExpression([NotNull] JavaParser.ExpressionContext context)
+        {
+            if (context.methodCall() != null)
+            {
+                MethodCall methodCall = new MethodCall();
+                if (context.expression().Count() == 0)
+                {
+                    methodCall.calleeName = "this";
+                    methodCall.methodName = context.methodCall().IDENTIFIER().GetText();
+                    methodCallList.Add(methodCall);
+
+                }
+                else if(context.expression().Count() == 1)
+                {
+                    var gettext = context.expression()[0].GetText();
+                    if (gettext.IndexOf(".") == -1)
+                    {
+                        methodCall.calleeName = gettext;
+                        methodCall.methodName = context.methodCall().IDENTIFIER().GetText();
+                        methodCallList.Add(methodCall);
+                    }
+                    else {
+                        context.expression()[0].Accept(new ExpressionVisitor());
+                    }
+                }
+            }
+            context.expression().ToList().ForEach(
+                ctx => {
+                    var express = ctx.Accept(new ExpressionVisitor());
+                    localVariableList.AddRange(express.Key);
+                    methodCallList.AddRange(express.Value);
+                }
+            );
+            return new KeyValuePair<List<SourceProperty>, List<MethodCall>>(localVariableList, methodCallList);
+
+        }
+    }
+    public class StatementVisitor : JavaParserBaseVisitor<KeyValuePair<List<SourceProperty>, List<MethodCall>>>
+    {
+        List<SourceProperty> localVariableList = new List<SourceProperty>();
+        List<MethodCall> methodCallList = new List<MethodCall>();
+        public override KeyValuePair<List<SourceProperty>, List<MethodCall>> VisitStatement([NotNull] JavaParser.StatementContext context) {
+            context.expression().ToList().ForEach(
+                expressionContext =>
+                {
+                    var express = expressionContext.Accept(new ExpressionVisitor());
+                    localVariableList.AddRange(express.Key);
+                    methodCallList.AddRange(express.Value);
+                }
+            );
+            context.children.ToList().ForEach( 
+                ctx => 
+                {
+                    if (ctx is JavaParser.StatementContext) {
+                        var express = ctx.Accept(new StatementVisitor());
+                        localVariableList.AddRange(express.Key);
+                        methodCallList.AddRange(express.Value);
+                    }
+                    else if (ctx is JavaParser.BlockContext)
+                    {
+                        var block = ctx.Accept(new BlockVisitor());
+                        localVariableList.AddRange(block.Key);
+                        methodCallList.AddRange(block.Value);
+                    }
+                    else if (ctx is JavaParser.ParExpressionContext)
+                    {
+                        var block = ((JavaParser.ParExpressionContext)ctx).expression().Accept(new ExpressionVisitor());
+                        localVariableList.AddRange(block.Key);
+                        methodCallList.AddRange(block.Value);
+                    }
+                    else if (ctx is JavaParser.ForControlContext)
+                    {
+                        var forcontroll = ((JavaParser.ForControlContext)ctx);
+                        if (forcontroll.expression() != null)
+                        {
+                            var block = forcontroll.expression().Accept(new ExpressionVisitor());
+                            localVariableList.AddRange(block.Key);
+                            methodCallList.AddRange(block.Value);
+                        }
+                        else if (forcontroll.enhancedForControl() != null)
+                        {
+                            SourceProperty sourceProperty = new SourceProperty();
+                            sourceProperty.propertyType = forcontroll.enhancedForControl().typeType().GetText();
+                            sourceProperty.propertyName = forcontroll.enhancedForControl().variableDeclaratorId().GetText();
+                            localVariableList.Add(sourceProperty);
+                            var block = forcontroll.enhancedForControl().expression().Accept(new ExpressionVisitor());
+                            localVariableList.AddRange(block.Key);
+                            methodCallList.AddRange(block.Value);
+                        }
+                        
+                    }
+                }
+
+            );
+            return new KeyValuePair<List<SourceProperty>, List<MethodCall>>(localVariableList, methodCallList);
+        }
+    }
+    public class PropertyVisitor : JavaParserBaseVisitor<SourceProperty>
+    {
+        public override SourceProperty VisitFieldDeclaration([NotNull] JavaParser.FieldDeclarationContext context)
+        {
+            var typeString = context.typeType().Accept(new TypeVisitor());
+            return new SourceProperty() { propertyType = typeString, propertyName = context.variableDeclarators().variableDeclarator().First().variableDeclaratorId().GetText() };
+        }
+    }
+
+    public class FormalParametersVisitor : JavaParserBaseVisitor<List<Parameter>>
+    {
+        public override List<Parameter> VisitFormalParameters([NotNull] JavaParser.FormalParametersContext context)
+        {
+            List<Parameter> parameteres = new List<Parameter>();
+            if(context.formalParameterList() !=null ) context.formalParameterList().formalParameter().ToList().ForEach(
+                ctx => parameteres.Add(
+                new Parameter()
+                    {
+                        pararameterType = ctx.typeType().GetText().ToString(),
+                        parameterName = ctx.variableDeclaratorId().GetText().ToString()
+                    }
+                )
+            );
+
+            return parameteres;
+
+        }
+    }
+
+    public class TypeTypeOrVoidVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitTypeTypeOrVoid([NotNull] JavaParser.TypeTypeOrVoidContext context)
+        {
+            return context.GetText();
+        }
+    }
+    public class TypeVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitTypeType([NotNull] JavaParser.TypeTypeContext context)
+        {
+            return context.GetText();
+        }
+    }
+
+    public class AnnotationTypeDeclarationVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitAnnotationTypeDeclaration([NotNull] JavaParser.AnnotationTypeDeclarationContext context) {
+            return VisitChildren(context);
+        }
+
+    }
+    public class VisitAnnotationTypeBodyVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitAnnotationTypeBody([NotNull] JavaParser.AnnotationTypeBodyContext context)
+        {
+            return VisitChildren(context);
+        }
+
+    }
+    public class AnnotationTypeElementDeclarationVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitAnnotationTypeElementDeclaration([NotNull] JavaParser.AnnotationTypeElementDeclarationContext context)
+        {
+            return VisitChildren(context);
+        }
+
+    }
+    public class AnnotationTypeElementRestVisitor : JavaParserBaseVisitor<string>
+    {
+        public override string VisitAnnotationTypeElementRest([NotNull] JavaParser.AnnotationTypeElementRestContext context) 
+        {
+            return VisitChildren(context);
+        }
+
+    }
+    public class AnnotationMethodOrConstantRestVisitor : JavaParserBaseVisitor<string>
+{
+        public override string VisitAnnotationMethodOrConstantRest([NotNull] JavaParser.AnnotationMethodOrConstantRestContext context) 
+        {
+            return VisitChildren(context);
+        }
+
+    }
+
 }

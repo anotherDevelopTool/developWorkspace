@@ -703,6 +703,11 @@ namespace DevelopWorkspace.Base
                         targetSheet.Cells(value2_copy.GetLength(0) + sartRow - 1, value2_copy.GetLength(1) + startCol - 1));
                     selected.NumberFormat = "@";
                     selected.Value2 = value2_copy;
+
+                    DrawBorder(selected);
+
+                    targetSheet.Columns("A:AZ").EntireColumn.AutoFit();
+
                     //TODO 2019/3/4 为了防止缓存参照过长阻碍垃圾回收
                     value2_copy = null;
                 }
@@ -724,7 +729,24 @@ namespace DevelopWorkspace.Base
             }
         }
 
-
+        public static void DrawBorder(Range selected)
+        {
+            XlBordersIndex[] borderIndexes = new XlBordersIndex[] {
+            XlBordersIndex.xlEdgeLeft,
+            XlBordersIndex.xlEdgeTop,
+            XlBordersIndex.xlEdgeBottom,
+            XlBordersIndex.xlEdgeRight,
+            XlBordersIndex.xlInsideVertical,
+            XlBordersIndex.xlInsideHorizontal
+            };
+            foreach (XlBordersIndex idx in borderIndexes)
+            {
+                selected.Borders[idx].LineStyle = XlLineStyle.xlContinuous;
+                selected.Borders[idx].ColorIndex = 0;
+                selected.Borders[idx].TintAndShade = 0;
+                selected.Borders[idx].Weight = XlBorderWeight.xlThin;
+            }
+        }
     }
 
 

@@ -73,56 +73,131 @@ namespace DevelopWorkspace.Main.View
 
                 var ribbonTabTool = FindResource("RibbonTabTool") as Fluent.RibbonTabItem;
                 RibbonGroupBox ribbonGroupBox = Base.Utils.WPF.FindLogicaChild<Fluent.RibbonGroupBox>(ribbonTabTool, "ribbonGroupBox");
+                string defaultCategoryKey = ribbonTabTool.Header.ToString();
                 Fluent.Button btn_1 = Base.Utils.WPF.FindLogicaChild<Fluent.Button>(ribbonTabTool, "btn_1");
-                List<Fluent.Button> buttonList = new List<Fluent.Button>();
+                List<System.Windows.Controls.Control> buttonList = new List<System.Windows.Controls.Control>();
                 buttonList.Add(btn_1);
                 var methods = model.GetType().GetMethods().Where(m => m.GetCustomAttributes(typeof(MethodMetaAttribute), false).Length > 0).ToList();
+                List<MethodMetaAttribute> methodMetaAttributeList = new List<MethodMetaAttribute>();
+                Dictionary<string, Fluent.RibbonTabItem> tabItemList = new Dictionary<string, RibbonTabItem>();
+                List<Fluent.RibbonTabItem> tabItemSortedList = new List<RibbonTabItem>();
+                tabItemList[defaultCategoryKey] = ribbonTabTool;
+                tabItemSortedList.Add(ribbonTabTool);
+                ///
+                for (int i = 0; i < methods.Count; i++)
+                {
+                    var method = methods[i];
+                    var methodAttribute = (MethodMetaAttribute)Attribute.GetCustomAttribute(methods[i], typeof(MethodMetaAttribute));
+                    methodMetaAttributeList.Add(methodAttribute);
+                }
+                var categories = methodMetaAttributeList.GroupBy(attribute => attribute.Category);
+                bool hasDefaultCatetory = false;
+                foreach (var category in categories)
+                {
+                    if (string.IsNullOrEmpty(category.Key))
+                    {
+                        hasDefaultCatetory = true;
+                    }
+                }
+                bool firstIdx = true;
+                foreach (var category in categories) {
+                    if (string.IsNullOrEmpty(category.Key))
+                    {
+                    }
+                    else {
+                        Fluent.RibbonTabItem ribbonTabItem;
+                        if (firstIdx && !hasDefaultCatetory)
+                        {
+                            ribbonTabItem = ribbonTabTool;
+                            ribbonTabItem.Header = category.Key;
+                            tabItemList[category.Key] = tabItemList[defaultCategoryKey];
+                            tabItemList.Remove(defaultCategoryKey);
+                            firstIdx = !firstIdx;
+                        }
+                        else
+                        {
+                            ribbonTabItem = new Fluent.RibbonTabItem();
+                            ribbonTabItem.Header = category.Key;
+                            RibbonGroupBox groupBox = new RibbonGroupBox();
+                            groupBox.Header = category.Key;
+                            ribbonTabItem.Groups.Add(groupBox);
+                            tabItemList[category.Key] = ribbonTabItem;
+                            tabItemSortedList.Add(ribbonTabItem);
+                        }
+                    }
+                }
                 for (int i = 1; i < methods.Count; i++)
                 {
-                    Fluent.Button button = new Fluent.Button();
-                    ribbonGroupBox.Items.Add(button);
-                    buttonList.Add(button);
+                    string category = methodMetaAttributeList[i].Category;
+                    string controlType = string.IsNullOrEmpty(methodMetaAttributeList[i].Control) ? "button" : methodMetaAttributeList[i].Control;
+                    if ("button".Equals(controlType))
+                    {
+                        var button = new Fluent.Button();
+                        category = string.IsNullOrEmpty(category) ? defaultCategoryKey : category;
+                        var ribbonTabItem = tabItemList.Where(groubox => groubox.Key.Equals(category)).Select(dic => dic.Value).First();
+                        ribbonTabItem.Groups[0].Items.Add(button);
+                        buttonList.Add(button);
+                    }
+                    else if ("combobox".Equals(controlType))
+                    {
+                        var button = new Fluent.ComboBox();
+                        button.Name = methodMetaAttributeList[i].Name;
+                        category = string.IsNullOrEmpty(category) ? defaultCategoryKey : category;
+                        var ribbonTabItem = tabItemList.Where(groubox => groubox.Key.Equals(category)).Select(dic => dic.Value).First();
+                        ribbonTabItem.Groups[0].Items.Add(button);
+                        buttonList.Add(button);
+
+                        var initFunc = model.GetType().GetMethods().Where(m => m.Name.Equals(methodMetaAttributeList[i].Init)).First();
+                        var dataList = initFunc.Invoke(model, new object[] { });
+                        button.ItemsSource = (List<string>)dataList;
+                    }
                 }
                 for (int i = 0; i < methods.Count; i++)
                 {
                     var method = methods[i];
                     var methodAttribute = (MethodMetaAttribute)Attribute.GetCustomAttribute(methods[i], typeof(MethodMetaAttribute));
-                    buttonList[i].Header = methodAttribute.Name;
-                    buttonList[i].ToolTip = methodAttribute.Description;
-                    string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", methodAttribute.LargeIcon + ".png");
-                    if (File.Exists(iconfile))
+                    if (buttonList[i] is Fluent.Button)
                     {
-                        var uri = new Uri(iconfile);
-                        buttonList[i].LargeIcon = new BitmapImage(uri);
-                    }
-                    else {
-                        var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(methodAttribute.LargeIcon) ? "plugin" : methodAttribute.LargeIcon) + ".png";
-                        if (CanLoadResource(new Uri(resourceString, UriKind.Relative)))
+                        var button = ((Fluent.Button)buttonList[i]);
+
+                        button.Header = methodAttribute.Name;
+                        button.ToolTip = methodAttribute.Description;
+                        string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", methodAttribute.LargeIcon + ".png");
+                        if (File.Exists(iconfile))
                         {
-                            buttonList[i].LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                            var uri = new Uri(iconfile);
+                            button.LargeIcon = new BitmapImage(uri);
                         }
                         else
                         {
-                            buttonList[i].LargeIcon = new BitmapImage(new Uri("/DevelopWorkspace;component/Images/plugin.png", UriKind.Relative));
+                            var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(methodAttribute.LargeIcon) ? "plugin" : methodAttribute.LargeIcon) + ".png";
+                            if (CanLoadResource(new Uri(resourceString, UriKind.Relative)))
+                            {
+                                button.LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                            }
+                            else
+                            {
+                                button.LargeIcon = new BitmapImage(new Uri("/DevelopWorkspace;component/Images/plugin.png", UriKind.Relative));
+                            }
                         }
-                    }
-                    
-                    buttonList[i].Click += (obj, subargs) =>
-                    {
 
-                        Base.Services.BusyWorkService(new Action(() =>
+                        button.Click += (obj, subargs) =>
                         {
-                            try
+
+                            Base.Services.BusyWorkService(new Action(() =>
                             {
-                                method.Invoke(model, new object[] { obj, subargs });
-                            }
-                            catch (Exception ex)
-                            {
-                                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
-                            }
-                        }));
-                        
-                    };
+                                try
+                                {
+                                    method.Invoke(model, new object[] { obj, subargs });
+                                }
+                                catch (Exception ex)
+                                {
+                                    DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                                }
+                            }));
+
+                        };
+                    }
                 }
 
                 //之前的active内容关联的tab需要隐藏
@@ -135,10 +210,12 @@ namespace DevelopWorkspace.Main.View
                 }
                 //从control.resources里面取出ribbontabitem的xaml定义同时实例化
                 //    DevelopWorkspace.Base.Logger.WriteLine("Process committed");
-                ribbon.Tabs.Add(ribbonTabTool);
-                ribbon.SelectedTabIndex = ribbon.Tabs.Count - 1;
+                tabItemSortedList.ForEach(tabItem => {
+                    ribbon.Tabs.Add(tabItem);
+                });
+                ribbon.SelectedTabIndex = ribbon.Tabs.Count - tabItemSortedList.Count();
                 Base.Services.ActiveModel.RibbonTabIndex = ribbon.SelectedTabIndex;
-                Base.Services.RegRibbon(this.DataContext as Base.Model.PaneViewModel, new List<object> { ribbonTabTool });
+                Base.Services.RegRibbon(this.DataContext as Base.Model.PaneViewModel, tabItemSortedList.ToList<object>());
 
                 Base.Services.ActiveModel = this.DataContext as Base.Model.PaneViewModel;
 

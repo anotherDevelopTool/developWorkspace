@@ -37,6 +37,9 @@ namespace DevelopWorkspace.Base
     {
         public string Name { get; set; }
         public string Date { get; set; }
+        public string Control { get; set; }
+        public string Init { get; set; }
+        public string Category { get; set; }
         public string Description { get; set; }
         public string LargeIcon { get; set; }
     }

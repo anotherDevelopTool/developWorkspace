@@ -44,6 +44,11 @@ using unvell.ReoGrid;
 using unvell.ReoGrid.CellTypes;
 using unvell.ReoGrid.Chart;
 using unvell.ReoGrid.Drawing.Shapes;
+using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
+using Antlr4.Runtime.Misc;
+using Java.Code;
+using System.Linq;
 public class Script
 {
     //TODO 面向Addin基类化
@@ -52,6 +57,7 @@ public class Script
     {
         UserControl view;
         ReoGridControl reogrid = null;
+        TreeView codeLibraryTreeView = null;
         ICSharpCode.AvalonEdit.Edi.EdiTextEditor convertRule;
 
         string currentExt = "ConvertRule";
@@ -313,6 +319,24 @@ public class Script
             convertRule.Text = getResByExt("9.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
+
+        [MethodMeta(Name = "projectlist", Category = "junit", Control = "combobox", Init= "getProjectList", Description = "read", LargeIcon = "template")]
+        public void EventHandler14(object sender, RoutedEventArgs e)
+        {
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+        public List<string> getProjectList()
+        {
+            return new List<string>() { "rba-bo-api","rba-common","rba-backend-api"};
+        }
+
+        [MethodMeta(Name = "junit", Category = "junit", Description = "read", LargeIcon = "template")]
+        public void EventHandler15(object sender, RoutedEventArgs e)
+        {
+            walkDirectoryRecursive(new DirectoryInfo(@"C:\wbc_sam\workspace\wbc-sam\src\main\java\com\water_biz_c\sam\controller"));
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+
         public override UserControl getView(string strXaml)
         {
             StringReader strreader = new StringReader(strXaml);
@@ -323,7 +347,28 @@ public class Script
 			reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
             reogrid.CurrentWorksheet.SetSettings(WorksheetSettings.View_ShowGridLine, false);
 
-            
+            codeLibraryTreeView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<TreeView>(view, "codeLibraryTreeView");
+            codeLibraryTreeView.SelectedItemChanged += (obj, subargs) =>
+            {
+            };
+            //codeLibraryTreeView.Loaded += (obj, subargs) =>
+            //{
+            //    codeLibraryTreeView.Items.Clear();
+            //    var treeViewItem1 = new TreeViewItem();
+            //    treeViewItem1.Header = "controller1";
+            //    codeLibraryTreeView.Items.Add(treeViewItem1);
+
+            //    var subTreeViewItem1 = new TreeViewItem();
+            //    subTreeViewItem1.Header = "service1";
+            //    treeViewItem1.Items.Add(subTreeViewItem1);
+
+            //    var treeViewItem2 = new TreeViewItem();
+            //    treeViewItem2.Header = "controller2";
+            //    codeLibraryTreeView.Items.Add(treeViewItem2);
+
+            //};
+
+
             convertRule = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ICSharpCode.AvalonEdit.Edi.EdiTextEditor>(view, "convertRule");
             
             EventHandler6(null,null);
@@ -472,10 +517,99 @@ public class Script
             schemmaRange.row--;
 
 
-        }        
+        }
+
+        public string aggregateString(IEnumerable<string> listString)
+        {
+            if (listString.Count() == 0)
+            {
+                return "";
+            }
+            return listString.Aggregate((total, next) => total + "\t" + next);
+        }
+
+        public void parseSourceFile(string filepath)
+        {
+            var lines = File.ReadAllText(filepath);
+            var results = Java.Code.SourcefileParser.GetJavaClazzInformation(lines);
+            foreach (JavaClazz javaClazz in results)
+            {
+
+                var clazzViewItem = new TreeViewItem();
+                clazzViewItem.Header = javaClazz.clazzName;
+                codeLibraryTreeView.Items.Add(clazzViewItem);
+
+                string outputString = "";
+                //outputString += javaClazz.clazzName;
+                //outputString += "\n";
+                //outputString += "annotationList\t" + aggregateString(javaClazz.annotationList.Select(annotation => annotation.qualifiedName));
+                //outputString += "\n";
+                //outputString += "modifierList\t" + aggregateString(javaClazz.modifierList);
+                //outputString += "\n";
+                //outputString += "propertyList\t" + aggregateString(javaClazz.propertyList.Select(property => property.propertyName));
+                //outputString += "\n";
+                //outputString += "methodCallList";
+                //outputString += "\n";
+                foreach (ClazzMethod clazzMethod in javaClazz.methodList)
+                {
+                    var clazzMethodViewItem = new TreeViewItem();
+                    clazzMethodViewItem.Header = clazzMethod.methodName;
+                    clazzViewItem.Items.Add(clazzMethodViewItem);
+
+                    //outputString += "\t" + clazzMethod.methodType;
+                    //outputString += "\n";
+                    //outputString += "\t" + clazzMethod.methodName;
+                    //outputString += "\n";
+                    //outputString += "\t\t" + "annotationList\t" + aggregateString(clazzMethod.annotationList.Select(annotation => annotation.qualifiedName));
+                    //outputString += "\n";
+                    //outputString += "\t\t" + "modifierList\t" + aggregateString(clazzMethod.modifierList);
+                    //outputString += "\n";
+                    //outputString += "\t\t" + "parametereList\t" + aggregateString(clazzMethod.parametereList.Select(parameter => parameter.parameterName));
+                    //outputString += "\n";
+                    //outputString += "\t\t" + "localVariableList\t" + aggregateString(clazzMethod.localVariableList.Select(property => property.propertyName));
+                    //outputString += "\n";
+                    //outputString += "\t\t" + "methodCallList\t" + aggregateString(clazzMethod.methodCallList.Select(methodcall => methodcall.calleeName + "." + methodcall.methodName + "()"));
+                    //outputString += "\n";
+
+                }
+                //DevelopWorkspace.Base.Logger.WriteLine(outputString);
+            }
+        }
+        void walkDirectoryRecursive(System.IO.DirectoryInfo root)
+        {
+            System.IO.FileInfo[] files = null;
+            System.IO.DirectoryInfo[] subDirs = null;
+
+            // First, process all the files directly under this folder
+            try
+            {
+                files = root.GetFiles("*.java");
+            }
+            catch (System.IO.DirectoryNotFoundException e)
+            {
+            }
+
+            if (files != null)
+            {
+                foreach (System.IO.FileInfo fi in files)
+                {
+                    Console.WriteLine(fi.FullName);
+                    parseSourceFile(fi.FullName);
+                }
+
+                // Now find all the subdirectories under this directory.
+                subDirs = root.GetDirectories();
+
+                foreach (System.IO.DirectoryInfo dirInfo in subDirs)
+                {
+                    // Resursive call for each subdirectory.
+                    walkDirectoryRecursive(dirInfo);
+                }
+            }
+        }
 
     }
-	
+
     public class MainWindow : Window
     {
         private Label label1;

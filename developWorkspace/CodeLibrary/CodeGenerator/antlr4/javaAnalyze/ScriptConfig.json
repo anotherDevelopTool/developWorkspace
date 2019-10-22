@@ -15,8 +15,8 @@
   "ScriptLanguage": 0,
   "FirstInputType": 3,
   "SecondInputType": 3,
-  "Title": "antlr4 java",
-  "Description": "antlr4 java",
+  "Title": "parser java demo",
+  "Description": "parser java demo",
   "Path": "C:\\Users\\xujingjiang\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\antlr4\\java",
   "typeName": "ScriptConfig",
   "jsonfile": "C:\\Users\\xujingjiang\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\antlr4\\java\\ScriptConfig.json"

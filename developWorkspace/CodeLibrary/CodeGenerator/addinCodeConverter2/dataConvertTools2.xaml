@@ -104,7 +104,19 @@
           	</WindowsFormsHost> 
         </StackPanel>  
       </TabItem>
-      <TabItem Header="Convert Rule">
+        <TabItem Header="JavaSource">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0">
+                    <TreeView Name="codeLibraryTreeView"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        MinWidth="600"
+                        MinHeight="500"
+                        Margin="0"
+                    />
+                </ScrollViewer>
+
+            </TabItem>
+            <TabItem Header="Convert Rule">
         <avalonEdit:EdiTextEditor x:Name="convertRule"
                     Grid.Row="1"
                     IsReadOnly="False"
