@@ -318,7 +318,7 @@ public class Script
         public void EventHandler14(object sender, RoutedEventArgs e)
         {
             var data = DevelopWorkspace.Base.Excel.GetDataWithSchemaFromActivedSheet();
-            if(data) DevelopWorkspace.Base.Excel.DrawDataWithSchemaToExcel(data);
+            if(data != null) DevelopWorkspace.Base.Excel.DrawDataWithSchemaToExcel(data);
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         public override UserControl getView(string strXaml)
