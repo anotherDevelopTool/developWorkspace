@@ -140,16 +140,19 @@ namespace DevelopWorkspace.Main.View
                     }
                     else if ("combobox".Equals(controlType))
                     {
-                        var button = new Fluent.ComboBox();
-                        button.Name = methodMetaAttributeList[i].Name;
+                        var combobox = new Fluent.ComboBox();
+                        combobox.Name = methodMetaAttributeList[i].Name;
                         category = string.IsNullOrEmpty(category) ? defaultCategoryKey : category;
                         var ribbonTabItem = tabItemList.Where(groubox => groubox.Key.Equals(category)).Select(dic => dic.Value).First();
-                        ribbonTabItem.Groups[0].Items.Add(button);
-                        buttonList.Add(button);
+                        ribbonTabItem.Groups[0].Items.Add(combobox);
+                        buttonList.Add(combobox);
 
                         var initFunc = model.GetType().GetMethods().Where(m => m.Name.Equals(methodMetaAttributeList[i].Init)).First();
                         var dataList = initFunc.Invoke(model, new object[] { });
-                        button.ItemsSource = (List<string>)dataList;
+                        combobox.ItemsSource = (List<string>)dataList;
+                        combobox.SelectedIndex = 0;
+                        combobox.MinWidth = 100;
+                        combobox.Margin = new Thickness(5,10,5,10);
                     }
                 }
                 for (int i = 0; i < methods.Count; i++)
@@ -198,6 +201,26 @@ namespace DevelopWorkspace.Main.View
 
                         };
                     }
+                    if (buttonList[i] is Fluent.ComboBox)
+                    {
+                        var combobox = (Fluent.ComboBox)buttonList[i];
+                        combobox.SelectionChanged += (obj, subargs) =>
+                        {
+                            Base.Services.BusyWorkService(new Action(() =>
+                            {
+                                try
+                                {
+                                    method.Invoke(model, new object[] { obj,combobox.SelectedItem });
+                                }
+                                catch (Exception ex)
+                                {
+                                    DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                                }
+                            }));
+
+                        };
+                    }
+
                 }
 
                 //之前的active内容关联的tab需要隐藏
@@ -221,5 +244,6 @@ namespace DevelopWorkspace.Main.View
 
             }));
         }
+
     }
 }

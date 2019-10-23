@@ -49,6 +49,8 @@ using Antlr4.Runtime.Tree;
 using Antlr4.Runtime.Misc;
 using Java.Code;
 using System.Linq;
+using Xceed.Wpf.Toolkit.PropertyGrid;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 public class Script
 {
     //TODO 面向Addin基类化
@@ -59,6 +61,7 @@ public class Script
         ReoGridControl reogrid = null;
         TreeView codeLibraryTreeView = null;
         ICSharpCode.AvalonEdit.Edi.EdiTextEditor convertRule;
+        PropertyGrid propertygrid1;
 
         string currentExt = "ConvertRule";
 
@@ -321,7 +324,7 @@ public class Script
         }
 
         [MethodMeta(Name = "projectlist", Category = "junit", Control = "combobox", Init= "getProjectList", Description = "read", LargeIcon = "template")]
-        public void EventHandler14(object sender, RoutedEventArgs e)
+        public void EventHandler14(object sender, string selectedItem)
         {
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
@@ -351,22 +354,8 @@ public class Script
             codeLibraryTreeView.SelectedItemChanged += (obj, subargs) =>
             {
             };
-            //codeLibraryTreeView.Loaded += (obj, subargs) =>
-            //{
-            //    codeLibraryTreeView.Items.Clear();
-            //    var treeViewItem1 = new TreeViewItem();
-            //    treeViewItem1.Header = "controller1";
-            //    codeLibraryTreeView.Items.Add(treeViewItem1);
-
-            //    var subTreeViewItem1 = new TreeViewItem();
-            //    subTreeViewItem1.Header = "service1";
-            //    treeViewItem1.Items.Add(subTreeViewItem1);
-
-            //    var treeViewItem2 = new TreeViewItem();
-            //    treeViewItem2.Header = "controller2";
-            //    codeLibraryTreeView.Items.Add(treeViewItem2);
-
-            //};
+            propertygrid1 = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<PropertyGrid>(view, "propertygrid1");
+            propertygrid1.SelectedObject = DevelopWorkspace.Base.JsonConfig<CodeConfig>.loadByFullPath(getResPathByExt("Setting"));
 
 
             convertRule = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ICSharpCode.AvalonEdit.Edi.EdiTextEditor>(view, "convertRule");
@@ -656,4 +645,49 @@ public class Script
         win.Show();
     }
 
+}
+public enum JpaSource { CORE, FRONT, ICS }
+public class RenameRuleSetting
+{
+    public string SchemaKey { set; get; }
+    public string SchemaAlias { set; get; }
+}
+public class CodeConfig : ConfigBase
+{
+    [System.ComponentModel.DataAnnotations.Schema.Column(Order = 1)]
+    [Category("common")]
+    [Editor(typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.EnumComboBoxEditor), typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.EnumComboBoxEditor))]
+    public JpaSource SelectedJpaSource { get; set; }
+    [Category("common")]
+    public string ClassName { get; set; }
+
+    [Category("common")]
+    [Editor(typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.ComboBoxEditor), typeof(Xceed.Wpf.Toolkit.PropertyGrid.Editors.ComboBoxEditor))]
+    public List<RenameRule> renameRules { get; set; }
+
+    [System.ComponentModel.DisplayName("My string...")]
+    [Xceed.Wpf.Toolkit.PropertyGrid.Attributes.ItemsSource(typeof(MyCustomItemsSource))]
+    public string SelectedString
+    {
+        get;
+        set;
+    }
+    public CodeConfig()
+    {
+    }
+    public CodeConfig(int create)
+    {
+
+    }
+}
+public class MyCustomItemsSource : Xceed.Wpf.Toolkit.PropertyGrid.Attributes.IItemsSource
+{
+    public Xceed.Wpf.Toolkit.PropertyGrid.Attributes.ItemCollection GetValues()
+    {
+        Xceed.Wpf.Toolkit.PropertyGrid.Attributes.ItemCollection strings = new Xceed.Wpf.Toolkit.PropertyGrid.Attributes.ItemCollection();
+        strings.Add("A");
+        strings.Add("B");
+        strings.Add("C");
+        return strings;
+    }
 }

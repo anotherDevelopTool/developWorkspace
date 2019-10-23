@@ -96,6 +96,16 @@
 
 
       </TabControl.Resources>
+      <TabItem Header="Settings">
+        <StackPanel x:Name="border3">
+          <extoolkit:PropertyGrid Name="propertygrid1"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Width="{Binding ElementName=border3,Path=ActualWidth}"
+            Height="{Binding ElementName=border3,Path=ActualHeight}"
+            Margin="0" />
+        </StackPanel>
+      </TabItem>      
       <TabItem  Header="Data Source" ToolTip="① please copy-paste schema to dataSource ② select convertRule ③ convert...">
 
         <StackPanel x:Name="border">

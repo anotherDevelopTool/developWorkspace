@@ -39,10 +39,19 @@ namespace DevelopWorkspace.Main
             // This is an anonymous delegate that will be called when the initialization has COMPLETED
             AsyncCallback initCompleted = delegate (IAsyncResult ar)
             {
-                App.Current.ApplicationInitialize.EndInvoke(result);
-
-                // Ensure we call close on the UI Thread.
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Invoker)delegate { Close(); });
+                try
+                {
+                    App.Current.ApplicationInitialize.EndInvoke(result);
+                }
+                catch (Exception ex)
+                {
+                }
+                try { 
+                    // Ensure we call close on the UI Thread.
+                    Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Invoker)delegate { Close(); });
+                }
+                catch (Exception ex) {
+                }
             };
 
             // This starts the initialization process on the Application
