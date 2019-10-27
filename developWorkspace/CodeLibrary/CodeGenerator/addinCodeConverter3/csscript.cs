@@ -66,7 +66,7 @@ public class Script
         JavaProject javaProject = new JavaProject();
         List<JavaClazz> parsedClazzList = new List<JavaClazz>();
 
-        [MethodMeta(Name = "变换", Date = "2009-07-20", Description = "变换", LargeIcon = "convert")]
+        [MethodMeta(Name = "变换", Category = "Code", Date = "2009-07-20", Description = "变换", LargeIcon = "convert")]
         public void EventHandler1(object sender, RoutedEventArgs e)
         {
             try
@@ -146,7 +146,7 @@ public class Script
                 host.Visibility = System.Windows.Visibility.Visible;
             }
         }
-        [MethodMeta(Name = "文件做成", Date = "2009-07-20", Description = "文件做成", LargeIcon = "convert")]
+        [MethodMeta(Name = "文件做成", Category = "Code", Date = "2009-07-20", Description = "文件做成", LargeIcon = "convert")]
         public void EventHandler2(object sender, RoutedEventArgs e)
         {
             try
@@ -287,7 +287,7 @@ public class Script
 
         }
 
-        [MethodMeta(Name = "保存", Date = "2009-07-20", Description = "保存", LargeIcon = "save")]
+        [MethodMeta(Name = "保存", Category = "Code", Date = "2009-07-20", Description = "保存", LargeIcon = "save")]
         public void EventHandler4(object sender, RoutedEventArgs e)
         {
             //reogrid.Save(getResPathByExt("xlsx"));
@@ -295,7 +295,7 @@ public class Script
 
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "entity", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "entity", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler6(object sender, RoutedEventArgs e)
         {
             reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
@@ -303,49 +303,49 @@ public class Script
             convertRule.Text = getResByExt("2.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "model", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "model", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler7(object sender, RoutedEventArgs e)
         {
             currentExt = "3.ConvertRule";
             convertRule.Text = getResByExt("3.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "model(client)", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "model(client)", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler8(object sender, RoutedEventArgs e)
         {
             currentExt = "4.ConvertRule";
             convertRule.Text = getResByExt("4.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "SelectSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "SelectSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler9(object sender, RoutedEventArgs e)
         {
             currentExt = "5.ConvertRule";
             convertRule.Text = getResByExt("5.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "InsertSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "InsertSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler10(object sender, RoutedEventArgs e)
         {
             currentExt = "6.ConvertRule";
             convertRule.Text = getResByExt("6.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "UpdateSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "UpdateSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler11(object sender, RoutedEventArgs e)
         {
             currentExt = "7.ConvertRule";
             convertRule.Text = getResByExt("7.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "DeleteSQL", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "DeleteSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler12(object sender, RoutedEventArgs e)
         {
             currentExt = "8.ConvertRule";
             convertRule.Text = getResByExt("8.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "Dao", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "Dao", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler13(object sender, RoutedEventArgs e)
         {
             currentExt = "9.ConvertRule";
@@ -383,9 +383,9 @@ public class Script
                 if (selectedItem != null)
                 {
                     var selectedClazz = javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith(selectedItem.Header.ToString())).FirstOrDefault();
-                    DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
-                    DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(selectedClazz), Level.DEBUG);
-                    DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
+                    //DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
+                    //DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(selectedClazz), Level.DEBUG);
+                    //DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
 
                     VelocityEngine vltEngine = new VelocityEngine();
                     vltEngine.Init();
@@ -394,6 +394,9 @@ public class Script
                     vltContext.Put("project", javaProject);
                     vltContext.Put("targetClazz", selectedClazz);
                     StringWriter vltWriter = new StringWriter();
+                    DevelopWorkspace.Base.Logger.WriteLine(selectedClazz.filePath);
+                    DevelopWorkspace.Base.Logger.WriteLine(selectedClazz.packageName);
+                    DevelopWorkspace.Base.Logger.WriteLine(selectedClazz.clazzName);
 
                     vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
                     DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
@@ -409,15 +412,126 @@ public class Script
             }
         }
 
-        [MethodMeta(Name = "TestCase", Category = "junit", Description = "read", LargeIcon = "template")]
+        [MethodMeta(Name = "文件做成", Category = "junit",  Date = "2009-07-20", Description = "文件做成", LargeIcon = "convert")]
         public void EventHandler17(object sender, RoutedEventArgs e)
         {
-            currentExt = "17.ConvertRule";
-            convertRule.Text = getResByExt("17.ConvertRule");
+            try
+            {
+                host.Visibility = System.Windows.Visibility.Hidden;
+
+                var selectedItem = codeLibraryTreeView.SelectedItem as TreeViewItem;
+                if (selectedItem != null)
+                {
+                    var selectedClazz = javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith(selectedItem.Header.ToString())).FirstOrDefault();
+                    VelocityEngine vltEngine = new VelocityEngine();
+                    vltEngine.Init();
+
+                    VelocityContext vltContext = new VelocityContext();
+                    vltContext.Put("project", javaProject);
+                    vltContext.Put("targetClazz", selectedClazz);
+                    StringWriter vltWriter = new StringWriter();
+
+                    DevelopWorkspace.Base.Logger.WriteLine(selectedClazz.filePath);
+                    DevelopWorkspace.Base.Logger.WriteLine(selectedClazz.packageName);
+                    DevelopWorkspace.Base.Logger.WriteLine(selectedClazz.clazzName);
+
+                    string packageName = selectedClazz.packageName;
+                    string packagePath = packageName.Replace(".", @"\");
+
+                    //CSV format with tab delimiter
+                    var dic = getSchemaDictionary(reogrid);
+
+                    VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
+                    string project = Setting["Project"].ToString();
+                    string codeTempBasePath = Setting["CodeTempBasePath"].ToString();
+                    string codeTempPath = Path.Combine(codeTempBasePath, Setting["CodeTempPath"].ToString());
+                    string resourceTempPath = Path.Combine(codeTempBasePath, Setting["ResourceTempPath"].ToString());
+                    string codeBasePath = Setting["CodeBasePath"].ToString();
+                    string datasource = "core";
+                    string classname = "classname";
+                    string WIN_MERGE_PATH = Setting["winmerger"].ToString();
+
+                    VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
+                    if (tableInfo["DataSource"].ToString().EndsWith("core"))
+                    {
+                        datasource = "core";
+                    }
+                    else if (tableInfo["DataSource"].ToString().EndsWith("front"))
+                    {
+                        datasource = "front";
+                    }
+                    else if (tableInfo["DataSource"].ToString().EndsWith("ics"))
+                    {
+                        datasource = "ics";
+                    }
+                    classname = tableInfo["ClassName"].ToString();
+
+                    string entityPath = System.IO.Path.Combine(codeTempBasePath, "test", packagePath);
+                    Directory.CreateDirectory(entityPath);
+
+                    entityPath = System.IO.Path.Combine(entityPath,selectedClazz.clazzName + "Test.java");
+                    // entity
+                    vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("18.ConvertRule"));
+                    System.IO.File.WriteAllText(entityPath, vltWriter.GetStringBuilder().ToString());
+
+                    if (System.IO.File.Exists(WIN_MERGE_PATH))
+                    {
+                        //string WIN_MERGE_PATH = @"C:\Program Files (x86)\WinMerge\WinMergeU.exe";
+                        string args = "";
+                        args = @" /r /u /wl /wr /dl ""{0}"" /dr ""{1}"" ""{2}"" ""{3}"" ";
+                        args = String.Format(args, "generated code", "git", codeTempBasePath, codeBasePath);
+                        System.Diagnostics.Process.Start(WIN_MERGE_PATH, args);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Process.Start(codeTempBasePath, null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                host.Visibility = System.Windows.Visibility.Visible;
+            }
+
+        }
+
+
+        [MethodMeta(Name = "ControllerTest", Category = "junit", Description = "read", LargeIcon = "template")]
+        public void EventHandler18(object sender, RoutedEventArgs e)
+        {
+            currentExt = "18.ConvertRule";
+            convertRule.Text = getResByExt("18.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
+        [MethodMeta(Name = "ServiceTest", Category = "junit", Description = "read", LargeIcon = "template")]
+        public void EventHandler19(object sender, RoutedEventArgs e)
+        {
+            currentExt = "19.ConvertRule";
+            convertRule.Text = getResByExt("19.ConvertRule");
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+        [MethodMeta(Name = "LogicTest", Category = "junit", Description = "read", LargeIcon = "template")]
+        public void EventHandler20(object sender, RoutedEventArgs e)
+        {
+            currentExt = "20.ConvertRule";
+            convertRule.Text = getResByExt("20.ConvertRule");
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+
+        [MethodMeta(Name = "DaoTest", Category = "junit", Description = "read", LargeIcon = "template")]
+        public void EventHandler21(object sender, RoutedEventArgs e)
+        {
+            currentExt = "21.ConvertRule";
+            convertRule.Text = getResByExt("21.ConvertRule");
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+
         [MethodMeta(Name = "Junit格式的Excel变换", Category = "junit", Date = "2009-07-20", Description = "read", LargeIcon = "junit")]
-        public void EventHandler18(object sender, RoutedEventArgs e)
+        public void EventHandler30(object sender, RoutedEventArgs e)
         {
             var data = DevelopWorkspace.Base.Excel.GetDataWithSchemaFromActivedSheet();
             if (data != null) DevelopWorkspace.Base.Excel.DrawDataWithSchemaToExcel(data);

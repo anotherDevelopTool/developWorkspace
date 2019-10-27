@@ -27,6 +27,7 @@ namespace Java.Code
 
     public class JavaClazz
     {
+        public String packageName { get; set; }
         public String filePath { get; set; }
         public String clazzName { get; set; }
         public List<Annotation> annotationList { get; set; }
@@ -130,13 +131,19 @@ namespace Java.Code
     public class CompilationUnitVisitor : JavaParserBaseVisitor<List<JavaClazz>>
     {
         public override List<JavaClazz> VisitCompilationUnit([NotNull] JavaParser.CompilationUnitContext context) {
+            var packagename = context.packageDeclaration().qualifiedName().GetText();
             //context和typeDeclaration是1对多的关系，下面这样的语句不能正确取回值对象，需要获取路径要明确才可以
             var visitor = new TypeDeclarationVisitor();
             List<JavaClazz> clazzes = new List<JavaClazz>();
             context.typeDeclaration().ToList().ForEach(
                 ctx =>
                 {
-                    if(ctx.classDeclaration() != null) clazzes.Add(ctx.Accept(visitor));
+                    if(ctx.classDeclaration() != null) 
+                    {
+                        var clazz = ctx.Accept(visitor);
+                        clazz.packageName = packagename;
+                        clazzes.Add(clazz);
+                    };
                 }
             
             );
