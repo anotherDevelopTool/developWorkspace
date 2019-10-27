@@ -184,9 +184,20 @@
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\ScriptConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.17.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.2.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.3.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.4.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.5.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.6.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.7.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.8.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.9.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.xlsx" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.2.ConvertRule">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1351,6 +1362,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\junit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="CodeLibrary\CodeGenerator\addinCodeConverter3\project.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

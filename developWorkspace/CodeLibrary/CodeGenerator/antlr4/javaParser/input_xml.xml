@@ -27,55 +27,103 @@ namespace Java.Code
 
     public class JavaClazz
     {
-        public String clazzName;
-        public List<Annotation> annotationList;
-        public List<string> modifierList;
-        public List<ClazzMethod> methodList;
-        public List<SourceProperty> propertyList;
+        public String filePath { get; set; }
+        public String clazzName { get; set; }
+        public List<Annotation> annotationList { get; set; }
+        public List<string> modifierList { get; set; }
+        public List<ClazzMethod> methodList { get; set; }
+        public List<SourceProperty> propertyList { get; set; }
+        public string getModifier()
+        {
+            if (modifierList == null || modifierList.Count == 0) return "private";
+            return (modifierList.IndexOf("public") >= 0) ? "public" : "private";
+        }
+        public string getUrl()
+        {
+            if (annotationList == null || annotationList.Count == 0) return "";
+            var requestMapping = annotationList.LastOrDefault(annotation => annotation.qualifiedName.Equals("RequestMapping"));
+            if (requestMapping != null)
+            {
+                if (requestMapping.elementValuePairList == null || requestMapping.elementValuePairList.Count == 0) return "";
+                var pairUrl = requestMapping.elementValuePairList.LastOrDefault(pair => "value".Equals(pair.Key));
+                return pairUrl.Value;
+            }
+            return "";
+        }
     }
     
     public class Modifier
     {
-        public String modifierName;
-        public Annotation annotation;
+        public String modifierName { get; set; }
+        public Annotation annotation { get; set; }
     }
     public class Annotation
     {
-        public String qualifiedName;
-        public List<KeyValuePair<string,string>> elementValuePairList;
+        public String qualifiedName { get; set; }
+        public List<KeyValuePair<string,string>> elementValuePairList { get; set; }
     }
     public class ClazzMethod
     {
-        public String methodType;
-        public String methodName;
-        public List<Annotation> annotationList;
-        public List<string> modifierList;
-        public List<Parameter> parametereList;
-        public List<SourceProperty> localVariableList;
-        public List<MethodCall> methodCallList;
+        public String methodType { get; set; }
+        public String methodName { get; set; }
+        public List<Annotation> annotationList { get; set; }
+        public List<string> modifierList { get; set; }
+        public List<Parameter> parametereList { get; set; }
+        public List<SourceProperty> localVariableList { get; set; }
+        public List<MethodCall> methodCallList { get; set; }
+        public string getModifier()
+        {
+            if (modifierList == null || modifierList.Count == 0) return "private";
+            return (modifierList.IndexOf("public") >= 0)?"public":"private";
+        }
+        public string getUrlString()
+        {
+            if (annotationList == null || annotationList.Count == 0) return "";
+            var requestMapping = annotationList.LastOrDefault(annotation => annotation.qualifiedName.Equals("RequestMapping"));
+            if (requestMapping != null)
+            {
+                if (requestMapping.elementValuePairList == null || requestMapping.elementValuePairList.Count == 0) return "";
+                var pairUrl = requestMapping.elementValuePairList.LastOrDefault(pair => "value".Equals(pair.Key));
+                return pairUrl.Value;
+            }
+            return "";
+        }
+        public string getUrlMethod()
+        {
+            if (annotationList == null || annotationList.Count == 0) return "";
+            var requestMapping = annotationList.LastOrDefault(annotation => annotation.qualifiedName.Equals("RequestMapping"));
+            if (requestMapping != null)
+            {
+                if (requestMapping.elementValuePairList == null || requestMapping.elementValuePairList.Count == 0) return "";
+                var pairUrl = requestMapping.elementValuePairList.LastOrDefault(pair => "method".Equals(pair.Key));
+                return pairUrl.Value;
+            }
+            return "";
+        }
     }
     public class SourceProperty
     {
-        public String propertyType;
-        public String propertyName;
-        public List<Annotation> annotationList;
-        public List<string> modifierList;
+        public String propertyType { get; set; }
+        public String propertyName { get; set; }
+        public List<Annotation> annotationList { get; set; }
+        public List<string> modifierList { get; set; }
     }
     public class Parameter
     {
-        public String pararameterType;
-        public String parameterName;
+        public String pararameterType { get; set; }
+        public String parameterName { get; set; }
     }
     public class BlockStatement
     {
-        public SourceProperty sourceProperty;
-        public MethodCall methodCall;
+        public SourceProperty sourceProperty { get; set; }
+        public MethodCall methodCall { get; set; }
     }
     public class MethodCall
     {
-        public String calleeName;
-        public String methodName;
+        public String calleeName { get; set; }
+        public String methodName { get; set; }
     }
+
     // 2019/09/29
     // java parser visitor
 

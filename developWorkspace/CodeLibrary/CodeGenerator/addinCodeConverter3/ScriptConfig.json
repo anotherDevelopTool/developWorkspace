@@ -15,8 +15,8 @@
   "ScriptLanguage": 0,
   "FirstInputType": 3,
   "SecondInputType": 3,
-  "Title": "dataConvertTools2",
-  "Description": "dataConvertTools2",
+  "Title": "dataConvertTools",
+  "Description": "dataConvertTools",
   "Path": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Windows",
   "typeName": "ScriptConfig",
   "jsonfile": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Windows\\ScriptConfig.json"

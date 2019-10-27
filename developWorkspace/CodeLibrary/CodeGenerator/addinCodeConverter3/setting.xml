@@ -1,7 +1,7 @@
 <Script>
   <run>
-    <title>addin定義</title>
-    <description>addin</description>
+    <title>dataConvertTools</title>
+    <description>dataConvertTools</description>
   </run>
   <codeBlock>
     <row>1</row>

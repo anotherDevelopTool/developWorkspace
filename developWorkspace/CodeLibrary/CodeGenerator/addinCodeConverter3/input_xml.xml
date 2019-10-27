@@ -97,12 +97,21 @@
 
       </TabControl.Resources>
       <TabItem  Header="Data Source" ToolTip="① please copy-paste schema to dataSource ② select convertRule ③ convert...">
-
         <StackPanel x:Name="border">
-			<WindowsFormsHost x:Name ="host" Width="{Binding ElementName=border,Path=ActualWidth}" Height="{Binding ElementName=border,Path=ActualHeight}">
+			      <WindowsFormsHost x:Name ="host" Width="{Binding ElementName=border,Path=ActualWidth}" Height="{Binding ElementName=border,Path=ActualHeight}">
             	<rg:ReoGridEditor x:Name="grid" TopLevel = "false" />
           	</WindowsFormsHost> 
         </StackPanel>  
+      </TabItem>
+      <TabItem Header="JavaSource">
+        <StackPanel x:Name="border2">
+          <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0"  Width="{Binding ElementName=border2,Path=ActualWidth}" Height="{Binding ElementName=border2,Path=ActualHeight}">
+            <TreeView Name="codeLibraryTreeView"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top"
+              Width="{Binding ElementName=border2,Path=ActualWidth}" Height="{Binding ElementName=border2,Path=ActualHeight}" Margin="0"/>
+          </ScrollViewer>
+        </StackPanel>
       </TabItem>
       <TabItem Header="Convert Rule">
         <avalonEdit:EdiTextEditor x:Name="convertRule"

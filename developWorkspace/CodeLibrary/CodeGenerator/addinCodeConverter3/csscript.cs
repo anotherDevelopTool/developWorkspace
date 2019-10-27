@@ -44,86 +44,106 @@ using unvell.ReoGrid;
 using unvell.ReoGrid.CellTypes;
 using unvell.ReoGrid.Chart;
 using unvell.ReoGrid.Drawing.Shapes;
+
 //css_reference unvell.ReoGridEditor.exe;
 public class Script
 {
     //TODO 面向Addin基类化
-    [AddinMeta(Name = "dataConvertTools2", Date = "2019-10-14", Description = "代码变换工具")]
+    [AddinMeta(Name = "dataConvertTools", Date = "2019-10-14", Description = "代码变换工具")]
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
         UserControl view;
         ReoGridControl reogrid = null;
         ICSharpCode.AvalonEdit.Edi.EdiTextEditor convertRule;
-
+        TreeView codeLibraryTreeView = null;
+        System.Windows.Forms.Integration.WindowsFormsHost host;
         string currentExt = "ConvertRule";
+        string CodeBasePath = "";
+        bool filterController;
+        bool filterService;
+        bool filterLogic;
+        bool filterDao;
+        JavaProject javaProject = new JavaProject();
+        List<JavaClazz> parsedClazzList = new List<JavaClazz>();
 
         [MethodMeta(Name = "变换", Date = "2009-07-20", Description = "变换", LargeIcon = "convert")]
         public void EventHandler1(object sender, RoutedEventArgs e)
         {
             try
             {
+                host.Visibility = System.Windows.Visibility.Hidden;
+
                 VelocityEngine vltEngine = new VelocityEngine();
                 vltEngine.Init();
 
                 //CSV format with tab delimiter
                 var dic = getSchemaDictionary(reogrid);
 
-				VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
-				VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
+                VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
+                VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
 
-				VelocityContext vltContext = new VelocityContext();
+                VelocityContext vltContext = new VelocityContext();
                 vltContext.Put("root", dic);
-				StringWriter vltWriter = new StringWriter();
-				//
-				string keyword = "";
-				string sqlMethodName = "";
-				var sqlKeys = ((List < VelocityDictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
-				bool sqloutput = false;
-				foreach (var sqlKey in sqlKeys) {
-					var sqlItems = sqlKey.Split(':');
-					keyword = sqlItems[0];
-					sqlMethodName = sqlItems[1];
-					//控制当前生成的SQL
-					tableInfo["CurrentSqlKey"] = sqlKey;
-					if (keyword.Equals("SELECT") && currentExt.Equals("5.ConvertRule")) {
-						// SelectSQL
-						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-						sqloutput = true;
-		                break;
-					}
-					else if(keyword.Equals("INSERT") && currentExt.Equals("6.ConvertRule")) {
-						// InsertSQL
-						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-						sqloutput = true;
-		                break;
-					}
-					else if(keyword.Equals("UPDATE") && currentExt.Equals("7.ConvertRule")) {
-						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-						sqloutput = true;
-		                break;
-					}
-					else if(keyword.Equals("DELETE") && currentExt.Equals("8.ConvertRule")) {
-						vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-		                DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-						sqloutput = true;
-		                break;
-					}
-				}				
-				if( !sqloutput ){
-					vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-					DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-				}
+                StringWriter vltWriter = new StringWriter();
+                //
+                string keyword = "";
+                string sqlMethodName = "";
+                var sqlKeys = ((List<VelocityDictionary<string, object>>)tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
+                bool sqloutput = false;
+                foreach (var sqlKey in sqlKeys)
+                {
+                    var sqlItems = sqlKey.Split(':');
+                    keyword = sqlItems[0];
+                    sqlMethodName = sqlItems[1];
+                    //控制当前生成的SQL
+                    tableInfo["CurrentSqlKey"] = sqlKey;
+                    if (keyword.Equals("SELECT") && currentExt.Equals("5.ConvertRule"))
+                    {
+                        // SelectSQL
+                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                        sqloutput = true;
+                        break;
+                    }
+                    else if (keyword.Equals("INSERT") && currentExt.Equals("6.ConvertRule"))
+                    {
+                        // InsertSQL
+                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                        sqloutput = true;
+                        break;
+                    }
+                    else if (keyword.Equals("UPDATE") && currentExt.Equals("7.ConvertRule"))
+                    {
+                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                        sqloutput = true;
+                        break;
+                    }
+                    else if (keyword.Equals("DELETE") && currentExt.Equals("8.ConvertRule"))
+                    {
+                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                        sqloutput = true;
+                        break;
+                    }
+                }
+                if (!sqloutput)
+                {
+                    vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+                    DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                }
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
-                
-			}
+
+            }
             catch (Exception ex)
             {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
+            }
+            finally {
+                host.Visibility = System.Windows.Visibility.Visible;
             }
         }
         [MethodMeta(Name = "文件做成", Date = "2009-07-20", Description = "文件做成", LargeIcon = "convert")]
@@ -131,6 +151,8 @@ public class Script
         {
             try
             {
+                host.Visibility = System.Windows.Visibility.Hidden;
+
                 VelocityEngine vltEngine = new VelocityEngine();
                 vltEngine.Init();
 
@@ -139,114 +161,130 @@ public class Script
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
-				
-				VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
+
+                VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
                 string project = Setting["Project"].ToString();
                 string codeTempBasePath = Setting["CodeTempBasePath"].ToString();
-                string codeTempPath = Setting["CodeTempPath"].ToString();
-                string resourceTempPath = Setting["ResourceTempPath"].ToString();
+                string codeTempPath = Path.Combine(codeTempBasePath, Setting["CodeTempPath"].ToString());
+                string resourceTempPath = Path.Combine(codeTempBasePath, Setting["ResourceTempPath"].ToString());
                 string codeBasePath = Setting["CodeBasePath"].ToString();
-				string datasource = "core";
-				string classname = "classname";
+                string datasource = "core";
+                string classname = "classname";
                 string WIN_MERGE_PATH = Setting["winmerger"].ToString();
 
-				VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
-                if(tableInfo["DataSource"].ToString().EndsWith("core")){
-					datasource = "core";
-				}
-				else if(tableInfo["DataSource"].ToString().EndsWith("front")){
-					datasource = "front";
-				}
-				else if(tableInfo["DataSource"].ToString().EndsWith("ics")){
-					datasource = "ics";
-				}
-				classname = tableInfo["ClassName"].ToString();
-				
-				string entityPath = System.IO.Path.Combine(codeTempPath,"db",datasource,"entity");
-				Directory.CreateDirectory(entityPath);
+                VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
+                if (tableInfo["DataSource"].ToString().EndsWith("core"))
+                {
+                    datasource = "core";
+                }
+                else if (tableInfo["DataSource"].ToString().EndsWith("front"))
+                {
+                    datasource = "front";
+                }
+                else if (tableInfo["DataSource"].ToString().EndsWith("ics"))
+                {
+                    datasource = "ics";
+                }
+                classname = tableInfo["ClassName"].ToString();
 
-				string DaoPath = System.IO.Path.Combine(codeTempPath,"db",datasource,"dao");
-				Directory.CreateDirectory(DaoPath);
+                string entityPath = System.IO.Path.Combine(codeTempPath, "db", datasource, "entity");
+                Directory.CreateDirectory(entityPath);
 
-				entityPath = System.IO.Path.Combine(entityPath,classname + "Entity.java");
-				string sqlPath = System.IO.Path.Combine(resourceTempPath,"db",datasource,"dao",classname + "Dao");
-				Directory.CreateDirectory(sqlPath);
-				string crudSqlPath = System.IO.Path.Combine(sqlPath,classname + "create.sql");
-				
-				string modelPath = System.IO.Path.Combine(codeTempPath,"model","biz");
-				if(tableInfo.ContainsKey("functionId")){
-					modelPath = System.IO.Path.Combine(modelPath,tableInfo["functionId"].ToString());
-				}
-				
+                string DaoPath = System.IO.Path.Combine(codeTempPath, "db", datasource, "dao");
+                Directory.CreateDirectory(DaoPath);
+
+                entityPath = System.IO.Path.Combine(entityPath, classname + "Entity.java");
+                string sqlPath = System.IO.Path.Combine(resourceTempPath, "db", datasource, "dao", classname + "Dao");
+                Directory.CreateDirectory(sqlPath);
+                string crudSqlPath = System.IO.Path.Combine(sqlPath, classname + "create.sql");
+
+                string modelPath = System.IO.Path.Combine(codeTempPath, "model", "biz");
+                if (tableInfo.ContainsKey("functionId"))
+                {
+                    modelPath = System.IO.Path.Combine(modelPath, tableInfo["functionId"].ToString());
+                }
+
                 VelocityContext vltContext = new VelocityContext();
                 vltContext.Put("root", dic);
 
                 StringWriter vltWriter = new StringWriter();
-				// entity
+                // entity
                 vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("2.ConvertRule"));
-                System.IO.File.WriteAllText(entityPath,vltWriter.GetStringBuilder().ToString());
-				
-				// model
-				vltWriter = new StringWriter();
+                System.IO.File.WriteAllText(entityPath, vltWriter.GetStringBuilder().ToString());
+
+                // model
+                vltWriter = new StringWriter();
                 vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("3.ConvertRule"));
-				modelPath = System.IO.Path.Combine(modelPath,"req");
-				Directory.CreateDirectory(modelPath);
-				modelPath = System.IO.Path.Combine(modelPath,classname + "ReqModel.java");
-                System.IO.File.WriteAllText(modelPath,vltWriter.GetStringBuilder().ToString());
+                modelPath = System.IO.Path.Combine(modelPath, "req");
+                Directory.CreateDirectory(modelPath);
+                modelPath = System.IO.Path.Combine(modelPath, classname + "ReqModel.java");
+                System.IO.File.WriteAllText(modelPath, vltWriter.GetStringBuilder().ToString());
 
-				
-				//
-				string keyword = "";
-				string sqlMethodName = "";
-				var sqlKeys = ((List < VelocityDictionary<string, object> >) tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
-				foreach (var sqlKey in sqlKeys) {
-					var sqlItems = sqlKey.Split(':');
-					keyword = sqlItems[0];
-					sqlMethodName = sqlItems[1];
-					vltWriter = new StringWriter();
-					//控制当前生成的SQL
-					tableInfo["CurrentSqlKey"] = sqlKey;
-					if (keyword.Equals("SELECT")) {
-						// SelectSQL
-						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("5.ConvertRule"));
-					}
-					else if(keyword.Equals("INSERT")) {
-						// InsertSQL
-						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("6.ConvertRule"));
-					}
-					else if(keyword.Equals("UPDATE")) {
-						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("7.ConvertRule"));
-					}
-					else if(keyword.Equals("DELETE")) {
-						vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("8.ConvertRule"));
-					}
-					crudSqlPath = System.IO.Path.Combine(sqlPath,sqlMethodName +".sql");
-					System.IO.File.WriteAllText(crudSqlPath,vltWriter.GetStringBuilder().ToString());
-				}				
-				
-				// DAO
-				vltWriter = new StringWriter();
+
+                //
+                string keyword = "";
+                string sqlMethodName = "";
+                var sqlKeys = ((List<VelocityDictionary<string, object>>)tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
+                foreach (var sqlKey in sqlKeys)
+                {
+                    var sqlItems = sqlKey.Split(':');
+                    keyword = sqlItems[0];
+                    sqlMethodName = sqlItems[1];
+                    vltWriter = new StringWriter();
+                    //控制当前生成的SQL
+                    tableInfo["CurrentSqlKey"] = sqlKey;
+                    if (keyword.Equals("SELECT"))
+                    {
+                        // SelectSQL
+                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("5.ConvertRule"));
+                    }
+                    else if (keyword.Equals("INSERT"))
+                    {
+                        // InsertSQL
+                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("6.ConvertRule"));
+                    }
+                    else if (keyword.Equals("UPDATE"))
+                    {
+                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("7.ConvertRule"));
+                    }
+                    else if (keyword.Equals("DELETE"))
+                    {
+                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("8.ConvertRule"));
+                    }
+                    crudSqlPath = System.IO.Path.Combine(sqlPath, sqlMethodName + ".sql");
+                    System.IO.File.WriteAllText(crudSqlPath, vltWriter.GetStringBuilder().ToString());
+                }
+
+                // DAO
+                vltWriter = new StringWriter();
                 vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("9.ConvertRule"));
-				DaoPath = System.IO.Path.Combine(DaoPath,classname + "Dao.java");
-                System.IO.File.WriteAllText(DaoPath,vltWriter.GetStringBuilder().ToString());
+                DaoPath = System.IO.Path.Combine(DaoPath, classname + "Dao.java");
+                System.IO.File.WriteAllText(DaoPath, vltWriter.GetStringBuilder().ToString());
 
-                if (System.IO.File.Exists(WIN_MERGE_PATH)){
-					//string WIN_MERGE_PATH = @"C:\Program Files (x86)\WinMerge\WinMergeU.exe";
-					string args = "";
-					args = @" /r /u /wl /wr /dl ""{0}"" /dr ""{1}"" ""{2}"" ""{3}"" ";
-					args = String.Format(args, "generated code", "git", codeTempBasePath, codeBasePath);
-					System.Diagnostics.Process.Start(WIN_MERGE_PATH, args);
-				}
-                else{
-                	System.Diagnostics.Process.Start(codeTempBasePath, null);
+                if (System.IO.File.Exists(WIN_MERGE_PATH))
+                {
+                    //string WIN_MERGE_PATH = @"C:\Program Files (x86)\WinMerge\WinMergeU.exe";
+                    string args = "";
+                    args = @" /r /u /wl /wr /dl ""{0}"" /dr ""{1}"" ""{2}"" ""{3}"" ";
+                    args = String.Format(args, "generated code", "git", codeTempBasePath, codeBasePath);
+                    System.Diagnostics.Process.Start(WIN_MERGE_PATH, args);
+                }
+                else
+                {
+                    System.Diagnostics.Process.Start(codeTempBasePath, null);
                 }
 
 
-			}
+            }
             catch (Exception ex)
             {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
             }
+            finally
+            {
+                host.Visibility = System.Windows.Visibility.Visible;
+            }
+
         }
 
         [MethodMeta(Name = "保存", Date = "2009-07-20", Description = "保存", LargeIcon = "save")]
@@ -314,59 +352,201 @@ public class Script
             convertRule.Text = getResByExt("9.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
-        [MethodMeta(Name = "Junit formatter", Date = "2009-07-20", Description = "read", LargeIcon = "junit")]
-        public void EventHandler14(object sender, RoutedEventArgs e)
+        [MethodMeta(Name = "项目信息取得", Category = "junit", Description = "read", LargeIcon = "project")]
+        public void EventHandler15(object sender, RoutedEventArgs e)
         {
-            var data = DevelopWorkspace.Base.Excel.GetDataWithSchemaFromActivedSheet();
-            if(data != null) DevelopWorkspace.Base.Excel.DrawDataWithSchemaToExcel(data);
+            try
+            {
+                host.Visibility = System.Windows.Visibility.Hidden;
+                javaProject.javaClazzList.Clear();
+                walkDirectoryRecursive(new DirectoryInfo(CodeBasePath));
+                DevelopWorkspace.Base.Logger.WriteLine("Process called");
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                host.Visibility = System.Windows.Visibility.Visible;
+            }
+        }
+
+        [MethodMeta(Name = "变换", Category = "junit", Date = "2009-07-20", Description = "变换", LargeIcon = "convert")]
+        public void EventHandler16(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                host.Visibility = System.Windows.Visibility.Hidden;
+
+                var selectedItem = codeLibraryTreeView.SelectedItem as TreeViewItem;
+                if (selectedItem != null)
+                {
+                    var selectedClazz = javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith(selectedItem.Header.ToString())).FirstOrDefault();
+                    DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
+                    DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(selectedClazz), Level.DEBUG);
+                    DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
+
+                    VelocityEngine vltEngine = new VelocityEngine();
+                    vltEngine.Init();
+
+                    VelocityContext vltContext = new VelocityContext();
+                    vltContext.Put("project", javaProject);
+                    vltContext.Put("targetClazz", selectedClazz);
+                    StringWriter vltWriter = new StringWriter();
+
+                    vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
+                    DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                host.Visibility = System.Windows.Visibility.Visible;
+            }
+        }
+
+        [MethodMeta(Name = "TestCase", Category = "junit", Description = "read", LargeIcon = "template")]
+        public void EventHandler17(object sender, RoutedEventArgs e)
+        {
+            currentExt = "17.ConvertRule";
+            convertRule.Text = getResByExt("17.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
+        [MethodMeta(Name = "Junit格式的Excel变换", Category = "junit", Date = "2009-07-20", Description = "read", LargeIcon = "junit")]
+        public void EventHandler18(object sender, RoutedEventArgs e)
+        {
+            var data = DevelopWorkspace.Base.Excel.GetDataWithSchemaFromActivedSheet();
+            if (data != null) DevelopWorkspace.Base.Excel.DrawDataWithSchemaToExcel(data);
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+
         public override UserControl getView(string strXaml)
         {
             StringReader strreader = new StringReader(strXaml);
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             view = XamlReader.Load(xmlreader) as UserControl;
- 			System.Windows.Forms.Integration.WindowsFormsHost host = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Forms.Integration.WindowsFormsHost>(view, "host");
+            host = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Forms.Integration.WindowsFormsHost>(view, "host");
             reogrid = ((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).GridControl;
-            
+
             ((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            foreach( var control in (((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).Controls)){
-            	if(control is System.Windows.Forms.MenuStrip){
-            		((System.Windows.Forms.MenuStrip)control).Visible = false;
-            	}
-            	if(control is System.Windows.Forms.StatusStrip){
-            		((System.Windows.Forms.StatusStrip)control).Visible = false;
-            	}            	 
+            foreach (var control in (((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).Controls))
+            {
+                if (control is System.Windows.Forms.MenuStrip)
+                {
+                    ((System.Windows.Forms.MenuStrip)control).Visible = false;
+                }
+                if (control is System.Windows.Forms.StatusStrip)
+                {
+                    ((System.Windows.Forms.StatusStrip)control).Visible = false;
+                }
             }
-			reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
+            reogrid.SetSettings(unvell.ReoGrid.WorkbookSettings.View_ShowSheetTabControl, false);
             reogrid.CurrentWorksheet.SetSettings(WorksheetSettings.View_ShowGridLine, false);
 
-            
+            codeLibraryTreeView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<TreeView>(view, "codeLibraryTreeView");
+            codeLibraryTreeView.SelectedItemChanged += (obj, subargs) =>
+            {
+            };
+
+
             convertRule = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ICSharpCode.AvalonEdit.Edi.EdiTextEditor>(view, "convertRule");
-            
-            EventHandler6(null,null);
+
+            EventHandler6(null, null);
             view.SizeChanged += (obj, subargs) =>
             {
                 host.Height = subargs.NewSize.Height;
             };
 
             string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
-			userName=userName.Substring(userName.IndexOf(@"\") + 1);
-			string originString;
-			for(int i=4;i<12;i++){
-				originString = objectString(reogrid.CurrentWorksheet.Ranges["A1:CV200"].Cells[i,3].Data);
-				reogrid.CurrentWorksheet.Ranges["A1:CV200"].Cells[i,3].Data = originString.Replace("os-jiangjiang.xu",userName);
-			}
+            userName = userName.Substring(userName.IndexOf(@"\") + 1);
+
+            var projectDropDown = new DropdownListCell();
+            reogrid.CurrentWorksheet[3, 3] = projectDropDown;
+            reogrid.CurrentWorksheet[4, 7] = new object[] { new CheckBoxCell(), "Controller" };
+            reogrid.CurrentWorksheet[5, 7] = new object[] { new CheckBoxCell(), "Service" };
+            reogrid.CurrentWorksheet[6, 7] = new object[] { new CheckBoxCell(), "Logic" };
+            reogrid.CurrentWorksheet[7, 7] = new object[] { new CheckBoxCell(), "Dao" };
+
+            reogrid.CurrentWorksheet.CellDataChanged += (s, args) =>
+            {
+                //base folder change...
+                if (args.Cell.Position == new CellPosition(1, 3))
+                {
+                    if (System.IO.Directory.Exists(args.Cell.Data.ToString()))
+                    {
+                        string defaultProject = "";
+                        projectDropDown.Items.Clear();
+                        List<string> projectList = new List<string>();
+                        var projectDirs = new DirectoryInfo(args.Cell.Data.ToString()).GetDirectories();
+                        foreach (System.IO.DirectoryInfo dirInfo in projectDirs)
+                        {
+                            projectList.Add(dirInfo.Name);
+                            defaultProject = dirInfo.Name;
+
+                        }
+                        projectDropDown.Items.AddRange(projectList.ToArray());
+                        reogrid.CurrentWorksheet[3, 3] = defaultProject;
+                    }
+
+                }
+                //project change
+                else if (args.Cell.Position == new CellPosition(3, 3))
+                {
+                    string CodeTempBasePath = objectString(reogrid.CurrentWorksheet[1, 3]);
+                    CodeTempBasePath = CodeTempBasePath.Substring(0, CodeTempBasePath.LastIndexOf(@"\"));
+                    CodeTempBasePath = System.IO.Path.Combine(CodeTempBasePath, "code", objectString(reogrid.CurrentWorksheet[3, 3]), "src", "main");
+                    string CodeTempPath = System.IO.Path.Combine("java", @"jp\co\rakuten\brandavenue\backend\bo\api");
+                    string ResourceTempPath = System.IO.Path.Combine("resources", @"jp\co\rakuten\brandavenue\backend\bo\api");
+
+                    CodeBasePath = System.IO.Path.Combine(objectString(reogrid.CurrentWorksheet[1, 3]), objectString(reogrid.CurrentWorksheet[3, 3]), "src", "main");
+                    string RootPackage = "jp.co.rakuten.brandavenue.backend.bo.api";
+                    reogrid.CurrentWorksheet[4, 3] = CodeTempBasePath;
+                    reogrid.CurrentWorksheet[5, 3] = CodeTempPath;
+                    reogrid.CurrentWorksheet[6, 3] = ResourceTempPath;
+                    reogrid.CurrentWorksheet[7, 3] = CodeBasePath;
+                    reogrid.CurrentWorksheet[8, 3] = RootPackage;
+                }
+                else if (args.Cell.Position == new CellPosition(4, 7) || 
+                         args.Cell.Position == new CellPosition(5, 7) || 
+                         args.Cell.Position == new CellPosition(6, 7) || 
+                         args.Cell.Position == new CellPosition(7, 7))
+                {
+                    filterController = (args.Cell.Worksheet[4, 7] as bool?) ?? false;
+                    filterService = (args.Cell.Worksheet[5,7] as bool?) ?? false;
+                    filterLogic = (args.Cell.Worksheet[6,7] as bool?) ?? false;
+                    filterDao = (args.Cell.Worksheet[7,7] as bool?) ?? false;
+                }
+            };
+            string favoriteRootPath = System.IO.Path.Combine(@"D:\Users\", userName, "git");
+            string rootPath = objectString(reogrid.CurrentWorksheet[1, 3]);
+            if (string.IsNullOrEmpty(rootPath))
+            {
+                reogrid.CurrentWorksheet[1, 3] = favoriteRootPath;
+            }
+            else {
+                reogrid.CurrentWorksheet[1, 3] = rootPath;
+            }
+
+
+
+
             return view;
         }
         //help方法
-		public string objectString(object origin){
-			if(origin == null ) return "";
-			return origin.ToString();
+        public string objectString(object origin)
+        {
+            if (origin == null) return "";
+            return origin.ToString();
         }
         //help类，为了在velocity内取值方便
-        public class VelocityDictionary<K, V> : Dictionary<K, V> {
-            public string getValue(K key) {
+        public class VelocityDictionary<K, V> : Dictionary<K, V>
+        {
+            public string getValue(K key)
+            {
                 V defaultValue;
                 TryGetValue(key, out defaultValue);
                 return objectString(defaultValue);
@@ -392,7 +572,7 @@ public class Script
                     if (selectedRange.Cells[row, col].Data != null && selectedRange.Cells[row, col].Data.ToString().EndsWith("{}"))
                     {
                         string nameCellString = selectedRange.Cells[row, col].Data.ToString();
-                        VelocityDictionary<string, object>  parent = new VelocityDictionary<string, object>();
+                        VelocityDictionary<string, object> parent = new VelocityDictionary<string, object>();
                         retDictonary[nameCellString.Substring(0, nameCellString.Length - 2)] = parent;
                         col++;
                         row++;
@@ -421,7 +601,8 @@ public class Script
                                     parent[keyCellString] = selectedRange.Cells[subRow, col + 1].Data.ToString();
                                 }
                             }
-                            else {
+                            else
+                            {
                                 //进入下一个结构判断
                                 break;
                             }
@@ -442,10 +623,10 @@ public class Script
         private void reverseListObject(ReferenceRange selectedRange, SchemaRange schemmaRange)
         {
             schemmaRange.current = new List<VelocityDictionary<string, object>>();
-            if (typeof(IDictionary<string,object>).IsAssignableFrom(schemmaRange.parent.GetType()))
+            if (typeof(IDictionary<string, object>).IsAssignableFrom(schemmaRange.parent.GetType()))
             {
 
-                ((IDictionary<string,object>)schemmaRange.parent)[schemmaRange.key] = schemmaRange.current;
+                ((IDictionary<string, object>)schemmaRange.parent)[schemmaRange.key] = schemmaRange.current;
             }
             else
             {
@@ -462,7 +643,7 @@ public class Script
             }
             schemmaRange.row++;
             int subRow, subCol;
-            for (subRow = schemmaRange.row; subRow < selectedRange.Rows -1 ; subRow++)
+            for (subRow = schemmaRange.row; subRow < selectedRange.Rows - 1; subRow++)
             {
                 if (selectedRange.Cells[subRow, schemmaRange.col - 1].Data != null && selectedRange.Cells[subRow, schemmaRange.col - 1].Data.ToString() != "") break;
                 VelocityDictionary<string, object> column = new VelocityDictionary<string, object>();
@@ -490,10 +671,132 @@ public class Script
             schemmaRange.row--;
 
 
-        }        
+        }
+
+        public string aggregateString(IEnumerable<string> listString)
+        {
+            if (listString.Count() == 0)
+            {
+                return "";
+            }
+            return listString.Aggregate((total, next) => total + "\t" + next);
+        }
+
+        public void parseSourceFile(string filepath)
+        {
+            string javafile = filepath.Substring(filepath.LastIndexOf(@"\") + 1);
+            Services.BusyWorkIndicatorService(string.Format("{0}:{1}", "parser", javafile));
+            System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+
+            var lines = File.ReadAllText(filepath);
+            var results = Java.Code.SourcefileParser.GetJavaClazzInformation(lines);
+            //对Methodcall的类型进行复原处理
+            foreach (JavaClazz javaClazz in results)
+            {
+                javaClazz.filePath = filepath;
+                foreach (ClazzMethod clazzMethod in javaClazz.methodList)
+                {
+                    List<MethodCall> realMethodCallList = new List<MethodCall>();
+
+                    foreach (MethodCall methodCall in clazzMethod.methodCallList)
+                    {
+                        string realCalleeType = "";
+                        if ("this".Equals(methodCall.calleeName))
+                        {
+                            realCalleeType = javaClazz.clazzName;
+                        }
+                        else
+                        {
+                            var localvariable = clazzMethod.localVariableList.Where(sourceProperty => sourceProperty.propertyName.Equals(methodCall.calleeName)).FirstOrDefault();
+                            if (localvariable == null)
+                            {
+                                var callparameter = clazzMethod.parametereList.Where(parameter => parameter.parameterName.Equals(methodCall.calleeName)).FirstOrDefault();
+                                if (callparameter == null)
+                                {
+                                    var property = javaClazz.propertyList.Where(sourceProperty => sourceProperty.propertyName.Equals(methodCall.calleeName)).FirstOrDefault();
+                                    if (property != null)
+                                    {
+                                        realCalleeType = property.propertyType;
+                                    }
+                                }
+                                else
+                                {
+                                    realCalleeType = callparameter.pararameterType;
+                                }
+                            }
+                            else
+                            {
+                                realCalleeType = localvariable.propertyType;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(realCalleeType))
+                        {
+                            realMethodCallList.Add(new MethodCall() { calleeName = realCalleeType, methodName = methodCall.methodName });
+                        }
+                    }
+                    //替换
+                    clazzMethod.methodCallList = realMethodCallList;
+
+                }
+                //所有的类信息缓存
+                javaProject.javaClazzList.Add(javaClazz);
+            }
+            //提示给使用者的类别
+            foreach (JavaClazz javaClazz in results)
+            {
+                if (filterController && javaClazz.clazzName.EndsWith("Controller") ||
+                    filterService && javaClazz.clazzName.EndsWith("Service") ||
+                    filterLogic && javaClazz.clazzName.EndsWith("Logic") ||
+                    filterDao && javaClazz.clazzName.EndsWith("Dao"))
+                {
+                    var clazzViewItem = new TreeViewItem();
+                    clazzViewItem.Header = javaClazz.clazzName;
+                    codeLibraryTreeView.Items.Add(clazzViewItem);
+
+                    foreach (ClazzMethod clazzMethod in javaClazz.methodList)
+                    {
+                        var clazzMethodViewItem = new TreeViewItem();
+                        clazzMethodViewItem.Header = clazzMethod.methodName;
+                        clazzViewItem.Items.Add(clazzMethodViewItem);
+                    }
+                }
+            }
+        }
+        void walkDirectoryRecursive(System.IO.DirectoryInfo root)
+        {
+            System.IO.FileInfo[] files = null;
+            System.IO.DirectoryInfo[] subDirs = null;
+
+            // First, process all the files directly under this folder
+            try
+            {
+                files = root.GetFiles("*.java");
+            }
+            catch (System.IO.DirectoryNotFoundException e)
+            {
+            }
+
+            if (files != null)
+            {
+                foreach (System.IO.FileInfo fi in files)
+                {
+                    Console.WriteLine(fi.FullName);
+                    parseSourceFile(fi.FullName);
+                }
+
+                // Now find all the subdirectories under this directory.
+                subDirs = root.GetDirectories();
+
+                foreach (System.IO.DirectoryInfo dirInfo in subDirs)
+                {
+                    // Resursive call for each subdirectory.
+                    walkDirectoryRecursive(dirInfo);
+                }
+            }
+        }
 
     }
-	
+
     public class MainWindow : Window
     {
         private Label label1;
@@ -539,5 +842,35 @@ public class Script
         MainWindow win = new MainWindow(strXaml);
         win.Show();
     }
-
+    public class JavaProject
+    {
+        public JavaClazz findJavaClazzByName(string classname)
+        {
+            JavaClazz defaultClazz = new JavaClazz() { clazzName = "dummyclazz" };
+            var findedClazz = javaClazzList.FirstOrDefault(clazz => clazz.clazzName.Equals(classname));
+            if (findedClazz != null) return findedClazz;
+            return defaultClazz;
+        }
+        public ClazzMethod findClazzMethodByName(string classname, string methodname)
+        {
+            ClazzMethod defaultClazzMethod = new ClazzMethod() { methodName = "dummymethod" };
+            var findedClazz = javaClazzList.FirstOrDefault(clazz => clazz.clazzName.Equals(classname));
+            if (findedClazz == null) return defaultClazzMethod;
+            var findedClazzMethod = findedClazz.methodList.FirstOrDefault(method => method.methodName.Equals(methodname));
+            if (findedClazzMethod == null) return defaultClazzMethod;
+            return findedClazzMethod;
+        }
+        List<JavaClazz> _javaClazzList = new List<JavaClazz>();
+        public List<JavaClazz> javaClazzList 
+        { 
+            get
+            {
+                return _javaClazzList;
+            }
+            set
+            {
+                _javaClazzList = value;
+            }
+        }
+    }
 }
