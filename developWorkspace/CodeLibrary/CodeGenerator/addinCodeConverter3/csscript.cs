@@ -360,6 +360,14 @@ public class Script
                 host.Visibility = System.Windows.Visibility.Hidden;
                 javaProject.javaClazzList.Clear();
                 walkDirectoryRecursive(new DirectoryInfo(CodeBasePath));
+
+                javaProject.NodeName = "请选择你要生成junit测试代码的类";
+                javaProject.Nodes.AddRange(javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith("Controller") || clazz.clazzName.EndsWith("Service") || clazz.clazzName.EndsWith("Logic") || clazz.clazzName.EndsWith("Dao") ));
+
+                List<Node> InitialNodeList = new List<Node>();
+                InitialNodeList.Add(javaProject);
+                codeLibraryTreeView.ItemsSource = InitialNodeList;
+
                 DevelopWorkspace.Base.Logger.WriteLine("Process called");
             }
             catch (Exception ex)
@@ -379,10 +387,9 @@ public class Script
             {
                 host.Visibility = System.Windows.Visibility.Hidden;
 
-                var selectedItem = codeLibraryTreeView.SelectedItem as TreeViewItem;
-                if (selectedItem != null)
+                var selectedClazz = javaProject.javaClazzList.Where(clazz => clazz.IsSelected == true).FirstOrDefault();
+                if (selectedClazz != null)
                 {
-                    var selectedClazz = javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith(selectedItem.Header.ToString())).FirstOrDefault();
                     //DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                     //DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(selectedClazz), Level.DEBUG);
                     //DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
@@ -419,10 +426,9 @@ public class Script
             {
                 host.Visibility = System.Windows.Visibility.Hidden;
 
-                var selectedItem = codeLibraryTreeView.SelectedItem as TreeViewItem;
-                if (selectedItem != null)
+                var selectedClazz = javaProject.javaClazzList.Where(clazz => clazz.IsSelected == true).FirstOrDefault();
+                if (selectedClazz != null)
                 {
-                    var selectedClazz = javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith(selectedItem.Header.ToString())).FirstOrDefault();
                     VelocityEngine vltEngine = new VelocityEngine();
                     vltEngine.Init();
 
@@ -644,10 +650,6 @@ public class Script
             else {
                 reogrid.CurrentWorksheet[1, 3] = rootPath;
             }
-
-
-
-
             return view;
         }
         //help方法
@@ -808,8 +810,11 @@ public class Script
             foreach (JavaClazz javaClazz in results)
             {
                 javaClazz.filePath = filepath;
+                javaClazz.NodeName = javaClazz.clazzName;
+                javaClazz.Nodes.AddRange(javaClazz.methodList);
                 foreach (ClazzMethod clazzMethod in javaClazz.methodList)
                 {
+                    clazzMethod.NodeName = clazzMethod.methodName;
                     List<MethodCall> realMethodCallList = new List<MethodCall>();
 
                     foreach (MethodCall methodCall in clazzMethod.methodCallList)
@@ -856,25 +861,25 @@ public class Script
                 javaProject.javaClazzList.Add(javaClazz);
             }
             //提示给使用者的类别
-            foreach (JavaClazz javaClazz in results)
-            {
-                if (filterController && javaClazz.clazzName.EndsWith("Controller") ||
-                    filterService && javaClazz.clazzName.EndsWith("Service") ||
-                    filterLogic && javaClazz.clazzName.EndsWith("Logic") ||
-                    filterDao && javaClazz.clazzName.EndsWith("Dao"))
-                {
-                    var clazzViewItem = new TreeViewItem();
-                    clazzViewItem.Header = javaClazz.clazzName;
-                    codeLibraryTreeView.Items.Add(clazzViewItem);
+            //foreach (JavaClazz javaClazz in results)
+            //{
+            //    if (filterController && javaClazz.clazzName.EndsWith("Controller") ||
+            //        filterService && javaClazz.clazzName.EndsWith("Service") ||
+            //        filterLogic && javaClazz.clazzName.EndsWith("Logic") ||
+            //        filterDao && javaClazz.clazzName.EndsWith("Dao"))
+            //    {
+            //        var clazzViewItem = new TreeViewItem();
+            //        clazzViewItem.Header = javaClazz.clazzName;
+            //        codeLibraryTreeView.Items.Add(clazzViewItem);
 
-                    foreach (ClazzMethod clazzMethod in javaClazz.methodList)
-                    {
-                        var clazzMethodViewItem = new TreeViewItem();
-                        clazzMethodViewItem.Header = clazzMethod.methodName;
-                        clazzViewItem.Items.Add(clazzMethodViewItem);
-                    }
-                }
-            }
+            //        foreach (ClazzMethod clazzMethod in javaClazz.methodList)
+            //        {
+            //            var clazzMethodViewItem = new TreeViewItem();
+            //            clazzMethodViewItem.Header = clazzMethod.methodName;
+            //            clazzViewItem.Items.Add(clazzMethodViewItem);
+            //        }
+            //    }
+            //}
         }
         void walkDirectoryRecursive(System.IO.DirectoryInfo root)
         {
@@ -956,7 +961,7 @@ public class Script
         MainWindow win = new MainWindow(strXaml);
         win.Show();
     }
-    public class JavaProject
+    public class JavaProject:Java.Code.Node
     {
         public JavaClazz findJavaClazzByName(string classname)
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using System.ComponentModel;
 namespace Java.Code
 {
 
@@ -25,7 +26,7 @@ namespace Java.Code
       }
     }
 
-    public class JavaClazz
+    public class JavaClazz:Node
     {
         public String packageName { get; set; }
         public String filePath { get; set; }
@@ -63,7 +64,7 @@ namespace Java.Code
         public String qualifiedName { get; set; }
         public List<KeyValuePair<string,string>> elementValuePairList { get; set; }
     }
-    public class ClazzMethod
+    public class ClazzMethod:Node
     {
         public String methodType { get; set; }
         public String methodName { get; set; }
@@ -123,6 +124,52 @@ namespace Java.Code
     {
         public String calleeName { get; set; }
         public String methodName { get; set; }
+    }
+    //
+    public class Node : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+        public Node()
+        {
+            this.IsSelected = false;
+            this.Nodes = new List<Node>();
+        }
+
+        public int NodeID { get; set; }
+
+        /// <summary>
+        ///  节点名称
+        ///</summary>
+        public string NodeName { get; set; }
+
+        private bool? isSelected = false;
+        /// <summary>
+        /// 是否勾选
+        /// </summary>
+        public bool? IsSelected
+        {
+            set
+            {
+                this.isSelected = value;
+                this.NotifyPropertyChanged("IsSelected");
+            }
+            get
+            {
+                return this.isSelected;
+            }
+        }
+
+        /// <summary>
+        ///  子节点集合
+        /// </summary>
+        public List<Node> Nodes { get; set; }
     }
 
     // 2019/09/29

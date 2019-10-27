@@ -7,6 +7,7 @@
              xmlns:heid="http://schemas.heidesoft.com/components"
              xmlns:local="clr-namespace:DevelopWorkspace.Main.View"
              xmlns:extoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:javaParser="clr-namespace:Java.Code;assembly=Java.Code"
              xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
              xmlns:rg="clr-namespace:unvell.ReoGrid.Editor;assembly=unvell.ReoGridEditor"
              mc:Ignorable="d"
@@ -109,7 +110,20 @@
             <TreeView Name="codeLibraryTreeView"
               HorizontalAlignment="Left"
               VerticalAlignment="Top"
-              Width="{Binding ElementName=border2,Path=ActualWidth}" Height="{Binding ElementName=border2,Path=ActualHeight}" Margin="0"/>
+              Width="{Binding ElementName=border2,Path=ActualWidth}" Height="{Binding ElementName=border2,Path=ActualHeight}" Margin="0">
+              <TreeView.Resources>
+                <HierarchicalDataTemplate  DataType="{x:Type javaParser:Node}" ItemsSource="{Binding Nodes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                  <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
+                    <CheckBox Content="{Binding NodeName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding NodeName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ></CheckBox>
+                  </StackPanel>
+                </HierarchicalDataTemplate>
+              </TreeView.Resources>
+              <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                  <Setter Property="IsExpanded" Value="False" />
+                </Style>
+              </TreeView.ItemContainerStyle>
+            </TreeView>
           </ScrollViewer>
         </StackPanel>
       </TabItem>

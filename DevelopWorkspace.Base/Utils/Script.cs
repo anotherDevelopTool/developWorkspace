@@ -68,7 +68,11 @@ namespace DevelopWorkspace.Base.Utils
                     process.OutputDataReceived += (sender, e) => {
                         if (e.Data == null)
                         {
-                            outputWaitHandle.Set();
+                            try
+                            {
+                                outputWaitHandle.Set();
+                            }
+                            catch (Exception ex) { }
                         }
                         else
                         {
@@ -79,7 +83,11 @@ namespace DevelopWorkspace.Base.Utils
                     {
                         if (e.Data == null)
                         {
-                            errorWaitHandle.Set();
+                            try
+                            {
+                                errorWaitHandle.Set();
+                            }
+                            catch (Exception ex) { }
                         }
                         else
                         {
