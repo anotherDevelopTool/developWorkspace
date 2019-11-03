@@ -27,7 +27,23 @@ namespace DevelopWorkspace.Base.Utils
             public string rightFieldName;
             public string value;
         }
-        //表别名情报收集，最终数据抽出以及做成时需要别名还原到是表名
+        public enum SelectOrWhereClauseEnum {
+            SELECT_ONLY,
+            WHERE_ONLY,
+            ALL
+        }
+        //2019/11/2 entity等代码生成时使用
+        public class SelectColumn
+        {
+            public string TableName;
+            public string FieldName;
+            public string AliasName;
+            public string DataType;
+            public SelectOrWhereClauseEnum SelectOrWhereClause;
+        }
+        List<SelectColumn> selectColumnList = new List<SelectColumn>();
+
+        //表别名情报收集，
         //目前通过statement的数结构遍历后得到了表别名一览，以及是表名一览，条件中的=的项目的收集（=以外的情况比较多，目前这个版本暂时不对应）
         //这个字典里面维护着虚拟SELECT表和实际表名（别名-实际表名）的对应关系，在后面的WHERE条件清洗的时候使用虚拟SELECT表名置换至对应关系中的第一个表的实际表名（虽然不严格，80%以上的SQL文基本符合这个规则）
         Dictionary<string, List<KeyValuePair<string, string>>> dVirtualSelect = new Dictionary<string, List<KeyValuePair<string, string>>>();
@@ -44,6 +60,7 @@ namespace DevelopWorkspace.Base.Utils
             return true;
         }
 
+        string sqlText = "";
         /// <summary>
         /// 
         /// </summary>
@@ -55,6 +72,8 @@ namespace DevelopWorkspace.Base.Utils
             dVirtualSelect.Clear();
             lRealSelect.Clear();
             lWhereCondition.Clear();
+            selectColumnList.Clear();
+            sqlText = sql;
             try
             {
                 //SQL解析g
@@ -62,11 +81,64 @@ namespace DevelopWorkspace.Base.Utils
 
                  if (statements.Count > 0)
                 {
+
+
                     //SQL解析树的遍历，数据做成信息取得
                     foreach (var statement in statements)
                     {
                         if (statement is Parser.Entities.SelectStatement)
                         {
+                            (statement as Parser.Entities.SelectStatement).Fields.ForEach( field => {
+                                SelectColumn selectColumn = new SelectColumn();
+                                selectColumnList.Add(selectColumn);
+                                if (!string.IsNullOrEmpty(field.Alias.Name)) {
+                                    selectColumn.AliasName = field.Alias.Name;
+                                    selectColumn.SelectOrWhereClause = SelectOrWhereClauseEnum.SELECT_ONLY;
+                                }
+                                if (field.Expression is Laan.Sql.Parser.Expressions.IdentifierExpression) {
+                                    var fieldExpression = field.Expression as Laan.Sql.Parser.Expressions.IdentifierExpression;
+                                    if (fieldExpression.Parts.Count() == 1) {
+                                        selectColumn.FieldName = fieldExpression.Parts[0];
+                                    }
+                                    else if (fieldExpression.Parts.Count() == 2)
+                                    {
+                                        selectColumn.TableName = fieldExpression.Parts[0];
+                                        selectColumn.FieldName = fieldExpression.Parts[1];
+                                    }
+                                }
+                                if (field.Expression is Laan.Sql.Parser.Expressions.FunctionExpression)
+                                {
+                                    var fieldExpression = field.Expression as Laan.Sql.Parser.Expressions.FunctionExpression;
+                                    if (fieldExpression.Arguments.Count() > 1) {
+                                        //通常第一个为放字段
+                                        if (fieldExpression.Arguments[0] is Laan.Sql.Parser.Expressions.IdentifierExpression)
+                                        {
+                                            var argumentExpression = fieldExpression.Arguments[0] as Laan.Sql.Parser.Expressions.IdentifierExpression;
+                                            if (argumentExpression.Parts.Count() == 1)
+                                            {
+                                                selectColumn.FieldName = argumentExpression.Parts[0];
+                                            }
+                                            else if (argumentExpression.Parts.Count() == 2)
+                                            {
+                                                selectColumn.TableName = argumentExpression.Parts[0];
+                                                selectColumn.FieldName = argumentExpression.Parts[1];
+
+                                            }
+                                        }
+                                        if (fieldExpression.Arguments[1] is Laan.Sql.Parser.Expressions.IdentifierExpression)
+                                        {
+                                            var argumentExpression = fieldExpression.Arguments[0] as Laan.Sql.Parser.Expressions.IdentifierExpression;
+                                            selectColumn.DataType = argumentExpression.Parts[0].IndexOf("'") >=0 ? "varchar":"number" ;
+                                        }
+                                        else if (fieldExpression.Arguments[1] is Laan.Sql.Parser.Expressions.StringExpression)
+                                        {
+                                            var argumentExpression = fieldExpression.Arguments[1] as Laan.Sql.Parser.Expressions.StringExpression;
+                                            selectColumn.DataType = argumentExpression.Value.IndexOf("'") >= 0 ? "varchar" : "number";
+                                        }
+                                    }
+                                }
+                            });
+
                             RecurseTableName((Parser.Entities.SelectStatement)statement);
                         }
                     }
@@ -114,7 +186,44 @@ namespace DevelopWorkspace.Base.Utils
         public List<WhereCondition> WhereConditiones() { 
             return lWhereCondition;
         }
+        public List<SelectColumn> SelectColumnList()
+        {
 
+            //表别名转换成真实表名
+            selectColumnList.ForEach(selectColumn => {
+                //
+                if (!string.IsNullOrEmpty(selectColumn.TableName))
+                {
+                    var table = lRealSelect.FirstOrDefault(selectedTable => selectColumn.TableName.Equals(selectedTable.Key));
+                    if (!table.Equals(new KeyValuePair<string, string>()))
+                    {
+                        selectColumn.TableName = table.Value;
+                    }
+                }
+            });
+            //where条件追加
+            lWhereCondition.ForEach(condition =>
+            {
+                string regexStrng = condition.LeftFieldName + @"\s{0,}" + condition.op + @"\s{0,}" + @"/\*.*\*/";
+                if (Regex.Match(sqlText, regexStrng, RegexOptions.IgnoreCase).Success)
+                {
+                    if (string.IsNullOrEmpty(condition.rightFieldName))
+                    {
+                        var selectedColumn = selectColumnList.FirstOrDefault(column => condition.LeftFieldName.Equals(column.FieldName));
+                        if (selectedColumn != null)
+                        {
+                            selectedColumn.SelectOrWhereClause = SqlParserWrapper.SelectOrWhereClauseEnum.ALL;
+                        }
+                        else
+                        {
+                            selectColumnList.Add(new SqlParserWrapper.SelectColumn() { TableName = condition.leftTableName, FieldName = condition.LeftFieldName, SelectOrWhereClause = SqlParserWrapper.SelectOrWhereClauseEnum.WHERE_ONLY });
+                        }
+                    }
+                }
+            });
+
+            return selectColumnList;
+        }
         //通过这个方式递归出抽取表一览情报
         //利用同样的方式获取Join的表信息，ON条件信息，WHERE信息，并对条件值进行简单的预测后做成数据
         private void RecurseTableName(Parser.Entities.SelectStatement statement, List<KeyValuePair<string, string>> aliasList = null)

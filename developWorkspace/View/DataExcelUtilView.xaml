@@ -739,13 +739,8 @@ x:Name="dataview"
                                    VerticalScrollBarVisibility="Auto"  >
                         <avalonEdit:EdiTextEditor.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Sql formatter" Click="SqlFormatter"></MenuItem>
-                                <MenuItem Header="Sql excecute" Click="MakeSelSql"></MenuItem>
                                 <Separator/>
-                                <MenuItem Header="Sql physicalName-logicalName converter" Click="MakeSelSql"></MenuItem>
-                                <MenuItem Header="Sql logicalName-physicalName converter" Click="MakeSelSql"></MenuItem>
-                                <Separator/>
-                                <MenuItem Header="Data export" Click="MakeSelSql"></MenuItem>
+                                <MenuItem Header="convert schema into CodeSupport format" Click="sql2CodeSupport"></MenuItem>
                             </ContextMenu>
                         </avalonEdit:EdiTextEditor.ContextMenu>
                     </avalonEdit:EdiTextEditor>

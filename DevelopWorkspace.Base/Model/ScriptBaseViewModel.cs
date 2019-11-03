@@ -45,7 +45,7 @@
             string extfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext);
             if (File.Exists(extfile))
             {
-                return System.IO.File.ReadAllText(extfile);
+                return System.IO.File.ReadAllText(extfile, Encoding.UTF8);
             }
             else
             {
@@ -74,7 +74,7 @@
         public void saveResByExt(string strXaml,string ext)
         {
             var classAttribute = (AddinMetaAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(AddinMetaAttribute));
-             System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext), strXaml);
+             System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", classAttribute.Name + "." + ext), strXaml, Encoding.UTF8);
         }
         public static ScriptBaseViewModel GetViewModel(string addinAssemblyPath, string typeViewModel)
         {

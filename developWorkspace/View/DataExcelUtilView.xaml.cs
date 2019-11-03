@@ -864,7 +864,7 @@ namespace DevelopWorkspace.Main.View
             codeString += "\t" + "ClassName" + "\t" + getCameralPropertyString(ti.TableName) + "\n";
             codeString += "\t" + "Remark" + "\t" + ti.Remark + "\n";
             codeString += "\t" + "DataSource" + "\t" + xlApp.ConnectionHistory.ConnectionHistoryName + "\n";
-
+            codeString += "\t" + "SQL file create" + "\t" + "yes" + "\n";
             codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.Aggregate( (x,y) => x + "\t" + y);
             codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty" + "\n";
 
@@ -880,7 +880,6 @@ namespace DevelopWorkspace.Main.View
         }
         private void Schema2Xml(object sender, RoutedEventArgs e)
         {
-
             TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
             if (ti == null) return;
             XElement root = new XElement("TableInfo");
@@ -1456,6 +1455,99 @@ namespace DevelopWorkspace.Main.View
             iAllCheck = 4;
             if (view.View != null) view.View.Refresh();
             iAllCheck = 0;
+
+        }
+
+        private void sql2CodeSupport(object sender, RoutedEventArgs e)
+        {
+            SetViewActionState(ViewActionState.do_start);
+            Base.Services.BusyWorkService(new Action(() =>
+            {
+                try
+                {
+                    SqlParserWrapper wrapper = new SqlParserWrapper();
+                    wrapper.Parse(this.txtOutput.Text);
+
+                    var SelectColumnList = wrapper.SelectColumnList();
+                    string guessedTableName = SelectColumnList.Select(selectColumn => selectColumn.TableName).FirstOrDefault(tablename => !string.IsNullOrEmpty(tablename));
+                    TableInfo gussedTableInfo = tableList.FirstOrDefault(tableinfo => tableinfo.TableName.Equals(guessedTableName));
+                    if (gussedTableInfo == null)
+                    {
+                        Base.Logger.WriteLine($"can't find corresponding table{guessedTableName},please confirm your SQL", Base.Level.WARNING);
+                        return;
+                    }
+                    string codeString = "TableInfo{}\n";
+                    codeString += "\t" + "TableName" + "\t" + gussedTableInfo.TableName + "\n";
+                    codeString += "\t" + "ClassName" + "\t" + getCameralPropertyString(gussedTableInfo.TableName) + "\n";
+                    codeString += "\t" + "Remark" + "\t" + gussedTableInfo.Remark + "\n";
+                    codeString += "\t" + "DataSource" + "\t" + xlApp.ConnectionHistory.ConnectionHistoryName + "\n";
+                    codeString += "\t" + "SQL file create" + "\t" + "no" + "\n";
+                    codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.Aggregate((x, y) => x + "\t" + y);
+                    codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty" + "\n";
+
+                    //类型，别名统一适配
+                    SelectColumnList.ForEach(column =>
+                    {
+                        string iskey = "";
+                        string columnName = column.FieldName;
+                        string remark = "";
+                        string dataTypeName = column.DataType;
+                        string columnSize = "";
+                        if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.SELECT_ONLY)
+                        {
+                            iskey = "";
+                        }
+                        else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.WHERE_ONLY)
+                        {
+                            iskey = "-";
+                        }
+                        else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.ALL)
+                        {
+                            iskey = "*";
+                        }
+
+                        if (!string.IsNullOrEmpty(column.TableName) && !string.IsNullOrEmpty(column.FieldName))
+                        {
+                            var tableInfo = tableList.FirstOrDefault(tableinfo => tableinfo.TableName.Equals(column.TableName));
+                            if (tableInfo != null)
+                            {
+                                var columnInfo = tableInfo.Columns.FirstOrDefault(columninfo => columninfo.ColumnName.Equals(column.FieldName));
+                                if (columnInfo != null)
+                                {
+                                    remark = columnInfo.Schemas[2];
+                                    dataTypeName = columnInfo.Schemas[3];
+                                    columnSize = columnInfo.Schemas[4];
+                                }
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(column.AliasName))
+                        {
+                            columnName = column.AliasName;
+                        }
+                        if (string.IsNullOrEmpty(dataTypeName))
+                        {
+                            //推测 datatype为默认string类型
+                            dataTypeName = "varchar";
+                        }
+
+                        List<string> schema = new List<string>() { iskey, columnName, remark, dataTypeName, columnSize };
+                        codeString += "\t" + "\t" + schema.Aggregate((x, y) => x + "\t" + y);
+                        codeString += "\t" + getCameralVariableString(columnName) + "\t" + getCameralPropertyString(columnName) + "\n";
+
+                    });
+                    Clipboard.SetText(codeString);
+
+                }
+                catch (Exception ex)
+                {
+                    Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                }
+                finally
+                {
+                    SetViewActionState(ViewActionState.do_end);
+                }
+            }));
 
         }
 
