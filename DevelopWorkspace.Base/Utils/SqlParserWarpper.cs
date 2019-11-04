@@ -79,7 +79,7 @@ namespace DevelopWorkspace.Base.Utils
                 //SQL解析g
                 var statements = Parser.ParserFactory.Execute(sql);
 
-                 if (statements.Count > 0)
+                if (statements.Count > 0)
                 {
 
 
@@ -198,6 +198,13 @@ namespace DevelopWorkspace.Base.Utils
                     if (!table.Equals(new KeyValuePair<string, string>()))
                     {
                         selectColumn.TableName = table.Value;
+                    }
+                    else
+                    {
+                        var virtable = dVirtualSelect.FirstOrDefault(dic => selectColumn.TableName == dic.Key);
+                        if (virtable.Key != null) {
+                            selectColumn.TableName = virtable.Value[0].Value;
+                        }
                     }
                 }
 
