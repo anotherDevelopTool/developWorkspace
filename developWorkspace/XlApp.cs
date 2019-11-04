@@ -149,57 +149,7 @@
             {
                 _whereClause = value;
                 if ("*".Equals(value)){
-                    _whereClause = "";
-                    if (Columns != null) {
-                        List<string> columnsString = (from column in Columns select column.ColumnName).ToList<string>();
-                        //对所有的column的where条件进行遍历，这么做比较粗暴会把一些信息丢失掉，比如 or 关系被强制成 and
-                        Columns.ForEach(delegate (ColumnInfo ci)
-                        {
-                            if (ci.IsIncluded && !string.IsNullOrWhiteSpace(ci.WhereClause))
-                            {
-                                string whereClause = " ";
-
-                                FilterType filterType = checkFilterType(ci.WhereClause, columnsString);
-
-                                var substitutedString = Regex.Replace(ci.WhereClause, FILTER_PATTERN, m => substitute(m.Value, columnsString,ci.dataTypeCondtion.ProcessKbn,ci.ColumnName,filterType), RegexOptions.IgnoreCase ); // Append the rest of the match
-                                if (filterType == FilterType.MultiValue)
-                                {
-                                    whereClause += $"{ci.ColumnName} in ( {substitutedString} )";
-                                }
-                                else
-                                {
-                                    //如果开始文字为各种符号的话，则添加字段名
-                                    Regex regex = new Regex(START_PATTERN, RegexOptions.IgnoreCase);
-                                    var result = regex.Match(substitutedString);
-                                    if (result.Success)
-                                    {
-                                        whereClause += $"{ci.ColumnName} {substitutedString}";
-                                    }
-                                    else
-                                        if(filterType == FilterType.MultiValueWithOR || filterType == FilterType.SingleValue)
-                                            whereClause += substitutedString;
-                                        else
-                                            whereClause += $"{ci.ColumnName} = {substitutedString}";
-
-                                }
-                                if (string.IsNullOrWhiteSpace(_whereClause))
-                                {
-                                    _whereClause += whereClause;
-                                }
-                                else {
-                                    Regex regex = new Regex(@"^(\s{0,}or\b)", RegexOptions.IgnoreCase);
-                                    var result = regex.Match(substitutedString);
-                                    if (result.Success)
-                                    {
-                                        _whereClause += whereClause;
-                                    }
-                                    else
-                                        _whereClause += " and " + whereClause;
-                                }
-
-                            }
-                        });
-                    }
+                    _whereClause = getClauseString();
                 }
 
                 RaisePropertyChanged("WhereClause");
@@ -209,11 +159,91 @@
                 return _whereClause;
             }
         }
+        public string getClauseString(bool isSelectClause = true)
+        {
+            string retClauseString = "";
+            if (Columns != null)
+            {
+                List<string> columnsString = (from column in Columns select column.ColumnName).ToList<string>();
+                //对所有的column的where条件进行遍历，这么做比较粗暴会把一些信息丢失掉，比如 or 关系被强制成 and
+                Columns.ForEach(delegate (ColumnInfo ci)
+                {
+                    string inputClauseString;
+                    if (isSelectClause)
+                        inputClauseString = ci.WhereClause;
+                    else
+                        inputClauseString = ci.DeleteClause;
+
+                    if (ci.IsIncluded && !string.IsNullOrWhiteSpace(inputClauseString))
+                    {
+                        string clauseString = " ";
+
+                        FilterType filterType = checkFilterType(inputClauseString, columnsString);
+
+                        var substitutedString = Regex.Replace(inputClauseString, FILTER_PATTERN, m => substitute(m.Value, columnsString, ci.dataTypeCondtion.ProcessKbn, ci.ColumnName, filterType), RegexOptions.IgnoreCase); // Append the rest of the match
+                        if (filterType == FilterType.MultiValue)
+                        {
+                            clauseString += $"{ci.ColumnName} in ( {substitutedString} )";
+                        }
+                        else
+                        {
+                            //如果开始文字为各种符号的话，则添加字段名
+                            Regex regex = new Regex(START_PATTERN, RegexOptions.IgnoreCase);
+                            var result = regex.Match(substitutedString);
+                            if (result.Success)
+                            {
+                                clauseString += $"{ci.ColumnName} {substitutedString}";
+                            }
+                            else
+                                if (filterType == FilterType.MultiValueWithOR || filterType == FilterType.SingleValue)
+                                clauseString += substitutedString;
+                            else
+                                clauseString += $"{ci.ColumnName} = {substitutedString}";
+
+                        }
+                        if (string.IsNullOrWhiteSpace(retClauseString))
+                        {
+                            retClauseString += clauseString;
+                        }
+                        else
+                        {
+                            Regex regex = new Regex(@"^(\s{0,}or\b)", RegexOptions.IgnoreCase);
+                            var result = regex.Match(substitutedString);
+                            if (result.Success)
+                            {
+                                retClauseString += clauseString;
+                            }
+                            else
+                                retClauseString += " and " + clauseString;
+                        }
+
+                    }
+                });
+            }
+            return retClauseString;
+
+        }
         //默认设为1=0，也就是说Excel的数据登录前不做删除处理，需要根据实际项目定制条件
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
-        public string DeleteClause { get; set; }
+        private string _deleteClause;
+        public string DeleteClause
+        {
+            set
+            {
+                _deleteClause = value;
+                if ("*".Equals(value))
+                {
+                    _deleteClause = getClauseString(false);
+                }
 
+                RaisePropertyChanged("DeleteClause");
+            }
+            get
+            {
+                return _deleteClause;
+            }
+        }
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         string _selectDataSql = null;
@@ -383,7 +413,26 @@
             }
 
         }
+        private string _deleteClause = "";
+        public string DeleteClause
+        {
+            set
+            {
+                //当画面入力后失去焦点时会激活这个方法，如果通知给tableinfo
+                _deleteClause = value;
 
+                if (string.IsNullOrWhiteSpace(value)) return;
+
+                //给tableinfo进行所有字段条件遍历的机会
+                parent.DeleteClause = "*";
+
+            }
+            get
+            {
+                return _deleteClause;
+            }
+
+        }
 
 
         public DataTypeCondition dataTypeCondtion { get; set; }
@@ -718,10 +767,10 @@
                                 {
                                     deleteTextSql = string.Format("delete from {0}", fullTableName + " where " + ti.DeleteClause);
                                 }
-                                else
-                                {
-                                    deleteTextSql = string.Format("delete from {0}", fullTableName + " where 1=0");
-                                }
+                                //else
+                                //{
+                                //    deleteTextSql = string.Format("delete from {0}", fullTableName + " where 1=0");
+                                //}
 
                                 //缓存数据库操作
                                 workArea[strTableName].DeleteSql = deleteTextSql;

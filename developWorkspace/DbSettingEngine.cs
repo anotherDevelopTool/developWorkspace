@@ -121,6 +121,7 @@
         public int ConnectionHistoryID { get; set; }
         public string TableName { get; set; }
         public string WhereClauseString { get; set; }
+        public string DeleteClauseString { get; set; }
         public int ViewOrderNum { get; set; }
 
     }

@@ -687,7 +687,7 @@ x:Name="dataview"
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBox  TextWrapping="Wrap" Text="{Binding WhereClause}" Background="Transparent" BorderThickness="0" BorderBrush="Transparent"  MinWidth="250" Width="{Binding ElementName=column3,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}" GotFocus="TextBox_GotFocus"/>
+                                            <TextBox  TextWrapping="Wrap" Text="{Binding WhereClause}" Background="Transparent" BorderThickness="0" BorderBrush="Transparent"  MinWidth="250" Width="{Binding ElementName=column3,Path=ActualWidth }" GotFocus="TextBox_GotFocus"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -717,7 +717,7 @@ x:Name="dataview"
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock TextWrapping="Wrap" Text="{Binding DeleteClause}" />
+                                            <TextBox  TextWrapping="Wrap" Text="{Binding DeleteClause}" Background="Transparent" BorderThickness="0" BorderBrush="Transparent"  MinWidth="250" Width="{Binding ElementName=column4,Path=ActualWidth }" GotFocus="TextBox_GotFocus"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

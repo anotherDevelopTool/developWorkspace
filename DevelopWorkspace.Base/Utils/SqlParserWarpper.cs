@@ -192,14 +192,15 @@ namespace DevelopWorkspace.Base.Utils
             //表别名转换成真实表名
             selectColumnList.ForEach(selectColumn => {
                 //
-                if (!string.IsNullOrEmpty(selectColumn.TableName))
+                //if (!string.IsNullOrEmpty(selectColumn.TableName))
                 {
-                    var table = lRealSelect.FirstOrDefault(selectedTable => selectColumn.TableName.Equals(selectedTable.Key));
+                    var table = lRealSelect.FirstOrDefault(selectedTable => selectColumn.TableName == selectedTable.Key);
                     if (!table.Equals(new KeyValuePair<string, string>()))
                     {
                         selectColumn.TableName = table.Value;
                     }
                 }
+
             });
             //where条件追加
             lWhereCondition.ForEach(condition =>

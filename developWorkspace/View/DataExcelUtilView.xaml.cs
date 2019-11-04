@@ -495,17 +495,17 @@ namespace DevelopWorkspace.Main.View
                 {
                     while (rdr.Read())
                     {
-                        var whereClause = (from wherehistory in (cmbSavedDatabases.SelectedItem as ConnectionHistory).WhereClauseHistories where wherehistory.TableName == rdr["name"].ToString() select wherehistory.WhereClauseString).FirstOrDefault();
+                        var whereClause = (from wherehistory in (cmbSavedDatabases.SelectedItem as ConnectionHistory).WhereClauseHistories where wherehistory.TableName == rdr["name"].ToString() select wherehistory).FirstOrDefault();
                         //tableList.Add(new TableInfo() { TableName = rdr["name"].ToString(), SchemaName = xlApp.SchemaName, Remark = rdr["name"].ToString().GetLogicalName(), WhereClause = whereClause == null ? "" : whereClause, DateTimeFormatter = iProvider.DateTimeFormatter, DeleteClause = "1=0" });
                         tableList.Add(new TableInfo() {
                             TableName = rdr["name"].ToString(),
                             RowCount = string.IsNullOrEmpty(rdr["rowcount"].ToString()) ? 0 : int.Parse(rdr["rowcount"].ToString()),
                             SchemaName = xlApp.SchemaName,
                             Remark = string.IsNullOrWhiteSpace(rdr["remark"].ToString()) ? rdr["name"].ToString() : rdr["remark"].ToString(),
-                            WhereClause = whereClause == null ? "" : whereClause,
+                            WhereClause = whereClause == null ? "" : whereClause.WhereClauseString,
                             LimitCondition = limitCondition,
                             DateTimeFormatter = iProvider.DateTimeFormatter,
-                            DeleteClause = "1=0",
+                            DeleteClause = whereClause == null ? "" : whereClause.DeleteClauseString,
                             ExcelTableHeaderThemeColor = themeColor,
                             ExcelSchemaHeaderThemeColor = schemaThemeColor,
                             ThemeColorBrush = brush });
@@ -876,7 +876,7 @@ namespace DevelopWorkspace.Main.View
                     codeString += "\t" + getCameralVariableString(ci.Schemas[1]) + "\t" + getCameralPropertyString(ci.Schemas[1]) + "\n";
                 }
             });
-            Clipboard.SetText(codeString);
+            Clipboard.SetDataObject(codeString);
         }
         private void Schema2Xml(object sender, RoutedEventArgs e)
         {
@@ -903,7 +903,7 @@ namespace DevelopWorkspace.Main.View
             });
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("XML");
             this.txtOutput.Text = root.ToString();
-            Clipboard.SetText(this.txtOutput.Text);
+            Clipboard.SetDataObject(this.txtOutput.Text);
         }
         private void MakeSelSql(object sender, RoutedEventArgs e)
         {
@@ -911,7 +911,7 @@ namespace DevelopWorkspace.Main.View
             if (ti == null) return;
             this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("SQL");
             this.txtOutput.Text = ti.SelectDataSQL;
-            Clipboard.SetText(this.txtOutput.Text);
+            Clipboard.SetDataObject(this.txtOutput.Text);
         }
         private void XmlSerializer(object sender, RoutedEventArgs e)
         {
@@ -931,7 +931,7 @@ namespace DevelopWorkspace.Main.View
                 serializerString = System.Text.Encoding.UTF8.GetString(buf);
             }
             this.txtOutput.Text = serializerString;
-            Clipboard.SetText(this.txtOutput.Text);
+            Clipboard.SetDataObject(this.txtOutput.Text);
         }
         private void SqlFormatter(object sender, RoutedEventArgs e)
         {
@@ -949,7 +949,6 @@ namespace DevelopWorkspace.Main.View
                 xlApp.DbConnection.Open();
                 xlApp.LoadDataIntoExcel(selected.ToArray(), xlApp.DbConnection.CreateCommand());
 
-
                 //为了能保持使用Ctrl+KeyUp/KeyDown调整过的顺序，排在前面的进行加权处理
                 //对表访问次数进行保存已被之后的常用表排序靠前的体验提升
                 //TODO 加权方式是否可以更加贴近用户使用场景...需要进一步收集现场反馈
@@ -958,16 +957,20 @@ namespace DevelopWorkspace.Main.View
                 var updateWhereClauses = (from whereClause in xlApp.ConnectionHistory.WhereClauseHistories
                                       join tblWithIdx in selectedWithIdx on whereClause.TableName equals tblWithIdx.ti.TableName select new { target = whereClause,reftable = tblWithIdx.ti,listOrder = tblWithIdx.idx });
 
+                //update
                 foreach (var whereClause in updateWhereClauses) {
                     whereClause.target.ViewOrderNum = whereClause.target.ViewOrderNum + exportCount - whereClause.listOrder;
                     whereClause.target.WhereClauseString = whereClause.reftable.WhereClause;
+                    whereClause.target.DeleteClauseString = whereClause.reftable.DeleteClause;
                 }
+                //如果不存在则追加
                 foreach (var tblWithIdx in selectedWithIdx)
                 {
                     if((from whereClause in updateWhereClauses where whereClause.target.TableName.Equals(tblWithIdx.ti.TableName) select whereClause).Count() == 0)
                     xlApp.ConnectionHistory.WhereClauseHistories.Add(new WhereClauseHistory() {
                         ConnectionHistoryID = xlApp.ConnectionHistory.ConnectionHistoryID,
                         WhereClauseString = tblWithIdx.ti.WhereClause,
+                        DeleteClauseString = tblWithIdx.ti.DeleteClause,
                         TableName = tblWithIdx.ti.TableName,
                         ViewOrderNum = 1 + exportCount - tblWithIdx.idx  });
                 }
@@ -1469,11 +1472,16 @@ namespace DevelopWorkspace.Main.View
                     wrapper.Parse(this.txtOutput.Text);
 
                     var SelectColumnList = wrapper.SelectColumnList();
+                    if (SelectColumnList.Count() == 0)
+                    {
+                        Base.Logger.WriteLine($"can't parse correctly,please confirm your SQL", Base.Level.WARNING);
+                        return;
+                    }
                     string guessedTableName = SelectColumnList.Select(selectColumn => selectColumn.TableName).FirstOrDefault(tablename => !string.IsNullOrEmpty(tablename));
                     TableInfo gussedTableInfo = tableList.FirstOrDefault(tableinfo => tableinfo.TableName.Equals(guessedTableName));
                     if (gussedTableInfo == null)
                     {
-                        Base.Logger.WriteLine($"can't find corresponding table{guessedTableName},please confirm your SQL", Base.Level.WARNING);
+                        Base.Logger.WriteLine($"can't find corresponding table:{guessedTableName},please confirm your SQL", Base.Level.WARNING);
                         return;
                     }
                     string codeString = "TableInfo{}\n";
@@ -1536,7 +1544,7 @@ namespace DevelopWorkspace.Main.View
                         codeString += "\t" + getCameralVariableString(columnName) + "\t" + getCameralPropertyString(columnName) + "\n";
 
                     });
-                    Clipboard.SetText(codeString);
+                    Clipboard.SetDataObject(codeString);
 
                 }
                 catch (Exception ex)
