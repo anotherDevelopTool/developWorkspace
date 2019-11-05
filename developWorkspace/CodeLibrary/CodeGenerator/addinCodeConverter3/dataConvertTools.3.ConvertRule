@@ -1,4 +1,4 @@
-#if($root.TableInfo.DataSource.EndsWith("core"))
+﻿#if($root.TableInfo.DataSource.EndsWith("core"))
 	#set($jpa = "core")
 #elseif($root.TableInfo.DataSource.EndsWith("front"))
 	#set($jpa = "front")
@@ -7,7 +7,7 @@
 #else
 	#set($jpa = "core")
 #end
-package jp.co.rakuten.brandavenue.backend.bo.api.model.biz.${jpa}.res;
+package ${root.Setting.RootPackage}.model.biz.${jpa}.res;
 
 import java.io.Serializable;
 import java.util.List;
@@ -42,8 +42,13 @@ public class ${root.TableInfo.ClassName}Model {
 	#set($type = "String")
 
 #end
+#if($ColumnInfo.IsKey.equals("-"))
+
+#else
+
   // $ColumnInfo.Remark
   private $type $ColumnInfo.CameralVariable;
+#end
 #end
 
 }

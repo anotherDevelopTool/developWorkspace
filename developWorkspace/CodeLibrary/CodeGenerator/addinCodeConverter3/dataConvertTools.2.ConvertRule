@@ -1,4 +1,4 @@
-#set($keynum = 0)
+﻿#set($keynum = 0)
 #foreach ( $ColumnInfo in $root.TableInfo.Columns )
 #if($ColumnInfo.IsKey.equals("*"))
   #set($keynum = $keynum + 1)
@@ -13,7 +13,7 @@
 #else
 	#set($jpa = "core")
 #end
-package jp.co.rakuten.brandavenue.backend.bo.api.db.${jpa}.entity;
+package ${root.Setting.RootPackage}.db.${jpa}.entity;
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -27,7 +27,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * ${root.TableInfo.Remark}一件に該当するエンティティクラ�? *
+ * ${root.TableInfo.Remark}一件に該当するエンティティクラス
  *
  */
 @NoArgsConstructor
@@ -55,12 +55,16 @@ public class ${root.TableInfo.ClassName}Entity {
 	#set($type = "String")
 
 #end
+#if($ColumnInfo.IsKey.equals("-"))
+
+#else
   // $ColumnInfo.Remark
 #if($ColumnInfo.IsKey.equals("*"))
   @Id
 #end
   @Column(name = "$ColumnInfo.ColumnName") 
   private $type $ColumnInfo.CameralVariable;
+#end
 #end
 
 }
