@@ -839,7 +839,8 @@ namespace DevelopWorkspace.Main.View
                 }
             }));
         }
-        private string getCameralVariableString(string _functionName) { 
+        private string getCameralVariableString(string _functionName) {
+            if (_functionName.IndexOf("_") < 0) return $"{_functionName.First().ToString().ToLowerInvariant()}{_functionName.Substring(1)}";
             string functionName = _functionName.ToLower();
             TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
             functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
@@ -848,6 +849,7 @@ namespace DevelopWorkspace.Main.View
         }
         private string getCameralPropertyString(string _functionName)
         {
+            if (_functionName.IndexOf("_") < 0) return $"{_functionName.First().ToString().ToUpperInvariant()}{_functionName.Substring(1)}";
             string functionName = _functionName.ToLower();
             TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
             functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
@@ -865,15 +867,17 @@ namespace DevelopWorkspace.Main.View
             codeString += "\t" + "Remark" + "\t" + ti.Remark + "\n";
             codeString += "\t" + "DataSource" + "\t" + xlApp.ConnectionHistory.ConnectionHistoryName + "\n";
             codeString += "\t" + "SQL file create" + "\t" + "yes" + "\n";
-            codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.Aggregate( (x,y) => x + "\t" + y);
-            codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty" + "\n";
+            codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.ToList().GetRange(1, xlApp.schemaList.Count() - 1).Aggregate( (x,y) => x + "\t" + y);
+            codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty";
+            codeString += "\t" + "K" + "\t" + "S" + "\t" + "W" + "\n";
 
             ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
             {
                 if (ci.IsIncluded)
                 {
-                    codeString += "\t" + "\t" + ci.Schemas.Aggregate((x, y) => x + "\t" + y);
-                    codeString += "\t" + getCameralVariableString(ci.Schemas[1]) + "\t" + getCameralPropertyString(ci.Schemas[1]) + "\n";
+                    codeString += "\t" + "\t" + ci.Schemas.GetRange(1,ci.Schemas.Count() -1 ).Aggregate((x, y) => x + "\t" + y);
+                    codeString += "\t" + getCameralVariableString(ci.Schemas[1]) + "\t" + getCameralPropertyString(ci.Schemas[1]);
+                    codeString += "\t" + ci.Schemas[0] + "\t" + "*" + "\t" + ci.Schemas[0] + "\n";
                 }
             });
             Clipboard.SetDataObject(codeString);
@@ -1490,28 +1494,32 @@ namespace DevelopWorkspace.Main.View
                     codeString += "\t" + "Remark" + "\t" + gussedTableInfo.Remark + "\n";
                     codeString += "\t" + "DataSource" + "\t" + xlApp.ConnectionHistory.ConnectionHistoryName + "\n";
                     codeString += "\t" + "SQL file create" + "\t" + "no" + "\n";
-                    codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.Aggregate((x, y) => x + "\t" + y);
-                    codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty" + "\n";
+                    codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.ToList().GetRange(1, xlApp.schemaList.Count() - 1).Aggregate((x, y) => x + "\t" + y);
+                    codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty";
+                    codeString += "\t" + "K" + "\t" + "S" + "\t" + "W" + "\n";
 
                     //类型，别名统一适配
                     SelectColumnList.ForEach(column =>
                     {
-                        string iskey = "";
+                        string isKey = "";
+                        string isSelect = "";
+                        string isWhere = "";
                         string columnName = column.FieldName;
                         string remark = "";
                         string dataTypeName = column.DataType;
                         string columnSize = "";
                         if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.SELECT_ONLY)
                         {
-                            iskey = "";
+                            isSelect = "*";
                         }
                         else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.WHERE_ONLY)
                         {
-                            iskey = "-";
+                            isWhere = "*";
                         }
                         else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.ALL)
                         {
-                            iskey = "*";
+                            isSelect = "*";
+                            isWhere = "*";
                         }
 
                         if (!string.IsNullOrEmpty(column.TableName) && !string.IsNullOrEmpty(column.FieldName))
@@ -1522,6 +1530,7 @@ namespace DevelopWorkspace.Main.View
                                 var columnInfo = tableInfo.Columns.FirstOrDefault(columninfo => columninfo.ColumnName.Equals(column.FieldName));
                                 if (columnInfo != null)
                                 {
+                                    isKey = columnInfo.Schemas[0];
                                     remark = columnInfo.Schemas[2];
                                     dataTypeName = columnInfo.Schemas[3];
                                     columnSize = columnInfo.Schemas[4];
@@ -1539,9 +1548,10 @@ namespace DevelopWorkspace.Main.View
                             dataTypeName = "varchar";
                         }
 
-                        List<string> schema = new List<string>() { iskey, columnName, remark, dataTypeName, columnSize };
+                        List<string> schema = new List<string>() { columnName, remark, dataTypeName, columnSize };
                         codeString += "\t" + "\t" + schema.Aggregate((x, y) => x + "\t" + y);
-                        codeString += "\t" + getCameralVariableString(columnName) + "\t" + getCameralPropertyString(columnName) + "\n";
+                        codeString += "\t" + getCameralVariableString(columnName) + "\t" + getCameralPropertyString(columnName);
+                        codeString += "\t" + isKey + "\t" + isSelect + "\t" + isWhere + "\n";
 
                     });
                     Clipboard.SetDataObject(codeString);
