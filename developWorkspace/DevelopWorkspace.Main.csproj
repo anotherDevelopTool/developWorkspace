@@ -193,10 +193,20 @@
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.7.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.8.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.9.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.angular_model.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.common.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.dao.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.delete_sql.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.entity.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.header.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.insert_sql.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.model.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.select_sql.ConvertRule" />
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.update_sql.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.xlsx" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.2.ConvertRule">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -609,6 +619,10 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\ScriptAddinView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

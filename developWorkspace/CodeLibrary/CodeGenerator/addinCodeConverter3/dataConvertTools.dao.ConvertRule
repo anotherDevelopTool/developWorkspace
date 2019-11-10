@@ -1,0 +1,91 @@
+﻿@{
+	var sqlWhereColumns = (Model.TableInfo.Columns as IEnumerable<dynamic>).Where(item => ((IDictionary<string,object>)item)[Model.TableInfo.CurrentSqlKey].ToString().Equals("○"));
+	var selectString = selectColumns.Select(c => c.ColumnName).Aggregate((c1, c2) => c1 + "\n  ," + c2);
+	string basedao = "RbaDao";
+	if(Model.TableInfo.DataSource.EndsWith("core")){
+		basedao = "RbaDao";
+	}
+	else if(Model.TableInfo.DataSource.EndsWith("front")){
+		basedao = "RbaFrontDao";
+	}
+	else if(Model.TableInfo.DataSource.EndsWith("ics")){
+		basedao = "Dao";
+	}
+	else if(Model.TableInfo.DataSource.EndsWith("sale")){
+		basedao = "Dao";
+	}
+	var classVariable = Model.TableInfo.ClassName.Substring(0,1).ToLower() + Model.TableInfo.ClassName.Substring(1);
+}
+
+package @(Model.Setting.RootPackage).db.@(jpa).dao;
+@if(Model.TableInfo.DataSource.EndsWith("core") || Model.TableInfo.DataSource.EndsWith("front") ){
+@:import @(Model.Setting.RootPackage).db.@(jpa).dao.base.RbaDao;
+}
+else if(Model.TableInfo.DataSource.EndsWith("ics")){
+@:import @(Model.Setting.RootPackage).db.config.ICSRepositoryConfig;
+@:import jp.co.rakuten.firstparty.spring.jpa.dao.Dao;
+}
+else if(Model.TableInfo.DataSource.EndsWith("sale")){
+@:import @(Model.Setting.RootPackage).db.config.SaleRepositoryConfig;
+@:import jp.co.rakuten.firstparty.spring.jpa.dao.Dao;
+}
+import java.util.List;
+import org.springframework.stereotype.Repository;
+import jp.co.rakuten.firstparty.spring.jpa.annotation.CreateQuery;
+/**
+ * @(Model.TableInfo.Remark)
+ *
+ *
+ */
+@@Repository
+public class @(Model.TableInfo.ClassName)Dao extends @basedao {
+	private @(Model.TableInfo.ClassName)Entity @(Model.TableInfo.ClassName.Substring(0,1).ToLower() + Model.TableInfo.ClassName.Substring(1))Entity = new @(Model.TableInfo.ClassName)Entity();
+@{
+	var row = Model.TableInfo.Columns[0] as IDictionary<string,object>;
+	var sqlkeys = row.Keys.Where( key =>  key.IndexOf(":") > 1);
+	foreach(var sqlkey in sqlkeys){
+	    var sqlItems = sqlkey.Split(':');
+	    var keyword = sqlItems[0];
+	    var sqlMethodName = sqlItems[1];
+		var currentWhereColumns = (Model.TableInfo.Columns as IEnumerable<dynamic>).Where(item => ((IDictionary<string,object>)item)[sqlkey].ToString().Equals("○"));
+		var currentKeynum = currentWhereColumns.Count();
+		//parameter
+		string paramsString = currentWhereColumns.Count() == 0 ? "":currentWhereColumns.Select(c => getJavaType(c.DataTypeName) + " " + c.CameralVariable).Aggregate((c1, c2) => c1 + "," + c2);
+		
+		bool bSingle = keyColumns.Count() == (from keyColumn in keyColumns join whereColumn in currentWhereColumns on keyColumn.ColumnName equals whereColumn.ColumnName select whereColumn.ColumnName).Count();
+		
+		
+		if(keyword == "SELECT"){
+			if(bSingle){
+@:	@@CreateQuery
+@:	public @(Model.TableInfo.ClassName)Entity @(sqlMethodName)(@paramsString) {
+@:		return (@(Model.TableInfo.ClassName)) getNativeQueryWithoutMax(@(classVariable)Entity).getSingleResult();
+@:	}
+			}
+			else{
+@:	public List<@(Model.TableInfo.ClassName)Entity> @(sqlMethodName)(@paramsString) {
+@:		return getNativeQueryWithMax(@(classVariable)Entity).getResultList();
+@:	}
+			}
+		}
+		else if(keyword == "INSERT"){
+@:	@@CreateQuery
+@:	public int @(sqlMethodName)(@(Model.TableInfo.ClassName)Entity @(classVariable)) {
+@:		return getNativeQueryWithoutMax().executeUpdate();	
+@:	}
+		}
+		else if(keyword == "UPDATE"){
+@:	@@CreateQuery
+@:	public int @(sqlMethodName)(@paramsString,@(Model.TableInfo.ClassName)Entity @(classVariable)) {
+@:		return getNativeQueryWithoutMax().executeUpdate();	
+@:	}
+		}
+		else if(keyword == "DELETE"){
+@:	@@CreateQuery
+@:	public int @(sqlMethodName)(@paramsString) {
+@:		return getNativeQueryWithoutMax().executeUpdate();	
+@:	}
+		}	
+	}
+}  
+}

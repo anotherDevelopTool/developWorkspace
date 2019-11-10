@@ -869,7 +869,7 @@ namespace DevelopWorkspace.Main.View
             codeString += "\t" + "SQL file create" + "\t" + "yes" + "\n";
             codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.ToList().GetRange(1, xlApp.schemaList.Count() - 1).Aggregate( (x,y) => x + "\t" + y);
             codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty";
-            codeString += "\t" + "K" + "\t" + "S" + "\t" + "W" + "\n";
+            codeString += "\t" + "isK" + "\t" + "isS" + "\t" + "isW" + "\n";
 
             ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
             {
@@ -1496,7 +1496,7 @@ namespace DevelopWorkspace.Main.View
                     codeString += "\t" + "SQL file create" + "\t" + "no" + "\n";
                     codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.ToList().GetRange(1, xlApp.schemaList.Count() - 1).Aggregate((x, y) => x + "\t" + y);
                     codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty";
-                    codeString += "\t" + "K" + "\t" + "S" + "\t" + "W" + "\n";
+                    codeString += "\t" + "isK" + "\t" + "isS" + "\t" + "isW" + "\n";
 
                     //类型，别名统一适配
                     SelectColumnList.ForEach(column =>

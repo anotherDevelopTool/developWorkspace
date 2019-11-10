@@ -1,0 +1,34 @@
+﻿@functions {
+  public string getJavascriptType(string dataType){
+  	if(dataType.Equals("int")){
+  		return "Integer";
+  	}
+  	else if(dataType.Equals("tinyint")){
+  		return "number";
+  	}
+  	else if(dataType.Equals("number")){
+  		return "number";
+  	}
+  	else if(dataType.Equals("datetime")){
+  		return "number";
+  	}
+  	else if(dataType.Equals("timestamp")){
+  		return "number";
+  	}
+  	else if(dataType.Equals("date")){
+  		return "number";
+  	}
+  	else{
+  		return "string";
+  	}
+  }
+}
+export class @(Model.TableInfo.ClassName)Model { 
+@foreach (dynamic column in selectColumns)
+{
+  string type = getJavascriptType(@column.DataTypeName);
+@:  // @column.Remark
+@:  public @column.ColumnName.ToLower(): @type;  
+
+}
+}

@@ -44,6 +44,9 @@ using unvell.ReoGrid;
 using unvell.ReoGrid.CellTypes;
 using unvell.ReoGrid.Chart;
 using unvell.ReoGrid.Drawing.Shapes;
+using RazorEngine;
+using RazorEngine.Templating; // For extension methods.
+using System.Security.Cryptography;
 
 //css_reference unvell.ReoGridEditor.exe;
 public class Script
@@ -66,6 +69,9 @@ public class Script
         JavaProject javaProject = new JavaProject();
         List<JavaClazz> parsedClazzList = new List<JavaClazz>();
 
+        IRazorEngineService service;
+
+
         [MethodMeta(Name = "变换", Category = "Code", Date = "2009-07-20", Description = "变换", LargeIcon = "convert")]
         public void EventHandler1(object sender, RoutedEventArgs e)
         {
@@ -73,8 +79,8 @@ public class Script
             {
                 host.Visibility = System.Windows.Visibility.Hidden;
 
-                VelocityEngine vltEngine = new VelocityEngine();
-                vltEngine.Init();
+                //VelocityEngine vltEngine = new VelocityEngine();
+                //vltEngine.Init();
 
                 //CSV format with tab delimiter
                 var dic = getSchemaDictionary(reogrid);
@@ -82,70 +88,76 @@ public class Script
                 VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
                 VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
 
-                VelocityContext vltContext = new VelocityContext();
-                vltContext.Put("root", dic);
-                StringWriter vltWriter = new StringWriter();
+                //VelocityContext vltContext = new VelocityContext();
+                //vltContext.Put("root", dic);
+                //StringWriter vltWriter = new StringWriter();
                 //
                 string keyword = "";
                 string sqlMethodName = "";
                 bool sqloutput = false;
+                tableInfo["CurrentSqlKey"] = "";
+                DevelopWorkspace.Base.Logger.WriteLine("###SQL file create:" + tableInfo["SQL file create"], Level.DEBUG);
                 if ("yes".Equals(tableInfo["SQL file create"]))
                 {
                     var sqlKeys = ((List<VelocityDictionary<string, object>>)tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
-                foreach (var sqlKey in sqlKeys)
-                {
-                    var sqlItems = sqlKey.Split(':');
-                    keyword = sqlItems[0];
-                    sqlMethodName = sqlItems[1];
-                    //控制当前生成的SQL
-                    tableInfo["CurrentSqlKey"] = sqlKey;
-                    if (keyword.Equals("SELECT") && currentExt.Equals("5.ConvertRule"))
+                    DevelopWorkspace.Base.Logger.WriteLine("###sqlKeys:" + sqlKeys.Count(), Level.DEBUG);
+                    foreach (var sqlKey in sqlKeys)
                     {
-                        // SelectSQL
-                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-                        sqloutput = true;
-                        break;
+                        var sqlItems = sqlKey.Split(':');
+                        keyword = sqlItems[0];
+                        sqlMethodName = sqlItems[1];
+                        //控制当前生成的SQL
+                        tableInfo["CurrentSqlKey"] = sqlKey;
+                        DevelopWorkspace.Base.Logger.WriteLine("###sqlKey:" + sqlKey, Level.DEBUG);
+                        if (keyword.Equals("SELECT") && currentExt.Equals("select_sql.ConvertRule"))
+                        {
+                            sqloutput = true;
+                        }
+                        else if (keyword.Equals("INSERT") && currentExt.Equals("insert_sql.ConvertRule"))
+                        {
+                            sqloutput = true;
+                        }
+                        else if (keyword.Equals("UPDATE") && currentExt.Equals("update_sql.ConvertRule"))
+                        {
+                            sqloutput = true;
+                        }
+                        else if (keyword.Equals("DELETE") && currentExt.Equals("delete_sql.ConvertRule"))
+                        {
+                            sqloutput = true;
+                        }
+                        if (sqloutput)
+                        {
+                            //service.AddTemplate("layout", "author:@Model @RenderBody()");
+                            //通过使用commonRule附加的方式把一些通用的变换规则共用，如代码生成时类型变换规则
+                            string convertRuleString = getResByExt("common.ConvertRule") + "\n" + convertRule.Text;
+                            string templatekey = GetMd5Hash(convertRuleString);
+                            service.AddTemplate(templatekey, convertRuleString);
+                            DevelopWorkspace.Base.Logger.WriteLine("templatekey:" + templatekey);
+                            service.Compile(templatekey);
+                            //service.Compile("layout");
+                            var result1 = service.Run(templatekey, null, dic.ToExpando());
+                            DevelopWorkspace.Base.Logger.WriteLine(result1);
+                            break;
+                        }
                     }
-                    else if (keyword.Equals("INSERT") && currentExt.Equals("6.ConvertRule"))
-                    {
-                        // InsertSQL
-                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-                        sqloutput = true;
-                        break;
-                    }
-                    else if (keyword.Equals("UPDATE") && currentExt.Equals("7.ConvertRule"))
-                    {
-                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-                        sqloutput = true;
-                        break;
-                    }
-                    else if (keyword.Equals("DELETE") && currentExt.Equals("8.ConvertRule"))
-                    {
-                        vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-                        DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
-                        sqloutput = true;
-                        break;
-                    }
-                }
                 }
                 if (!sqloutput)
                 {
-                    vltEngine.Evaluate(vltContext, vltWriter, "", convertRule.Text);
-                    DevelopWorkspace.Base.Logger.WriteLine(vltWriter.GetStringBuilder().ToString());
+                    string convertRuleString = getResByExt("common.ConvertRule") + "\n" + convertRule.Text;
+                    string templatekey = GetMd5Hash(convertRuleString);
+                    service.AddTemplate(templatekey, getResByExt("common.ConvertRule") + "\n" + convertRule.Text);
+                    service.Compile(templatekey);
+                    //service.Compile("layout");
+                    var result1 = service.Run(templatekey, null, dic.ToExpando());
+                    DevelopWorkspace.Base.Logger.WriteLine(result1);
                 }
-                //DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
-                //DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
-                //DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
-
             }
             catch (Exception ex)
             {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
             }
-            finally {
+            finally
+            {
                 host.Visibility = System.Windows.Visibility.Visible;
             }
         }
@@ -156,15 +168,11 @@ public class Script
             {
                 host.Visibility = System.Windows.Visibility.Hidden;
 
-                VelocityEngine vltEngine = new VelocityEngine();
-                vltEngine.Init();
-
                 //CSV format with tab delimiter
                 var dic = getSchemaDictionary(reogrid);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
                 DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
-
                 VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
                 string project = Setting["Project"].ToString();
                 string codeTempBasePath = Setting["CodeTempBasePath"].ToString();
@@ -207,65 +215,85 @@ public class Script
                     modelPath = System.IO.Path.Combine(modelPath, tableInfo["functionId"].ToString());
                 }
 
-                VelocityContext vltContext = new VelocityContext();
-                vltContext.Put("root", dic);
-
-                StringWriter vltWriter = new StringWriter();
                 // entity
-                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("2.ConvertRule"));
-                System.IO.File.WriteAllText(entityPath, vltWriter.GetStringBuilder().ToString(), Encoding.UTF8);
+                string convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("entity.ConvertRule");
+                string templatekey = GetMd5Hash(convertRuleString);
+                service.AddTemplate(templatekey, convertRuleString);
+                service.Compile(templatekey);
+                var resultString = service.Run(templatekey, null, dic.ToExpando());
+                System.IO.File.WriteAllText(entityPath, resultString, System.Text.Encoding.UTF8);
 
                 // model
-                vltWriter = new StringWriter();
-                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("3.ConvertRule"));
+                convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("model.ConvertRule");
+                templatekey = GetMd5Hash(convertRuleString);
+                service.AddTemplate(templatekey, convertRuleString);
+                service.Compile(templatekey);
+                resultString = service.Run(templatekey, null, dic.ToExpando());
                 modelPath = System.IO.Path.Combine(modelPath, "req");
                 Directory.CreateDirectory(modelPath);
                 modelPath = System.IO.Path.Combine(modelPath, classname + "ReqModel.java");
-                System.IO.File.WriteAllText(modelPath, vltWriter.GetStringBuilder().ToString(), Encoding.UTF8);
-
+                System.IO.File.WriteAllText(modelPath, resultString, System.Text.Encoding.UTF8);
 
                 //
                 string keyword = "";
                 string sqlMethodName = "";
+                tableInfo["CurrentSqlKey"] = "";
                 if ("yes".Equals(tableInfo["SQL file create"]))
                 {
-                var sqlKeys = ((List<VelocityDictionary<string, object>>)tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
-                foreach (var sqlKey in sqlKeys)
-                {
-                    var sqlItems = sqlKey.Split(':');
-                    keyword = sqlItems[0];
-                    sqlMethodName = sqlItems[1];
-                    vltWriter = new StringWriter();
-                    //控制当前生成的SQL
-                    tableInfo["CurrentSqlKey"] = sqlKey;
-                    if (keyword.Equals("SELECT"))
+                    var sqlKeys = ((List<VelocityDictionary<string, object>>)tableInfo["Columns"])[0].Keys.Where(key => key.IndexOf(":") > 1);
+                    foreach (var sqlKey in sqlKeys)
                     {
-                        // SelectSQL
-                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("5.ConvertRule"));
+                        var sqlItems = sqlKey.Split(':');
+                        keyword = sqlItems[0];
+                        sqlMethodName = sqlItems[1];
+                        vltWriter = new StringWriter();
+                        //控制当前生成的SQL
+                        tableInfo["CurrentSqlKey"] = sqlKey;
+                        if (keyword.Equals("SELECT"))
+                        {
+                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("select_sql.ConvertRule");
+                            templatekey = GetMd5Hash(convertRuleString);
+                            service.AddTemplate(templatekey, convertRuleString);
+                            service.Compile(templatekey);
+                            resultString = service.Run(templatekey, null, dic.ToExpando());
+                        }
+                        else if (keyword.Equals("INSERT"))
+                        {
+                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("insert_sql.ConvertRule");
+                            templatekey = GetMd5Hash(convertRuleString);
+                            service.AddTemplate(templatekey, convertRuleString);
+                            service.Compile(templatekey);
+                            resultString = service.Run(templatekey, null, dic.ToExpando());
+                        }
+                        else if (keyword.Equals("UPDATE"))
+                        {
+                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("update_sql.ConvertRule");
+                            templatekey = GetMd5Hash(convertRuleString);
+                            service.AddTemplate(templatekey, convertRuleString);
+                            service.Compile(templatekey);
+                            resultString = service.Run(templatekey, null, dic.ToExpando());
+                        }
+                        else if (keyword.Equals("DELETE"))
+                        {
+                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("delete_sql.ConvertRule");
+                            templatekey = GetMd5Hash(convertRuleString);
+                            service.AddTemplate(templatekey, convertRuleString);
+                            service.Compile(templatekey);
+                            resultString = service.Run(templatekey, null, dic.ToExpando());
+                        }
+                        crudSqlPath = System.IO.Path.Combine(sqlPath, sqlMethodName + ".sql");
+                        System.IO.File.WriteAllText(crudSqlPath, resultString, System.Text.Encoding.UTF8);
                     }
-                    else if (keyword.Equals("INSERT"))
-                    {
-                        // InsertSQL
-                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("6.ConvertRule"));
-                    }
-                    else if (keyword.Equals("UPDATE"))
-                    {
-                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("7.ConvertRule"));
-                    }
-                    else if (keyword.Equals("DELETE"))
-                    {
-                        vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("8.ConvertRule"));
-                    }
-                    crudSqlPath = System.IO.Path.Combine(sqlPath, sqlMethodName + ".sql");
-                    System.IO.File.WriteAllText(crudSqlPath, vltWriter.GetStringBuilder().ToString(), Encoding.UTF8);
-                }
                 }
 
                 // DAO
-                vltWriter = new StringWriter();
-                vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("9.ConvertRule"));
+                convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("dao.ConvertRule");
+                templatekey = GetMd5Hash(convertRuleString);
+                service.AddTemplate(templatekey, convertRuleString);
+                service.Compile(templatekey);
+                resultString = service.Run(templatekey, null, dic.ToExpando());
                 DaoPath = System.IO.Path.Combine(DaoPath, classname + "Dao.java");
-                System.IO.File.WriteAllText(DaoPath, vltWriter.GetStringBuilder().ToString(), Encoding.UTF8);
+                System.IO.File.WriteAllText(DaoPath, resultString, System.Text.Encoding.UTF8);
 
                 if (System.IO.File.Exists(WIN_MERGE_PATH))
                 {
@@ -279,8 +307,6 @@ public class Script
                 {
                     System.Diagnostics.Process.Start(codeTempBasePath, null);
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -290,7 +316,6 @@ public class Script
             {
                 host.Visibility = System.Windows.Visibility.Visible;
             }
-
         }
 
         [MethodMeta(Name = "保存", Category = "Code", Date = "2009-07-20", Description = "保存", LargeIcon = "save")]
@@ -305,59 +330,75 @@ public class Script
         public void EventHandler6(object sender, RoutedEventArgs e)
         {
             //reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
-            currentExt = "2.ConvertRule";
-            convertRule.Text = getResByExt("2.ConvertRule");
+            currentExt = "entity.ConvertRule";
+            convertRule.Text = getResByExt("entity.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "model", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler7(object sender, RoutedEventArgs e)
         {
-            currentExt = "3.ConvertRule";
-            convertRule.Text = getResByExt("3.ConvertRule");
+            currentExt = "model.ConvertRule";
+            convertRule.Text = getResByExt("model.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "model(client)", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler8(object sender, RoutedEventArgs e)
         {
-            currentExt = "4.ConvertRule";
-            convertRule.Text = getResByExt("4.ConvertRule");
+            currentExt = "angular_model.ConvertRule";
+            convertRule.Text = getResByExt("angular_model.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "SelectSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler9(object sender, RoutedEventArgs e)
         {
-            currentExt = "5.ConvertRule";
-            convertRule.Text = getResByExt("5.ConvertRule");
+            currentExt = "select_sql.ConvertRule";
+            convertRule.Text = getResByExt("select_sql.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "InsertSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler10(object sender, RoutedEventArgs e)
         {
-            currentExt = "6.ConvertRule";
-            convertRule.Text = getResByExt("6.ConvertRule");
+            currentExt = "insert_sql.ConvertRule";
+            convertRule.Text = getResByExt("insert_sql.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "UpdateSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler11(object sender, RoutedEventArgs e)
         {
-            currentExt = "7.ConvertRule";
-            convertRule.Text = getResByExt("7.ConvertRule");
+            currentExt = "update_sql.ConvertRule";
+            convertRule.Text = getResByExt("update_sql.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "DeleteSQL", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler12(object sender, RoutedEventArgs e)
         {
-            currentExt = "8.ConvertRule";
-            convertRule.Text = getResByExt("8.ConvertRule");
+            currentExt = "delete_sql.ConvertRule";
+            convertRule.Text = getResByExt("delete_sql.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "Dao", Category = "Code", Date = "2009-07-20", Description = "read", LargeIcon = "template")]
         public void EventHandler13(object sender, RoutedEventArgs e)
         {
-            currentExt = "9.ConvertRule";
-            convertRule.Text = getResByExt("9.ConvertRule");
+            currentExt = "dao.ConvertRule";
+            convertRule.Text = getResByExt("dao.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
+
+        [MethodMeta(Name = "Common", Category = "Code", Date = "2009-07-20", Description = "Common Rule", LargeIcon = "template")]
+        public void EventHandler101(object sender, RoutedEventArgs e)
+        {
+            currentExt = "common.ConvertRule";
+            convertRule.Text = getResByExt("common.ConvertRule");
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+        [MethodMeta(Name = "Header", Category = "Code", Date = "2009-07-20", Description = "Header Rule", LargeIcon = "template")]
+        public void EventHandler102(object sender, RoutedEventArgs e)
+        {
+            currentExt = "header.ConvertRule";
+            convertRule.Text = getResByExt("header.ConvertRule");
+            DevelopWorkspace.Base.Logger.WriteLine("Process called");
+        }
+
         [MethodMeta(Name = "项目信息取得", Category = "junit", Description = "read", LargeIcon = "project")]
         public void EventHandler15(object sender, RoutedEventArgs e)
         {
@@ -368,7 +409,7 @@ public class Script
                 walkDirectoryRecursive(new DirectoryInfo(CodeBasePath));
 
                 javaProject.NodeName = "请选择你要生成junit测试代码的类";
-                javaProject.Nodes.AddRange(javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith("Controller") || clazz.clazzName.EndsWith("Service") || clazz.clazzName.EndsWith("Logic") || clazz.clazzName.EndsWith("Dao") ));
+                javaProject.Nodes.AddRange(javaProject.javaClazzList.Where(clazz => clazz.clazzName.EndsWith("Controller") || clazz.clazzName.EndsWith("Service") || clazz.clazzName.EndsWith("Logic") || clazz.clazzName.EndsWith("Dao")));
 
                 List<Node> InitialNodeList = new List<Node>();
                 InitialNodeList.Add(javaProject);
@@ -425,7 +466,7 @@ public class Script
             }
         }
 
-        [MethodMeta(Name = "文件做成", Category = "junit",  Date = "2009-07-20", Description = "文件做成", LargeIcon = "convert")]
+        [MethodMeta(Name = "文件做成", Category = "junit", Date = "2009-07-20", Description = "文件做成", LargeIcon = "convert")]
         public void EventHandler17(object sender, RoutedEventArgs e)
         {
             try
@@ -481,10 +522,10 @@ public class Script
                     string entityPath = System.IO.Path.Combine(codeTempBasePath, "test", packagePath);
                     Directory.CreateDirectory(entityPath);
 
-                    entityPath = System.IO.Path.Combine(entityPath,selectedClazz.clazzName + "Test.java");
+                    entityPath = System.IO.Path.Combine(entityPath, selectedClazz.clazzName + "Test.java");
                     // entity
-                    vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("18.ConvertRule"));
-                    System.IO.File.WriteAllText(entityPath, vltWriter.GetStringBuilder().ToString(), Encoding.UTF8);
+                    vltEngine.Evaluate(vltContext, vltWriter, "", getResByExt("juit.controller.ConvertRule"));
+                    System.IO.File.WriteAllText(entityPath, vltWriter.GetStringBuilder().ToString(), System.Text.Encoding.UTF8);
 
                     if (System.IO.File.Exists(WIN_MERGE_PATH))
                     {
@@ -515,30 +556,30 @@ public class Script
         [MethodMeta(Name = "ControllerTest", Category = "junit", Description = "read", LargeIcon = "template")]
         public void EventHandler18(object sender, RoutedEventArgs e)
         {
-            currentExt = "18.ConvertRule";
-            convertRule.Text = getResByExt("18.ConvertRule");
+            currentExt = "juit.controller.ConvertRule";
+            convertRule.Text = getResByExt("juit.controller.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "ServiceTest", Category = "junit", Description = "read", LargeIcon = "template")]
         public void EventHandler19(object sender, RoutedEventArgs e)
         {
-            currentExt = "19.ConvertRule";
-            convertRule.Text = getResByExt("19.ConvertRule");
+            currentExt = "juit.service.ConvertRule";
+            convertRule.Text = getResByExt("juit.service.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
         [MethodMeta(Name = "LogicTest", Category = "junit", Description = "read", LargeIcon = "template")]
         public void EventHandler20(object sender, RoutedEventArgs e)
         {
-            currentExt = "20.ConvertRule";
-            convertRule.Text = getResByExt("20.ConvertRule");
+            currentExt = "juit.logic.ConvertRule";
+            convertRule.Text = getResByExt("juit.logic.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
 
         [MethodMeta(Name = "DaoTest", Category = "junit", Description = "read", LargeIcon = "template")]
         public void EventHandler21(object sender, RoutedEventArgs e)
         {
-            currentExt = "21.ConvertRule";
-            convertRule.Text = getResByExt("21.ConvertRule");
+            currentExt = "juit.dao.ConvertRule";
+            convertRule.Text = getResByExt("juit.dao.ConvertRule");
             DevelopWorkspace.Base.Logger.WriteLine("Process called");
         }
 
@@ -601,19 +642,21 @@ public class Script
 
             //excluded project
             List<string> excludedProjectList = new List<string>();
-            for(int idex = 1; idex < 50;idex++){
+            for (int idex = 1; idex < 50; idex++)
+            {
                 var excludeProjectName = objectString(reogrid.CurrentWorksheet[idex, 22]);
-                if("".Equals(excludeProjectName)) break;
+                if ("".Equals(excludeProjectName)) break;
                 excludedProjectList.Add(excludeProjectName);
                 DevelopWorkspace.Base.Logger.WriteLine("excludeProjectName:" + excludeProjectName);
             }
             //package mapping
-            List<KeyValuePair<string,string>> packageMappingList = new List<KeyValuePair<string,string>>();
-            for(int idex = 1; idex < 50;idex++){
+            List<KeyValuePair<string, string>> packageMappingList = new List<KeyValuePair<string, string>>();
+            for (int idex = 1; idex < 50; idex++)
+            {
                 var projectName = objectString(reogrid.CurrentWorksheet[idex, 20]);
-                if("".Equals(projectName)) break;
-                packageMappingList.Add(new KeyValuePair<string,string>(projectName,objectString(reogrid.CurrentWorksheet[idex, 21])));
-                DevelopWorkspace.Base.Logger.WriteLine("packageName:" +projectName);
+                if ("".Equals(projectName)) break;
+                packageMappingList.Add(new KeyValuePair<string, string>(projectName, objectString(reogrid.CurrentWorksheet[idex, 21])));
+                DevelopWorkspace.Base.Logger.WriteLine("packageName:" + projectName);
             }
 
             reogrid.CurrentWorksheet.CellDataChanged += (s, args) =>
@@ -629,7 +672,8 @@ public class Script
                         var projectDirs = new DirectoryInfo(args.Cell.Data.ToString()).GetDirectories();
                         foreach (System.IO.DirectoryInfo dirInfo in projectDirs)
                         {
-                            if(excludedProjectList.Where(projectName => dirInfo.Name.StartsWith(projectName)).Count() == 0){
+                            if (excludedProjectList.Where(projectName => dirInfo.Name.StartsWith(projectName)).Count() == 0)
+                            {
                                 projectList.Add(dirInfo.Name);
                                 defaultProject = dirInfo.Name;
                             }
@@ -644,9 +688,9 @@ public class Script
                 else if (args.Cell.Position == new CellPosition(3, 3))
                 {
                     string projectName = objectString(reogrid.CurrentWorksheet[3, 3]);
-                    var packageMapping = packageMappingList.Where( pair => projectName.StartsWith(pair.Key)).FirstOrDefault();
+                    var packageMapping = packageMappingList.Where(pair => projectName.StartsWith(pair.Key)).FirstOrDefault();
                     string RootPackage = "jp.co.rakuten.brandavenue.backend.bo.api";
-                    if (!packageMapping.Equals(default(KeyValuePair<string,string>)))
+                    if (!packageMapping.Equals(default(KeyValuePair<string, string>)))
                     {
                         RootPackage = packageMapping.Value;
                     }
@@ -656,26 +700,26 @@ public class Script
                     string CodeTempBasePath = objectString(reogrid.CurrentWorksheet[1, 3]);
                     CodeTempBasePath = CodeTempBasePath.Substring(0, CodeTempBasePath.LastIndexOf(@"\"));
                     CodeTempBasePath = System.IO.Path.Combine(CodeTempBasePath, "code", objectString(reogrid.CurrentWorksheet[3, 3]), "src");
-                    string CodeTempPath = System.IO.Path.Combine("main","java", packagePath);
-                    string ResourceTempPath = System.IO.Path.Combine("main","resources", packagePath);
+                    string CodeTempPath = System.IO.Path.Combine("main", "java", packagePath);
+                    string ResourceTempPath = System.IO.Path.Combine("main", "resources", packagePath);
 
                     CodeBasePath = System.IO.Path.Combine(objectString(reogrid.CurrentWorksheet[1, 3]), objectString(reogrid.CurrentWorksheet[3, 3]), "src");
-                    
+
                     reogrid.CurrentWorksheet[4, 3] = CodeTempBasePath;
                     reogrid.CurrentWorksheet[5, 3] = CodeTempPath;
                     reogrid.CurrentWorksheet[6, 3] = ResourceTempPath;
                     reogrid.CurrentWorksheet[7, 3] = CodeBasePath;
                     reogrid.CurrentWorksheet[8, 3] = RootPackage;
                 }
-                else if (args.Cell.Position == new CellPosition(4, 7) || 
-                         args.Cell.Position == new CellPosition(5, 7) || 
-                         args.Cell.Position == new CellPosition(6, 7) || 
+                else if (args.Cell.Position == new CellPosition(4, 7) ||
+                         args.Cell.Position == new CellPosition(5, 7) ||
+                         args.Cell.Position == new CellPosition(6, 7) ||
                          args.Cell.Position == new CellPosition(7, 7))
                 {
                     filterController = (args.Cell.Worksheet[4, 7] as bool?) ?? false;
-                    filterService = (args.Cell.Worksheet[5,7] as bool?) ?? false;
-                    filterLogic = (args.Cell.Worksheet[6,7] as bool?) ?? false;
-                    filterDao = (args.Cell.Worksheet[7,7] as bool?) ?? false;
+                    filterService = (args.Cell.Worksheet[5, 7] as bool?) ?? false;
+                    filterLogic = (args.Cell.Worksheet[6, 7] as bool?) ?? false;
+                    filterDao = (args.Cell.Worksheet[7, 7] as bool?) ?? false;
                 }
             };
             string favoriteRootPath = System.IO.Path.Combine(@"D:\Users\", userName, "git");
@@ -684,11 +728,33 @@ public class Script
             {
                 reogrid.CurrentWorksheet[1, 3] = favoriteRootPath;
             }
-            else {
+            else
+            {
                 reogrid.CurrentWorksheet[1, 3] = rootPath;
             }
+
+
+            var config = new RazorEngine.Configuration.TemplateServiceConfiguration();
+            //config.Debug = true;
+            config.DisableTempFileLocking = true;
+            config.EncodedStringFactory = new RazorEngine.Text.RawStringFactory(); // Raw string encoding.
+            service = RazorEngineService.Create(config);
+
             return view;
         }
+        private string GetMd5Hash(string input)
+        {
+            var md5 = MD5.Create();
+            var inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+            var hash = md5.ComputeHash(inputBytes);
+            var sb = new StringBuilder();
+            foreach (byte t in hash)
+            {
+                sb.Append(t.ToString("X2"));
+            }
+            return sb.ToString();
+        }
+
         //help方法
         public string objectString(object origin)
         {
@@ -838,7 +904,7 @@ public class Script
         public void parseSourceFile(string filepath)
         {
             string javafile = filepath.Substring(filepath.LastIndexOf(@"\") + 1);
-            if(javafile.EndsWith("SecurityConfig.java")) return;
+            if (javafile.EndsWith("SecurityConfig.java")) return;
             Services.BusyWorkIndicatorService(string.Format("{0}:{1}", "parser", javafile));
             System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
 
@@ -999,7 +1065,7 @@ public class Script
         MainWindow win = new MainWindow(strXaml);
         win.Show();
     }
-    public class JavaProject:Java.Code.Node
+    public class JavaProject : Java.Code.Node
     {
         public JavaClazz findJavaClazzByName(string classname)
         {
@@ -1018,8 +1084,8 @@ public class Script
             return findedClazzMethod;
         }
         List<JavaClazz> _javaClazzList = new List<JavaClazz>();
-        public List<JavaClazz> javaClazzList 
-        { 
+        public List<JavaClazz> javaClazzList
+        {
             get
             {
                 return _javaClazzList;

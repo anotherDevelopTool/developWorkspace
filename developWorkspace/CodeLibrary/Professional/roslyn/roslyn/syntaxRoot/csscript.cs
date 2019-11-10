@@ -25,7 +25,9 @@ public class Script
                 return x + y;
             }
         }");
-
+        //如何使用rolyn编译代码 on fly
+        //是否使用它替代csscript.dll,需要进一步调查
+        //http://www.tugberkugurlu.com/archive/compiling-c-sharp-code-into-memory-and-executing-it-with-roslyn
         var syntaxRoot = tree.GetRoot();
         var MyClass = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().First();
         var MyMethod = syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
