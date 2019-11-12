@@ -871,13 +871,16 @@ namespace DevelopWorkspace.Main.View
             codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty";
             codeString += "\t" + "isK" + "\t" + "isS" + "\t" + "isW" + "\n";
 
+            string keyMark = "";
             ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
             {
+                
                 if (ci.IsIncluded)
                 {
                     codeString += "\t" + "\t" + ci.Schemas.GetRange(1,ci.Schemas.Count() -1 ).Aggregate((x, y) => x + "\t" + y);
                     codeString += "\t" + getCameralVariableString(ci.Schemas[1]) + "\t" + getCameralPropertyString(ci.Schemas[1]);
-                    codeString += "\t" + ci.Schemas[0] + "\t" + "*" + "\t" + ci.Schemas[0] + "\n";
+                    keyMark = ("*" == ci.Schemas[0]) ? "○" : "";
+                    codeString += "\t" + keyMark + "\t" + "○" + "\t" + keyMark + "\n";
                 }
             });
             Clipboard.SetDataObject(codeString);
@@ -1510,16 +1513,16 @@ namespace DevelopWorkspace.Main.View
                         string columnSize = "";
                         if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.SELECT_ONLY)
                         {
-                            isSelect = "*";
+                            isSelect = "○";
                         }
                         else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.WHERE_ONLY)
                         {
-                            isWhere = "*";
+                            isWhere = "○";
                         }
                         else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.ALL)
                         {
-                            isSelect = "*";
-                            isWhere = "*";
+                            isSelect = "○";
+                            isWhere = "○";
                         }
 
                         if (!string.IsNullOrEmpty(column.TableName) && !string.IsNullOrEmpty(column.FieldName))
@@ -1530,7 +1533,7 @@ namespace DevelopWorkspace.Main.View
                                 var columnInfo = tableInfo.Columns.FirstOrDefault(columninfo => columninfo.ColumnName.Equals(column.FieldName));
                                 if (columnInfo != null)
                                 {
-                                    isKey = columnInfo.Schemas[0];
+                                    isKey = "*" == columnInfo.Schemas[0]?"○":"";
                                     remark = columnInfo.Schemas[2];
                                     dataTypeName = columnInfo.Schemas[3];
                                     columnSize = columnInfo.Schemas[4];

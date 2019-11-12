@@ -619,10 +619,11 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Page Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.xaml">
+    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Page Include="View\ScriptAddinView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
