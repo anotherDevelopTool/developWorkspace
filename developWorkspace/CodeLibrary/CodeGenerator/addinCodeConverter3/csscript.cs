@@ -68,7 +68,7 @@ public class Script
         bool filterDao;
         JavaProject javaProject = new JavaProject();
         List<JavaClazz> parsedClazzList = new List<JavaClazz>();
-
+		VelocityDictionary<string, object> viriableDictionary = new VelocityDictionary<string, object> ();
         IRazorEngineService service;
 
 
@@ -87,7 +87,7 @@ public class Script
 
                 VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
                 VelocityDictionary<string, object> tableInfo = dic["TableInfo"] as VelocityDictionary<string, object>;
-
+                
                 //VelocityContext vltContext = new VelocityContext();
                 //vltContext.Put("root", dic);
                 //StringWriter vltWriter = new StringWriter();
@@ -129,7 +129,7 @@ public class Script
                         {
                             //service.AddTemplate("layout", "author:@Model @RenderBody()");
                             //通过使用commonRule附加的方式把一些通用的变换规则共用，如代码生成时类型变换规则
-                            string convertRuleString = getResByExt("common.ConvertRule") + "\n" + convertRule.Text;
+                            string convertRuleString = getResByExt("common.ConvertRule") + convertRule.Text;
                             string templatekey = GetMd5Hash(convertRuleString);
                             service.AddTemplate(templatekey, convertRuleString);
                             DevelopWorkspace.Base.Logger.WriteLine("templatekey:" + templatekey);
@@ -143,9 +143,9 @@ public class Script
                 }
                 if (!sqloutput)
                 {
-                    string convertRuleString = getResByExt("common.ConvertRule") + "\n" + convertRule.Text;
+                    string convertRuleString = getResByExt("common.ConvertRule") + convertRule.Text;
                     string templatekey = GetMd5Hash(convertRuleString);
-                    service.AddTemplate(templatekey, getResByExt("common.ConvertRule") + "\n" + convertRule.Text);
+                    service.AddTemplate(templatekey, getResByExt("common.ConvertRule") + convertRule.Text);
                     service.Compile(templatekey);
                     //service.Compile("layout");
                     var result1 = service.Run(templatekey, null, dic.ToExpando());
@@ -170,9 +170,6 @@ public class Script
 
                 //CSV format with tab delimiter
                 var dic = getSchemaDictionary(reogrid);
-                DevelopWorkspace.Base.Logger.WriteLine("----------------schema information begin-----------------------------", Level.DEBUG);
-                DevelopWorkspace.Base.Logger.WriteLine(DevelopWorkspace.Base.Dump.ToDump(dic), Level.DEBUG);
-                DevelopWorkspace.Base.Logger.WriteLine("----------------schema information end-------------------------------", Level.DEBUG);
                 VelocityDictionary<string, object> Setting = dic["Setting"] as VelocityDictionary<string, object>;
                 string project = Setting["Project"].ToString();
                 string codeTempBasePath = Setting["CodeTempBasePath"].ToString();
@@ -216,7 +213,7 @@ public class Script
                 }
 
                 // entity
-                string convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("entity.ConvertRule");
+                string convertRuleString = getResByExt("common.ConvertRule") + getResByExt("entity.ConvertRule");
                 string templatekey = GetMd5Hash(convertRuleString);
                 service.AddTemplate(templatekey, convertRuleString);
                 service.Compile(templatekey);
@@ -224,7 +221,7 @@ public class Script
                 System.IO.File.WriteAllText(entityPath, resultString, System.Text.Encoding.UTF8);
 
                 // model
-                convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("model.ConvertRule");
+                convertRuleString = getResByExt("common.ConvertRule") + getResByExt("model.ConvertRule");
                 templatekey = GetMd5Hash(convertRuleString);
                 service.AddTemplate(templatekey, convertRuleString);
                 service.Compile(templatekey);
@@ -246,12 +243,11 @@ public class Script
                         var sqlItems = sqlKey.Split(':');
                         keyword = sqlItems[0];
                         sqlMethodName = sqlItems[1];
-                        vltWriter = new StringWriter();
                         //控制当前生成的SQL
                         tableInfo["CurrentSqlKey"] = sqlKey;
                         if (keyword.Equals("SELECT"))
                         {
-                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("select_sql.ConvertRule");
+                            convertRuleString = getResByExt("common.ConvertRule") + getResByExt("select_sql.ConvertRule");
                             templatekey = GetMd5Hash(convertRuleString);
                             service.AddTemplate(templatekey, convertRuleString);
                             service.Compile(templatekey);
@@ -259,7 +255,7 @@ public class Script
                         }
                         else if (keyword.Equals("INSERT"))
                         {
-                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("insert_sql.ConvertRule");
+                            convertRuleString = getResByExt("common.ConvertRule") + getResByExt("insert_sql.ConvertRule");
                             templatekey = GetMd5Hash(convertRuleString);
                             service.AddTemplate(templatekey, convertRuleString);
                             service.Compile(templatekey);
@@ -267,7 +263,7 @@ public class Script
                         }
                         else if (keyword.Equals("UPDATE"))
                         {
-                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("update_sql.ConvertRule");
+                            convertRuleString = getResByExt("common.ConvertRule") + getResByExt("update_sql.ConvertRule");
                             templatekey = GetMd5Hash(convertRuleString);
                             service.AddTemplate(templatekey, convertRuleString);
                             service.Compile(templatekey);
@@ -275,7 +271,7 @@ public class Script
                         }
                         else if (keyword.Equals("DELETE"))
                         {
-                            convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("delete_sql.ConvertRule");
+                            convertRuleString = getResByExt("common.ConvertRule") + getResByExt("delete_sql.ConvertRule");
                             templatekey = GetMd5Hash(convertRuleString);
                             service.AddTemplate(templatekey, convertRuleString);
                             service.Compile(templatekey);
@@ -287,7 +283,7 @@ public class Script
                 }
 
                 // DAO
-                convertRuleString = getResByExt("common.ConvertRule") + "\n" + getResByExt("dao.ConvertRule");
+                convertRuleString = getResByExt("common.ConvertRule") + getResByExt("dao.ConvertRule");
                 templatekey = GetMd5Hash(convertRuleString);
                 service.AddTemplate(templatekey, convertRuleString);
                 service.Compile(templatekey);
@@ -595,6 +591,10 @@ public class Script
         {
             StringReader strreader = new StringReader(strXaml);
             XmlTextReader xmlreader = new XmlTextReader(strreader);
+
+            Services.BusyWorkIndicatorService(string.Format("{0}:{1}", "load...", "excel template"));
+            System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+
             view = XamlReader.Load(xmlreader) as UserControl;
             host = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Forms.Integration.WindowsFormsHost>(view, "host");
             reogrid = ((unvell.ReoGrid.Editor.ReoGridEditor)host.Child).GridControl;
@@ -624,10 +624,27 @@ public class Script
 
             //EventHandler6(null, null);
             reogrid.Load(getResPathByExt("xlsx"), unvell.ReoGrid.IO.FileFormat.Excel2007);
+
+            Services.BusyWorkIndicatorService(string.Format("{0}:{1}", "load...", "mapping information"));
+            System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+
+            //数据字典取得，对一些特殊字段的名称进行变换
+            viriableDictionary = getSchemaDictionary(reogrid,"dictionary");
+			List<VelocityDictionary<string, object>> mappedColumns = ((Dictionary<string, object>)viriableDictionary["DictionaryInfo"])["Columns"]  as List<VelocityDictionary<string, object>>;
+//            System.Diagnostics.Debugger.Break();
+            DevelopWorkspace.Base.Services.mappingColumnName = (originalString) => {
+                Dictionary<string, object> mapped = mappedColumns.Where( column => column["ColumnName"].ToString().StartsWith(originalString)).FirstOrDefault();
+                if(mapped != null) return mapped["CameralVariable"].ToString();
+                return "";
+            };
+            reogrid.CurrentWorksheet = reogrid.GetWorksheetByName("sheet1");
             view.SizeChanged += (obj, subargs) =>
             {
                 host.Height = subargs.NewSize.Height;
             };
+
+            Services.BusyWorkIndicatorService(string.Format("{0}:{1}", "load...", "project information"));
+            System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
 
             string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
             userName = userName.Substring(userName.IndexOf(@"\") + 1);
@@ -759,7 +776,7 @@ public class Script
         public string objectString(object origin)
         {
             if (origin == null) return "";
-            return origin.ToString();
+            return origin.ToString().Replace("\r", string.Empty).Replace("\n", string.Empty);
         }
         //help类，为了在velocity内取值方便
         public class VelocityDictionary<K, V> : Dictionary<K, V>
@@ -776,21 +793,21 @@ public class Script
                 return origin.ToString();
             }
         }
-        public VelocityDictionary<string, object> getSchemaDictionary(ReoGridControl reogrid)
+        public VelocityDictionary<string, object> getSchemaDictionary(ReoGridControl reogrid,string targetsheet = "sheet1")
         {
             //Directory.CreateDirectory(@"C:\workspace\csharp\WPF Extended DataGrid 2015\1\2");
-            var worksheet = reogrid.GetWorksheetByName("sheet1");
+            var worksheet = reogrid.GetWorksheetByName(targetsheet);
+            worksheet.SetRows(5000);
             VelocityDictionary<string, object> retDictonary = new VelocityDictionary<string, object>();
             // fill data into worksheet
-            var selectedRange = worksheet.Ranges["A1:CV200"];
-
+            var selectedRange = worksheet.Ranges["A1:Z5000"];
             for (int row = 0; row < selectedRange.Rows - 1; row++)
             {
                 for (int col = 0; col < selectedRange.Cols - 1; col++)
                 {
-                    if (selectedRange.Cells[row, col].Data != null && selectedRange.Cells[row, col].Data.ToString().EndsWith("{}"))
+                    if (selectedRange.Cells[row, col].Data != null && objectString(selectedRange.Cells[row, col].Data).EndsWith("{}"))
                     {
-                        string nameCellString = selectedRange.Cells[row, col].Data.ToString();
+                        string nameCellString = objectString(selectedRange.Cells[row, col].Data);
                         VelocityDictionary<string, object> parent = new VelocityDictionary<string, object>();
                         retDictonary[nameCellString.Substring(0, nameCellString.Length - 2)] = parent;
                         col++;
@@ -799,10 +816,10 @@ public class Script
                         for (subRow = row; subRow < selectedRange.Rows - 1; subRow++)
                         {
                             //如果碰到sibling则跳出
-                            if (selectedRange.Cells[subRow, col - 1].Data != null && selectedRange.Cells[subRow, col - 1].Data.ToString() != "") break;
+                            if (selectedRange.Cells[subRow, col - 1].Data != null && objectString(selectedRange.Cells[subRow, col - 1]) != "") break;
                             if (selectedRange.Cells[subRow, col].Data != null)
                             {
-                                string keyCellString = selectedRange.Cells[subRow, col].Data.ToString();
+                                string keyCellString = objectString(selectedRange.Cells[subRow, col].Data);
                                 if (keyCellString.EndsWith("[]"))
                                 {
                                     SchemaRange schemmaRange = new SchemaRange
@@ -857,22 +874,21 @@ public class Script
             {
                 if (selectedRange.Cells[schemmaRange.row, idx].Data != null)
                 {
-                    schemaList.Add(selectedRange.Cells[schemmaRange.row, idx].Data.ToString());
+                    schemaList.Add(objectString(selectedRange.Cells[schemmaRange.row, idx].Data));
                 }
             }
             schemmaRange.row++;
             int subRow, subCol;
             for (subRow = schemmaRange.row; subRow < selectedRange.Rows - 1; subRow++)
             {
-                if (selectedRange.Cells[subRow, schemmaRange.col - 1].Data != null && selectedRange.Cells[subRow, schemmaRange.col - 1].Data.ToString() != "") break;
+                if (selectedRange.Cells[subRow, schemmaRange.col - 1].Data != null && objectString(selectedRange.Cells[subRow, schemmaRange.col - 1].Data) != "") break;
                 VelocityDictionary<string, object> column = new VelocityDictionary<string, object>();
                 bool isEmptyRow = true;
                 for (subCol = schemmaRange.col; subCol < schemmaRange.col + schemaList.Count; subCol++)
                 {
                     if (selectedRange.Cells[subRow, subCol].Data != null)
                     {
-                        System.Diagnostics.Debug.WriteLine(selectedRange.Cells[subRow, subCol].Data);
-                        column[schemaList[subCol - schemmaRange.col]] = selectedRange.Cells[subRow, subCol].Data.ToString();
+                        column[schemaList[subCol - schemmaRange.col]] = objectString(selectedRange.Cells[subRow, subCol].Data);
                         isEmptyRow = false;
                     }
                     else
