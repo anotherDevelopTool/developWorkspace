@@ -840,20 +840,30 @@ namespace DevelopWorkspace.Main.View
             }));
         }
         private string getCameralVariableString(string _functionName) {
-            if (_functionName.IndexOf("_") < 0) return $"{_functionName.First().ToString().ToLowerInvariant()}{_functionName.Substring(1)}";
-            string functionName = _functionName.ToLower();
-            TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
-            functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
-            functionName = $"{functionName.First().ToString().ToLowerInvariant()}{functionName.Substring(1)}";
-            return functionName;
+            string mappedName = Base.Services.mappingColumnName(_functionName);
+            if (string.IsNullOrWhiteSpace(mappedName))
+            {
+                if (_functionName.IndexOf("_") < 0) return $"{_functionName.First().ToString().ToLowerInvariant()}{_functionName.Substring(1)}";
+                string functionName = _functionName.ToLower();
+                TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
+                functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
+                functionName = $"{functionName.First().ToString().ToLowerInvariant()}{functionName.Substring(1)}";
+                return functionName;
+            }
+            return mappedName;
         }
         private string getCameralPropertyString(string _functionName)
         {
-            if (_functionName.IndexOf("_") < 0) return $"{_functionName.First().ToString().ToUpperInvariant()}{_functionName.Substring(1)}";
-            string functionName = _functionName.ToLower();
-            TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
-            functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
-            return functionName;
+            string mappedName = Base.Services.mappingColumnName(_functionName);
+            if (string.IsNullOrWhiteSpace(mappedName))
+            {
+                if (_functionName.IndexOf("_") < 0) return $"{_functionName.First().ToString().ToUpperInvariant()}{_functionName.Substring(1)}";
+                string functionName = _functionName.ToLower();
+                TextInfo txtInfo = new CultureInfo("en-us", false).TextInfo;
+                functionName = txtInfo.ToTitleCase(functionName).Replace("_", string.Empty).Replace(" ", string.Empty);
+                return functionName;
+            }
+            return $"{mappedName.First().ToString().ToUpperInvariant()}{mappedName.Substring(1)}";
         }
         private void Schema2CodeSupport(object sender, RoutedEventArgs e)
         {
