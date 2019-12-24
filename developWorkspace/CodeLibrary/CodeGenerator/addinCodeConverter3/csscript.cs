@@ -816,7 +816,7 @@ public class Script
                         for (subRow = row; subRow < selectedRange.Rows - 1; subRow++)
                         {
                             //如果碰到sibling则跳出
-                            if (selectedRange.Cells[subRow, col - 1].Data != null && objectString(selectedRange.Cells[subRow, col - 1]) != "") break;
+                            if (selectedRange.Cells[subRow, col - 1].Data != null && objectString(selectedRange.Cells[subRow, col - 1].Data) != "") break;
                             if (selectedRange.Cells[subRow, col].Data != null)
                             {
                                 string keyCellString = objectString(selectedRange.Cells[subRow, col].Data);
