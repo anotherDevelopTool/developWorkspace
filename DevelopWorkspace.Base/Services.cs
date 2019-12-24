@@ -113,7 +113,12 @@ namespace DevelopWorkspace.Base
             tooltip.IsOpen = true;
             tooltip.BringIntoView();
         }
-
+        static Func<string, string> _mappingColumnName = (originalString) => "";
+        public static Func<string, string> mappingColumnName
+        {
+            get { return _mappingColumnName; }
+            set { _mappingColumnName = value; }
+        }
 
     }
 

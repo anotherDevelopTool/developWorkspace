@@ -73,6 +73,9 @@
     <Reference Include="EntityFramework">
       <HintPath>..\lib\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="ExcelDna.Integration">
+      <HintPath>..\lib\ExcelDna.Integration.dll</HintPath>
+    </Reference>
     <Reference Include="Fluent, Version=3.0.3.0, Culture=neutral, PublicKeyToken=3e436e32a8c5546f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Fluent.dll</HintPath>
@@ -912,10 +915,6 @@
     <ProjectReference Include="..\DevelopWorkspace.Base\DevelopWorkspace.Base.csproj">
       <Project>{cbe0eddb-0a7a-42ca-a67f-e7bebfcad08e}</Project>
       <Name>DevelopWorkspace.Base</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\ExcelDna.Integration\ExcelDna.Integration.csproj">
-      <Project>{196735bc-5a5c-4a21-9fe4-ec01cb7f3de9}</Project>
-      <Name>ExcelDna.Integration</Name>
     </ProjectReference>
     <ProjectReference Include="..\lib\ICSharpCode.AvalonEdit\ICSharpCode.AvalonEdit.csproj">
       <Project>{6c55b776-26d4-4db3-a6ab-87e783b2f3d1}</Project>

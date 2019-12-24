@@ -1,0 +1,23 @@
+﻿{
+  "ConnectionStrings": null,
+  "ConnectionStrings1": null,
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml"
+    ]
+  },
+  "AppDomain": "SHARED",
+  "ScriptLanguage": "C#",
+  "FirstInputType": "XML",
+  "SecondInputType": "XML",
+  "Title": null,
+  "Description": null,
+  "Path": null,
+  "typeName": "AppConfig"
+}
