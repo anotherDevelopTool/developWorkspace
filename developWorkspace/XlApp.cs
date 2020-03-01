@@ -1287,15 +1287,22 @@
                                 {
                                     // 2019/09/26 yhou由于日期型被格式化，取出的内容和实际的存在一个被格式化，一个没有被格式化导致不能使用==进行比较
                                     ////字符字段被单引号括起来的原因，和数据库取出来时不一致啦，这里做下补丁处理，如果不考虑这个因素，完全可以使用LINQ描述这段逻辑
-                                    //if (row.Value[resIdx].StartsWith("'"))
-                                    //{
-                                    //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
-                                    //}
-                                    //else
-                                    //{
-                                    //    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != rowResult[resIdx]) break;
-                                    //}
-                                    if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break;
+
+                                    // 通常的字符类型
+                                    if (row.Value[resIdx].StartsWith("'"))
+                                    {
+                                        if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
+                                    }
+                                    // 数字类型等
+                                    else if (row.Value[resIdx].IndexOf("'") == -1)
+                                    {
+                                        if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != rowResult[resIdx]) break;
+                                    }
+                                    // 如果row.value是日付类型，那么在这个时点已经通过to_date...等转意，需要使用下面的方式判断
+                                    else
+                                    {
+                                        if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break;
+                                    }
 
                                     //2019/02/25 如果所有的键值都相等则认为是更新
                                     if (resIdx == rowResult.Count - 2) isHit = true;
