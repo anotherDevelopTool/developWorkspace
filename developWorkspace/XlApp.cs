@@ -1303,7 +1303,6 @@
                                     {
                                         if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break;
                                     }
-
                                     //2019/02/25 如果所有的键值都相等则认为是更新
                                     if (resIdx == rowResult.Count - 2) isHit = true;
                                 }
@@ -1363,7 +1362,7 @@
                     }
                 }
                 dbTran.Commit();
-                DevelopWorkspace.Base.Logger.WriteLine("database committed",Level.DEBUG);
+                DevelopWorkspace.Base.Logger.WriteLine("database committed");
 
             }
             catch (Exception ex)
