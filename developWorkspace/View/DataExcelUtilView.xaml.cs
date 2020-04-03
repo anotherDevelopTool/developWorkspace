@@ -684,6 +684,9 @@ namespace DevelopWorkspace.Main.View
                 IsDbReady = true;
                 //DevelopWorkspace.Base.Logger.WriteLine("table bind....end", Base.Level.DEBUG);
 
+                tabControl1.ToolTip = "you can move up/down row by ctrl+arrow key";
+                trvFamilies.ToolTip = "you can move up/down row by ctrl+arrow key";
+
             }
             catch (Exception ex) {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
@@ -797,7 +800,7 @@ namespace DevelopWorkspace.Main.View
         void view_Filter(object sender, FilterEventArgs e)
         {
             //只显示选中行,如果没有选中的就不进行过滤
-            if (iAllCheck == 3 && tableList.Where( ti => ti.Selected).Count() > 0 )
+            if (iAllCheck == 3 && tableList.Where(ti => ti.Selected).Count() > 0)
             {
                 if ((e.Item as TableInfo).Selected)
                     e.Accepted = true;
@@ -809,16 +812,94 @@ namespace DevelopWorkspace.Main.View
             {
                 e.Accepted = true;
             }
-            else if ((e.Item as TableInfo).TableName.ToLower().IndexOf(this.tableNameFilter.Text.ToLower()) >= 0 &&
-                (e.Item as TableInfo).Remark.ToLower().IndexOf(this.tableRemarkFilter.Text.ToLower()) >= 0)
+            else
             {
-                if (iAllCheck == 1) (e.Item as TableInfo).Selected = true;
-                if (iAllCheck == 2) (e.Item as TableInfo).Selected = false;
-                e.Accepted = true;
+                if (string.IsNullOrWhiteSpace(this.tableNameFilter.Text) && string.IsNullOrWhiteSpace(this.tableRemarkFilter.Text)) {
+                    e.Accepted = true;
+                }
+                else 
+                {
+                    if (!string.IsNullOrWhiteSpace(this.tableNameFilter.Text))
+                    {
+                        // tableNameFilter的第一个字符为*时，除表明以外，字段名也作为过滤对象
+                        if (this.tableNameFilter.Text.StartsWith("*"))
+                        {
+                            string tableNameFilterString = this.tableNameFilter.Text.Substring(1);
+                            if ((e.Item as TableInfo).TableName.ToLower().IndexOf(tableNameFilterString.ToLower()) >= 0)
+                            {
+                                e.Accepted = true;
+                            }
+                            else
+                            {
+                                e.Accepted = false;
+                            }
+                            if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.ColumnName.ToLower().IndexOf(tableNameFilterString.ToLower()) >= 0 select column).FirstOrDefault())
+                            {
+                                e.Accepted = true;
+                            }
+
+                        }
+                        else
+                        {
+                            if ((e.Item as TableInfo).TableName.ToLower().IndexOf(this.tableNameFilter.Text.ToLower()) >= 0)
+                            {
+                                e.Accepted = true;
+                            }
+                            else
+                            {
+                                e.Accepted = false;
+                            }
+                        }
+
+                    }
+                    else {
+                        e.Accepted = true;
+                    }
+                    if (e.Accepted && !string.IsNullOrWhiteSpace(this.tableRemarkFilter.Text))
+                    {
+                        if ((e.Item as TableInfo).Remark.ToLower().IndexOf(this.tableRemarkFilter.Text.ToLower()) >= 0)
+                        {
+                            e.Accepted = true;
+                        }
+                        else {
+                            e.Accepted = false;
+                        }
+
+                        // tableRemarkFilter的第一个字符为*时，除表明以外，字段名也作为过滤对象
+                        if (this.tableRemarkFilter.Text.StartsWith("*"))
+                        {
+                            string tableRemarkFilterString = this.tableRemarkFilter.Text.Substring(1);
+                            if ((e.Item as TableInfo).Remark.ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0)
+                            {
+                                e.Accepted = true;
+                            }
+                            else
+                            {
+                                e.Accepted = false;
+                            }
+                            if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.Schemas[2].ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0 select column).FirstOrDefault())
+                            {
+                                e.Accepted = true;
+                            }
+
+                        }
+                        else
+                        {
+                            if ((e.Item as TableInfo).Remark.ToLower().IndexOf(this.tableRemarkFilter.Text.ToLower()) >= 0)
+                            {
+                                e.Accepted = true;
+                            }
+                            else
+                            {
+                                e.Accepted = false;
+                            }
+                        }
+
+                    }
+                }
             }
-            else {
-                e.Accepted = false;
-            }
+
+
         }
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {

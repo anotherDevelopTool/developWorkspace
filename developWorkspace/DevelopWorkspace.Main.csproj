@@ -187,15 +187,6 @@
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\ScriptConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.17.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.2.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.3.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.4.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.5.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.6.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.7.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.8.ConvertRule" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.9.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.angular_model.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.common.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.ConvertRule" />
@@ -211,36 +202,6 @@
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.select_sql.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.update_sql.ConvertRule" />
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools.xlsx" />
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.2.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.3.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.4.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.5.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.6.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.7.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.8.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.9.ConvertRule">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.xlsx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\ScriptConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -613,11 +574,6 @@
       <SubType>Designer</SubType>
     </AdditionalFiles>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter2\dataConvertTools2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\dataConvertTools2.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

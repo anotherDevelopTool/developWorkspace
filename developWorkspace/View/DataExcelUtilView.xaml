@@ -626,8 +626,8 @@ x:Name="dataview"
                                         <StackPanel HorizontalAlignment="Center" >
                                             <!--<ToggleButton  Style="{StaticResource SwitchTypeToggleButton}"  Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
                                             <ToggleButton  Style="{StaticResource SwitchTypeToggleButton}" Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>-->
-                                            <CheckBox Name="tableChecked" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
-                                            <CheckBox Name="tableCheckedFilter" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>
+                                            <CheckBox Name="tableChecked" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.togglerows}" Checked="toggleSelect_Checked" Unchecked="toggleSelect_Unchecked"/>
+                                            <CheckBox Name="tableCheckedFilter" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.toggleselectedrows}" Checked="toggleSelectFilter_Checked" Unchecked="toggleSelectFilter_Unchecked"/>
                                         </StackPanel>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
@@ -640,7 +640,7 @@ x:Name="dataview"
                                     <GridViewColumn.Header>
                                         <StackPanel HorizontalAlignment="Left" >
                                             <TextBlock HorizontalAlignment="Left">TableName</TextBlock>
-                                            <TextBox  Name="tableNameFilter" MinWidth="100"   Width="{Binding ElementName=column1,Path=ActualWidth}" TextChanged="filter_TextChanged" HorizontalAlignment="Left"/>
+                                            <TextBox  Name="tableNameFilter" MinWidth="100" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.tablenameflter}"  Width="{Binding ElementName=column1,Path=ActualWidth}" TextChanged="filter_TextChanged" HorizontalAlignment="Left"/>
                                         </StackPanel>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
@@ -653,7 +653,7 @@ x:Name="dataview"
                                     <GridViewColumn.Header>
                                         <StackPanel HorizontalAlignment="Left">
                                             <TextBlock HorizontalAlignment="Left">Remark</TextBlock>
-                                            <TextBox  Name="tableRemarkFilter" MinWidth="100"  Width="{Binding ElementName=column2,Path=ActualWidth}" TextChanged="filter_TextChanged" HorizontalAlignment="Left"/>
+                                            <TextBox  Name="tableRemarkFilter" MinWidth="100"  ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.tableremarkflter}" Width="{Binding ElementName=column2,Path=ActualWidth}" TextChanged="filter_TextChanged" HorizontalAlignment="Left"/>
                                         </StackPanel>
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
@@ -681,7 +681,7 @@ x:Name="dataview"
                                             <StackPanel Orientation="Horizontal">
                                                 <!--<Button Style="{StaticResource ConfirmButton}" x:Name="applyWhereClause" Content="apply" Click="applyWhereClause_Click" ToolTip="DBデータをエクスポートする際にテーブルの絞り込み条件をカスタマイズできる。特定した更新ユーザー、更新タイムスタンプなどがよく利用される、またそれらの組み合わせも"/>-->
                                                 <Button x:Name="applyWhereClause" Content="apply" Background="{Binding ThemeColorBrush }" Click="applyWhereClause_Click" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.whereclause}"/>
-                                                <ComboBox x:Name="whereClause" IsEditable="True"  MinWidth="250" Width="{Binding ElementName=column3,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}"/>
+                                                <ComboBox x:Name="whereClause" IsEditable="True"  ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.whereclauseusage}"  MinWidth="250" Width="{Binding ElementName=column3,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </GridViewColumn.Header>
@@ -711,7 +711,7 @@ x:Name="dataview"
                                             <StackPanel Orientation="Horizontal">
                                                 <!--<Button  Style="{StaticResource ConfirmButton}" x:Name="applyDeleteClause" Content="apply" Click="applyDeleteClause_Click"  ToolTip="ExcelシートにあるデータをDBへ反映する前にDbデータを削除する条件をカスタマイズできる。デフォルトは1 =0であり、削除処理を行わないである"/>-->
                                                 <Button x:Name="applyDeleteClause" Content="apply"  Background="{Binding ThemeColorBrush }" Click="applyDeleteClause_Click"  ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.deleteclause}"/>
-                                                <ComboBox  x:Name="deleteClause" IsEditable="True"  MinWidth="250"  Width="{Binding ElementName=column4,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}"/>
+                                                <ComboBox  x:Name="deleteClause" IsEditable="True"  MinWidth="250"  ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.deleteclauseusage}" Width="{Binding ElementName=column4,Path=ActualWidth, Converter={StaticResource ElementWidhtConverter}}"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </GridViewColumn.Header>

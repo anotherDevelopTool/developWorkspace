@@ -340,7 +340,7 @@ namespace DevelopWorkspace.Main
             foreach (Message message in messages)
             {
                 Application.Current.Resources.Remove(message.MessageId);
-                Application.Current.Resources.Add(message.MessageId, message.Content);
+                Application.Current.Resources.Add(message.MessageId, message.Content.Replace("\\n","\n"));
             }
 
             // addins service

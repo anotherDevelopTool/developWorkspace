@@ -1362,7 +1362,7 @@
                     }
                 }
                 dbTran.Commit();
-                DevelopWorkspace.Base.Logger.WriteLine("database committed");
+                DevelopWorkspace.Base.Logger.WriteLine("database committed",Level.INFO);
 
             }
             catch (Exception ex)

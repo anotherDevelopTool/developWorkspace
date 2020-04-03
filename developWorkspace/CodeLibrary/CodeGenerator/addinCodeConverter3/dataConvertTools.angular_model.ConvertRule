@@ -1,4 +1,13 @@
-﻿@functions {
+﻿@using System.Text.RegularExpressions;
+@functions {
+public string getSnakeCase(string str)
+{
+    var pattern = "[a-z][A-Z]";
+    var rgx = new Regex(pattern);
+    var snakeStr = rgx.Replace(str, m => m.Groups[0].Value[0] + "_" + m.Groups[0].Value[1])
+                 .ToLower();
+    return snakeStr;
+}
   public string getJavascriptType(string dataType){
   	if(dataType.Equals("int")){
   		return "Integer";
@@ -27,8 +36,9 @@ export class @(Model.TableInfo.ClassName)Model {
 @foreach (dynamic column in selectColumns)
 {
   string type = getJavascriptType(@column.DataTypeName);
+  string snake = getSnakeCase(@column.CameralProperty);
 @:  // @column.Remark
-@:  public @column.ColumnName.ToLower(): @type;  
+@:  public @snake.ToLower(): @type;  
 
 }
 }
