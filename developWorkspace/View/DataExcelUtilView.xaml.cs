@@ -1203,6 +1203,9 @@ namespace DevelopWorkspace.Main.View
             string tip = Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.select"].ToString();
             //string tip = "データベース接続情報を選択してから、Schema情報ボタンを押下し、DBからスキーマ情報を読み込んでください。現在の接続情報：";
             cmbSavedDatabases.ToolTip =tip + "\n--- --- --- --- ---\n" + ((e.Source as ComboBox).SelectedItem as ConnectionHistory).ConnectionString;
+            if ((cmbSavedDatabases.SelectedItem as ConnectionHistory).ConnectionHistoryID == 1) {
+                cmbSavedDatabases.ToolTip += Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.select.usage") ? "\n--- --- --- --- ---\n" + Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.select.usage"].ToString() : "";
+            }
             //2019/03/07 界面按钮根据操作状态调整
             if((cmbSavedDatabases.SelectedItem as ConnectionHistory).ConnectionString == xlApp.ConnectionString)
                 IsDbReady = true;
