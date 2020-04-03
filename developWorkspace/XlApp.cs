@@ -679,6 +679,7 @@
             string fullTableName = null;
             int iRow = 0, iCol = 0, iRewindRow = 0;
             dynamic excel = null;
+            int iRefresh = 0;
             try
             {
                 //2019/02/27
@@ -743,6 +744,7 @@
                         //如果是表头则开始处理表名以及其余属性行信息
                         if (bTableTokenHit)
                         {
+                            iRefresh = 0;
                             bDbCreateOnOff = true;
 
                             dicShema = new Dictionary<string, List<string>>();
@@ -910,6 +912,9 @@
                     }
                     if (bTableTokenHit)
                     {
+                        iRefresh++;
+                        if(iRefresh%100 == 0) 
+                            System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
                         #region 逐行取得数据区域数据
                         //process data region
                         lstRowData = new List<string>();
