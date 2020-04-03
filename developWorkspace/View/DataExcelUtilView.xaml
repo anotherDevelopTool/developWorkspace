@@ -670,7 +670,7 @@ x:Name="dataview"
                                     </GridViewColumn.Header>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock  TextAlignment="Right" Text="{Binding RowCount}" TextTrimming="WordEllipsis" Width="50"/>
+                                            <TextBlock  TextAlignment="Right" Text="{Binding RowCount}" TextTrimming="WordEllipsis" Width="60"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
