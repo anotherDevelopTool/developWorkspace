@@ -494,15 +494,15 @@
 
                         <Fluent:RibbonTabItem Header="home" ReduceOrder="(P),(P),(P),(P),(P)">
                             <Fluent:RibbonGroupBox x:Name="tools" Header="{DynamicResource  mainwindow.lang.tools}">
-                                <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.dbsupport}" Icon="Images\dbtool.png" LargeIcon="Images\dbtool.png" Command="{Binding NewDbUtilCommand}" Name="btndbutil" />
-                                <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.script}" Icon="Images\csscript.png" 	LargeIcon="Images\csscript.png" Command="{Binding NewScriptCommand}" Name="btncsscript" />
+                                <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.dbsupport}"  ToolTip="{DynamicResource  mainwindow.lang.tools.dbsupport.hint}" Icon="Images\dbtool.png" LargeIcon="Images\dbtool.png" Command="{Binding NewDbUtilCommand}" Name="btndbutil" />
+                                <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.script}"  ToolTip="{DynamicResource  mainwindow.lang.tools.script.hint}" Icon="Images\csscript.png" 	LargeIcon="Images\csscript.png" Command="{Binding NewScriptCommand}" Name="btncsscript" />
                                 <!--<Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.addin}" Icon="Images\csscript.png" 	LargeIcon="Images\plugin.png" Command="{Binding LoadAddinCommand}" Name="btncsscript1" />-->
                             </Fluent:RibbonGroupBox>
                             <Fluent:RibbonGroupBox Header="{DynamicResource  mainwindow.lang.tools.common}">
-                                <Fluent:CheckBox  x:Name="chkDummyData" Margin="15" IsChecked="{Binding FileStats.IsVisible, Mode=TwoWay}" >Output</Fluent:CheckBox>
+                                <Fluent:CheckBox  x:Name="chkDummyData" Margin="15" IsChecked="{Binding FileStats.IsVisible, Mode=TwoWay}" ToolTip="{DynamicResource  mainwindow.lang.tools.common.hint}">Output</Fluent:CheckBox>
                             </Fluent:RibbonGroupBox>
                             <Fluent:RibbonGroupBox Header="{DynamicResource  mainwindow.lang.tools.setting}">
-                                <Fluent:DropDownButton  ResizeMode="Both" Icon="Images\setting.png" LargeIcon="Images\setting.png">
+                                <Fluent:DropDownButton  ResizeMode="Both" Icon="Images\setting.png" ToolTip="{DynamicResource  mainwindow.lang.tools.setting.hint}" LargeIcon="Images\setting.png">
                                     <extoolkit:PropertyGrid Name="propertygrid"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"

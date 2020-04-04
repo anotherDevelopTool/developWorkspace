@@ -901,6 +901,12 @@ namespace DevelopWorkspace.Main.View
 
                     }
                 }
+                if (e.Accepted)
+                {
+                    if (iAllCheck == 1) (e.Item as TableInfo).Selected = true;
+                    if (iAllCheck == 2) (e.Item as TableInfo).Selected = false;
+                }
+
             }
 
 
@@ -1706,8 +1712,8 @@ namespace DevelopWorkspace.Main.View
         {
             object lockObj = new object();
             Boolean hasException = false;
-            Boolean bConnectionNotCompleted = true;
-            Task task = new Task(() => {
+            Boolean backjobRunning = true;
+            Task backgroundJob = new Task(() => {
                 lock (lockObj)
                 {
                     hasException = false;
@@ -1728,24 +1734,25 @@ namespace DevelopWorkspace.Main.View
                 lock (lockObj)
                 {
                     if (i == 3) hasException = true;
-                    bConnectionNotCompleted = false;
+                    backjobRunning = false;
                 }
 
             });
-            task.Start();
+            backgroundJob.Start();
 
-            Boolean bNotCompleted;
-            lock (lockObj) { bNotCompleted = bConnectionNotCompleted; }
-            while (bNotCompleted)
+            Boolean runing;
+            lock (lockObj) { runing = backjobRunning; }
+            while (runing)
             {
                 Thread.Sleep(100);
                 System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
                 lock (lockObj)
                 {
-                    bNotCompleted = bConnectionNotCompleted;
+                    runing = backjobRunning;
                     if (hasException)
                     {
-                        throw new Exception("DBアクセスに失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続してみて下さい");
+                        //throw new Exception("DB接続" + "(ConnectionString:" + dbConnection.ConnectionString + ")" + "に失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続して下さい");
+                        throw new Exception(String.Format("DB接続{0}に失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続して下さい", "(ConnectionString:" + dbConnection.ConnectionString + ")"));
                     }
                 }
             }

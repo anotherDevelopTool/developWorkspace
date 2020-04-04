@@ -20,10 +20,14 @@
 
             <system:String x:Key="mainwindow.lang.tools">ツール</system:String>
             <system:String x:Key="mainwindow.lang.tools.dbsupport">DB開発支援</system:String>
+            <system:String x:Key="mainwindow.lang.tools.dbsupport.hint">各種DBプロバイダ（デフォルトではOracle、MySQL、Postgresql、Sqliteをサポート）に一貫としたUIでエクスポート(export)機能、インポート(import)機能、比較(Diff)機能を提供しています</system:String>
             <system:String x:Key="mainwindow.lang.tools.script">スクリプト</system:String>
+            <system:String x:Key="mainwindow.lang.tools.script.hint">コンパイルなど透過的に行って、C#のコードをこの場でスクリプトぼく実行させる機能を提供しています、利用頻度の高いスクリプトをアドインに昇格する機能も提供しています</system:String>
             <system:String x:Key="mainwindow.lang.tools.addin">Addin</system:String>
             <system:String x:Key="mainwindow.lang.tools.common">共通</system:String>
+            <system:String x:Key="mainwindow.lang.tools.common.hint">実行結果ウィンドウズを表示する</system:String>
             <system:String x:Key="mainwindow.lang.tools.setting">設定</system:String>
+            <system:String x:Key="mainwindow.lang.tools.setting.hint">①言語設定:zh/jp...②出力レベル設定：TRACE/DEBUG/INFO/ERROR...</system:String>
             <system:String x:Key="dbsupport.lang.tools.select">選択</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.select">データベース接続情報を選択してから、スキーマロードボタンを押下し、DBからスキーマ情報を読み込んでください</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.load">スキーマ情報をロードする</system:String>
