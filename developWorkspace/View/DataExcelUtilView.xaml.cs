@@ -1048,7 +1048,9 @@ namespace DevelopWorkspace.Main.View
             {
                 Base.Services.CancelLongTimeTaskOn();
 
-                xlApp.DbConnection.Open();
+//                xlApp.DbConnection.Open();
+                openWithRetry(xlApp.DbConnection);
+
                 xlApp.LoadDataIntoExcel(selected.ToArray(), xlApp.DbConnection.CreateCommand());
 
                 //为了能保持使用Ctrl+KeyUp/KeyDown调整过的顺序，排在前面的进行加权处理
@@ -1137,7 +1139,9 @@ namespace DevelopWorkspace.Main.View
                 {
                     Base.Services.CancelLongTimeTaskOn();
 
-                    xlApp.DbConnection.Open();
+//                    xlApp.DbConnection.Open();
+                    openWithRetry(xlApp.DbConnection);
+
                     //根据sheet的内容做出基础dataset
                     DataSet diffDataSet = xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName,tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DIFF_USE);
                     if (diffDataSet == null) return;
@@ -1295,7 +1299,9 @@ namespace DevelopWorkspace.Main.View
             {
                     try
                     {
-                        xlApp.DbConnection.Open();
+                        //xlApp.DbConnection.Open();
+                        openWithRetry(xlApp.DbConnection);
+
                         DbCommand cmd = xlApp.DbConnection.CreateCommand();
 
                         string limitCondition = $"{xlApp.Provider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
@@ -1695,65 +1701,57 @@ namespace DevelopWorkspace.Main.View
 
         }
 
-       
-
         // 数据库连接过长时画面freeze防止
-        object obj = new object();
-        Boolean hasException = false;
-        Boolean bConnectionNotCompleted = true;
-        void openWithRetry(DbConnection DbConnection)
+        void openWithRetry(DbConnection dbConnection)
         {
-            Boolean bNotCompleted = true;
-            bConnectionNotCompleted = bNotCompleted;
+            object lockObj = new object();
+            Boolean hasException = false;
+            Boolean bConnectionNotCompleted = true;
+            Task task = new Task(() => {
+                lock (lockObj)
+                {
+                    hasException = false;
+                }
+                int i = 0;
+                for (i = 0; i < 3; i++)
+                {
+                    try
+                    {
+                        dbConnection.Open();
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Base.Logger.WriteLine((i == 0 ? "" : "Retry...") + ex.Message, Base.Level.ERROR);
+                    }
+                }
+                lock (lockObj)
+                {
+                    if (i == 3) hasException = true;
+                    bConnectionNotCompleted = false;
+                }
 
-            hasException = false;
-            Task task = new Task(openConnectionBackground, new List<object>() { DbConnection });
+            });
             task.Start();
 
-            lock (obj) { bNotCompleted = bConnectionNotCompleted; }
+            Boolean bNotCompleted;
+            lock (lockObj) { bNotCompleted = bConnectionNotCompleted; }
             while (bNotCompleted)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
-                lock (obj)
+                lock (lockObj)
                 {
                     bNotCompleted = bConnectionNotCompleted;
                     if (hasException)
                     {
-                        throw new Exception("Retry....please");
+                        throw new Exception("DBアクセスに失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続してみて下さい");
                     }
                 }
-
             }
+            
         }
-        void openConnectionBackground(object param)
-        {
-            lock (obj)
-            {
-                hasException = false;
-            }
-            var objectList = param as List<object>;
-            DbConnection dbConnection = objectList[0] as DbConnection;
-            int i = 0;
-            for (i = 0; i < 3; i++)
-            {
-                try
-                {
-                    dbConnection.Open();
-                    break;
-                }
-                catch (Exception ex) {
-                    Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
-                }
-            }
-            lock (obj)
-            {
-                if (i == 3) hasException = true;
-                bConnectionNotCompleted = false;
-            }
-        }
-
-
+ 
         /// <summary>
         /// 根据输入的SQL文来解析出表一览以及抽出条件后把数据导入到EXCEL里
         /// </summary>
@@ -1791,7 +1789,9 @@ namespace DevelopWorkspace.Main.View
                 }
                 try
                 {
-                    xlApp.DbConnection.Open();
+                    //xlApp.DbConnection.Open();
+                    openWithRetry(xlApp.DbConnection);
+
                     xlApp.LoadDataIntoExcel(selectedTables.ToArray(), xlApp.DbConnection.CreateCommand());
                 }
                 finally
