@@ -508,7 +508,8 @@
 
         public const string SCHEMA_REMARK = "Remark";
         const string SCHEMA_COLUMN_SIZE = "ColumnSize";
-
+        // CPU密集处理时UI描画机会
+        int iRefresh = 0;
         /// <summary>
         /// 表头行的输出信息定义
         /// </summary>
@@ -679,9 +680,10 @@
             string fullTableName = null;
             int iRow = 0, iCol = 0, iRewindRow = 0;
             dynamic excel = null;
-            int iRefresh = 0;
             try
             {
+                iRefresh = 0;
+
                 //2019/02/27
                 excel = Excel.GetLatestActiveExcelRef();
                 if (excel == null)
@@ -912,9 +914,9 @@
                     }
                     if (bTableTokenHit)
                     {
-                        iRefresh++;
-                        if(iRefresh%100 == 0) 
-                            System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+                        // CPU密集处理时UI描画机会
+                        doUIEvents();
+
                         #region 逐行取得数据区域数据
                         //process data region
                         lstRowData = new List<string>();
@@ -1194,6 +1196,8 @@
                         string dividedSql = batchSelectSql;
                         for (int rowIdx = 0; rowIdx < workArea[tableKEY].Rows.Count; rowIdx++)
                         {
+                            doUIEvents();
+
                             KeyValuePair<int, List<string>> row = workArea[tableKEY].Rows[rowIdx];
                             var lstRowDataWithIdx = row.Value.Select((token, idx) => new { token, idx });
                             //Postsql的时候需要 text类型提示 oracle的时候需要from dual对应
@@ -1276,6 +1280,7 @@
                     }
                     for (int rowIdx = 0; rowIdx < workArea[tableKEY].Rows.Count; rowIdx++)
                     {
+                        doUIEvents();
 
                         iRewindRow = workArea[tableKEY].Rows.Count - rowIdx;
                         KeyValuePair<int, List<string>> row = workArea[tableKEY].Rows[rowIdx];
@@ -1621,6 +1626,8 @@
             dynamic excel = null;
             try
             {
+                iRefresh = 0;
+
                 //2019/02/27
                 excel = Excel.GetLatestActiveExcelRef(true);
                 if (excel == null)
@@ -1827,6 +1834,12 @@
                  }
             }
         }
+        void doUIEvents() {
+            // CPU密集处理时UI描画机会
+            iRefresh++;
+            if (iRefresh % 100 == 0) System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+        }
+
 
         /// <summary>
         /// 这个的写法参照VBA的关联部分，可以在VBA开发环境中的寻找各种定义
@@ -1918,6 +1931,7 @@
         /// 和数据库的连接池有关如果大连发行后台接续程序会照成大连链接等待导致超时异常
         /// </summary>
         object obj = new object();
+
         ConcurrentDictionary<string, string[,]> cache = new ConcurrentDictionary<string, string[,]>();
         void GeTableDataWithSchemaForSelectedTables(TableInfo[] selectTableNameList, DbCommand cmd, DataSet orgDataset = null)
         {

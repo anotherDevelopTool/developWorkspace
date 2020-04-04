@@ -348,7 +348,7 @@ namespace DevelopWorkspace.Main.View
             Type typDbConnection = addinAssembly.GetType(iProvider.TypeDes);
 
             System.Reflection.ConstructorInfo ctorViewModel = typDbConnection.GetConstructor(Type.EmptyTypes);
-            System.Data.Common.DbConnection con = ctorViewModel.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
+            //System.Data.Common.DbConnection con = ctorViewModel.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
 
             //这几个作为后续机能时数据库接续的信息，需要保证它的可用性.每次重新load数据库信息时需要对之前的信息进行清除，画面做初始化
             IsDbReady = false;
@@ -410,7 +410,11 @@ namespace DevelopWorkspace.Main.View
                 DevelopWorkspace.Base.Logger.WriteLine($"Shema:{xlApp.SchemaName}", Base.Level.DEBUG);
                 model.Title = $"DB[{(cmbSavedDatabases.SelectedItem as ConnectionHistory).ConnectionHistoryName}]";
 
-                xlApp.DbConnection.Open();
+                //xlApp.DbConnection.Open();
+
+                openWithRetry(xlApp.DbConnection);
+
+
                 DbCommand dbCommand = xlApp.DbConnection.CreateCommand();
 
                 //TODO
@@ -1110,7 +1114,9 @@ namespace DevelopWorkspace.Main.View
             {
                 try
                 {
-                    xlApp.DbConnection.Open();
+                    //xlApp.DbConnection.Open();
+                    openWithRetry(xlApp.DbConnection);
+
                     xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName,tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY);
                 }
                 finally
@@ -1688,6 +1694,66 @@ namespace DevelopWorkspace.Main.View
             this.txtOutput.Select(SqlParser.queries[currentQueryIdx].Index, SqlParser.queries[currentQueryIdx].Length);
 
         }
+
+       
+
+        // 数据库连接过长时画面freeze防止
+        object obj = new object();
+        Boolean hasException = false;
+        Boolean bConnectionNotCompleted = true;
+        void openWithRetry(DbConnection DbConnection)
+        {
+            Boolean bNotCompleted = true;
+            bConnectionNotCompleted = bNotCompleted;
+
+            hasException = false;
+            Task task = new Task(openConnectionBackground, new List<object>() { DbConnection });
+            task.Start();
+
+            lock (obj) { bNotCompleted = bConnectionNotCompleted; }
+            while (bNotCompleted)
+            {
+                Thread.Sleep(50);
+                System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+                lock (obj)
+                {
+                    bNotCompleted = bConnectionNotCompleted;
+                    if (hasException)
+                    {
+                        throw new Exception("Retry....please");
+                    }
+                }
+
+            }
+        }
+        void openConnectionBackground(object param)
+        {
+            lock (obj)
+            {
+                hasException = false;
+            }
+            var objectList = param as List<object>;
+            DbConnection dbConnection = objectList[0] as DbConnection;
+            int i = 0;
+            for (i = 0; i < 3; i++)
+            {
+                try
+                {
+                    dbConnection.Open();
+                    break;
+                }
+                catch (Exception ex) {
+                    Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                }
+            }
+            lock (obj)
+            {
+                if (i == 3) hasException = true;
+                bConnectionNotCompleted = false;
+            }
+        }
+
+
         /// <summary>
         /// 根据输入的SQL文来解析出表一览以及抽出条件后把数据导入到EXCEL里
         /// </summary>
