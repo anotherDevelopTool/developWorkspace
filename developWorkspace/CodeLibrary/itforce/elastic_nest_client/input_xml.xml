@@ -1,0 +1,34 @@
+<Window 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="elastic searchにDBのように読み書き" Height="600" Width="800">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0"  >
+        <TextBox Name="cb" Text="http://lab-arbarepelk101z.dev.jp.local:9200" />
+        <TextBox Name="index" Text="sales_report-2019-08-26" />
+            <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        </Grid>
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1">
+        <Button x:Name="btnSelect"  Height="85"  Content="从ELASTIC导出数据到EXCEL" />
+        <Button x:Name="btnCapture" Height="85"  Content="把EXCEL数据反映到ELASTIC（删除原有的所有文档）" />
+        </StackPanel>
+    </Grid>
+</Window>

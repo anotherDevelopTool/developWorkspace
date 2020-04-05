@@ -1,0 +1,73 @@
+SELECT
+#set( $comma = " ")
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+  $comma$ColumnInfo.ColumnName
+#set( $comma = ",")
+#end
+FROM
+  $root.TableInfo.TableName
+WHERE
+#set( $idx = 1)
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.IsKey == "*")
+#if($idx == 1 )
+  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
+#else
+  AND
+  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
+#end
+#set( $idx = $idx + 1)
+#end
+#end
+
+UPDATE   
+  $root.TableInfo.TableName
+SET  
+#set( $comma = " ")
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.ColumnName == "UPD_DT")
+  $comma$ColumnInfo.ColumnName = sysdate
+#elseif($ColumnInfo.ColumnName == "DEL_FLG")
+  $comma$ColumnInfo.ColumnName = 0
+#else
+  $comma$ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
+#end
+#set( $comma = ",")   
+#end
+WHERE
+#set( $idx = 1)
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.IsKey == "*")
+#if($idx == 1 )
+  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
+#else
+  AND
+  $ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
+#end
+#set( $idx = $idx + 1)
+#end
+#end
+
+INSERT INTO   
+  $root.TableInfo.TableName
+(  
+#set( $comma = " ")
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+  $comma$ColumnInfo.ColumnName
+#set( $comma = ",")   
+#end
+)
+VALUES
+(
+#set( $comma = " ")
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.ColumnName == "UPD_DT")
+  $comma$ColumnInfo.ColumnName = sysdate
+#elseif($ColumnInfo.ColumnName == "DEL_FLG")
+  $comma$ColumnInfo.ColumnName = 0
+#else
+  $comma$ColumnInfo.ColumnName = /*$ColumnInfo.ColumnName*/ 'abcdef'
+#end
+#set( $comma = ",")   
+#end
+)

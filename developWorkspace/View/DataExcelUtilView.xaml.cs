@@ -688,8 +688,8 @@ namespace DevelopWorkspace.Main.View
                 IsDbReady = true;
                 //DevelopWorkspace.Base.Logger.WriteLine("table bind....end", Base.Level.DEBUG);
 
-                tabControl1.ToolTip = "you can move up/down row by ctrl+arrow key";
-                trvFamilies.ToolTip = "you can move up/down row by ctrl+arrow key";
+                tabControl1.ToolTip = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.resultview.usage") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.resultview.usage"].ToString() : "";
+                trvFamilies.ToolTip = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.resultview.usage") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.resultview.usage"].ToString() : "";
 
             }
             catch (Exception ex) {
@@ -1752,7 +1752,8 @@ namespace DevelopWorkspace.Main.View
                     if (hasException)
                     {
                         //throw new Exception("DB接続" + "(ConnectionString:" + dbConnection.ConnectionString + ")" + "に失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続して下さい");
-                        throw new Exception(String.Format("DB接続{0}に失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続して下さい", "(ConnectionString:" + dbConnection.ConnectionString + ")"));
+                        string formatMessage = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.connection.error") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.connection.error"].ToString() : "";
+                        throw new Exception(String.Format(formatMessage, "(ConnectionString:" + dbConnection.ConnectionString + ")"));
                     }
                 }
             }
