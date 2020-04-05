@@ -363,8 +363,6 @@ namespace DevelopWorkspace.Main.View
             tableChecked.IsChecked = false;
             tableNameFilter.Text = "";
             tableRemarkFilter.Text = "";
-            view.Filter += new FilterEventHandler(view_Filter);
-            this.trvFamilies.DataContext = view;
 
             xlApp.Provider = iProvider;
             xlApp.ConnectionHistory = cmbSavedDatabases.SelectedItem as ConnectionHistory;
@@ -678,6 +676,7 @@ namespace DevelopWorkspace.Main.View
                 tableList = (from table in tableList4ViewOrderNum orderby table.ViewOrderNum descending select table).ToList();
 
                 //DevelopWorkspace.Base.Logger.WriteLine("table bind....start", Base.Level.DEBUG);
+                view.Filter -= new FilterEventHandler(view_Filter);
 
                 view.Source = tableList;
                 view.Filter += new FilterEventHandler(view_Filter);
