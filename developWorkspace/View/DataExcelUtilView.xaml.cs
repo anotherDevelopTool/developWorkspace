@@ -35,6 +35,7 @@ using System.Globalization;
 
 namespace DevelopWorkspace.Main.View
 {
+       
     //https://stackoverflow.com/questions/53890185/how-to-connect-with-odp-net-core-to-oracle-9i-database-managed-driver
     //How to connect with ODP.NET Core to Oracle 9i database - Managed Driver
     //如果使用高于Access to Oracle Database 10g Release 2 or later版本的ORACLE，可以免安装oracle客户端
@@ -65,6 +66,7 @@ namespace DevelopWorkspace.Main.View
         DatabaseConfig databaseConfig;
         CheckBox chkDummyData;
         PaneViewModel model;
+
 
         //最终RestfulService公开的话，需要考虑线程安全性等等问题
         public static List<TableInfo> ALL_TABLES = null;
@@ -803,110 +805,106 @@ namespace DevelopWorkspace.Main.View
 
         void view_Filter(object sender, FilterEventArgs e)
         {
-            //只显示选中行,如果没有选中的就不进行过滤
-            if (iAllCheck == 3 && tableList.Where(ti => ti.Selected).Count() > 0)
-            {
-                if ((e.Item as TableInfo).Selected)
-                    e.Accepted = true;
-                else
-                    e.Accepted = false;
-            }
-            //解除显示选中行
-            else if (iAllCheck == 4)
-            {
+            if (string.IsNullOrWhiteSpace(this.tableNameFilter.Text) && string.IsNullOrWhiteSpace(this.tableRemarkFilter.Text)) {
                 e.Accepted = true;
             }
-            else
+            else 
             {
-                if (string.IsNullOrWhiteSpace(this.tableNameFilter.Text) && string.IsNullOrWhiteSpace(this.tableRemarkFilter.Text)) {
-                    e.Accepted = true;
-                }
-                else 
+                if (!string.IsNullOrWhiteSpace(this.tableNameFilter.Text))
                 {
-                    if (!string.IsNullOrWhiteSpace(this.tableNameFilter.Text))
+                    // tableNameFilter的第一个字符为*时，除表明以外，字段名也作为过滤对象
+                    if (this.tableNameFilter.Text.StartsWith("*"))
                     {
-                        // tableNameFilter的第一个字符为*时，除表明以外，字段名也作为过滤对象
-                        if (this.tableNameFilter.Text.StartsWith("*"))
+                        string tableNameFilterString = this.tableNameFilter.Text.Substring(1);
+                        if ((e.Item as TableInfo).TableName.ToLower().IndexOf(tableNameFilterString.ToLower()) >= 0)
                         {
-                            string tableNameFilterString = this.tableNameFilter.Text.Substring(1);
-                            if ((e.Item as TableInfo).TableName.ToLower().IndexOf(tableNameFilterString.ToLower()) >= 0)
-                            {
-                                e.Accepted = true;
-                            }
-                            else
-                            {
-                                e.Accepted = false;
-                            }
-                            if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.ColumnName.ToLower().IndexOf(tableNameFilterString.ToLower()) >= 0 select column).FirstOrDefault())
-                            {
-                                e.Accepted = true;
-                            }
-
+                            e.Accepted = true;
                         }
                         else
                         {
-                            if ((e.Item as TableInfo).TableName.ToLower().IndexOf(this.tableNameFilter.Text.ToLower()) >= 0)
-                            {
-                                e.Accepted = true;
-                            }
-                            else
-                            {
-                                e.Accepted = false;
-                            }
+                            e.Accepted = false;
+                        }
+                        if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.ColumnName.ToLower().IndexOf(tableNameFilterString.ToLower()) >= 0 select column).FirstOrDefault())
+                        {
+                            e.Accepted = true;
                         }
 
                     }
-                    else {
+                    else
+                    {
+                        if ((e.Item as TableInfo).TableName.ToLower().IndexOf(this.tableNameFilter.Text.ToLower()) >= 0)
+                        {
+                            e.Accepted = true;
+                        }
+                        else
+                        {
+                            e.Accepted = false;
+                        }
+                    }
+
+                }
+                else {
+                    e.Accepted = true;
+                }
+                if (e.Accepted && !string.IsNullOrWhiteSpace(this.tableRemarkFilter.Text))
+                {
+                    if ((e.Item as TableInfo).Remark.ToLower().IndexOf(this.tableRemarkFilter.Text.ToLower()) >= 0)
+                    {
                         e.Accepted = true;
                     }
-                    if (e.Accepted && !string.IsNullOrWhiteSpace(this.tableRemarkFilter.Text))
+                    else {
+                        e.Accepted = false;
+                    }
+
+                    // tableRemarkFilter的第一个字符为*时，除表明以外，字段名也作为过滤对象
+                    if (this.tableRemarkFilter.Text.StartsWith("*"))
+                    {
+                        string tableRemarkFilterString = this.tableRemarkFilter.Text.Substring(1);
+                        if ((e.Item as TableInfo).Remark.ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0)
+                        {
+                            e.Accepted = true;
+                        }
+                        else
+                        {
+                            e.Accepted = false;
+                        }
+                        if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.Schemas[2].ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0 select column).FirstOrDefault())
+                        {
+                            e.Accepted = true;
+                        }
+
+                    }
+                    else
                     {
                         if ((e.Item as TableInfo).Remark.ToLower().IndexOf(this.tableRemarkFilter.Text.ToLower()) >= 0)
                         {
                             e.Accepted = true;
                         }
-                        else {
-                            e.Accepted = false;
-                        }
-
-                        // tableRemarkFilter的第一个字符为*时，除表明以外，字段名也作为过滤对象
-                        if (this.tableRemarkFilter.Text.StartsWith("*"))
-                        {
-                            string tableRemarkFilterString = this.tableRemarkFilter.Text.Substring(1);
-                            if ((e.Item as TableInfo).Remark.ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0)
-                            {
-                                e.Accepted = true;
-                            }
-                            else
-                            {
-                                e.Accepted = false;
-                            }
-                            if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.Schemas[2].ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0 select column).FirstOrDefault())
-                            {
-                                e.Accepted = true;
-                            }
-
-                        }
                         else
                         {
-                            if ((e.Item as TableInfo).Remark.ToLower().IndexOf(this.tableRemarkFilter.Text.ToLower()) >= 0)
-                            {
-                                e.Accepted = true;
-                            }
-                            else
-                            {
-                                e.Accepted = false;
-                            }
+                            e.Accepted = false;
                         }
-
                     }
+
                 }
-                if (e.Accepted)
+            }
+
+            if (e.Accepted)
+            {
+                //只显示选中行,如果没有选中的就不进行过滤
+                if (tableCheckedFilter.IsChecked == true)
                 {
-                    if (iAllCheck == 1) (e.Item as TableInfo).Selected = true;
-                    if (iAllCheck == 2) (e.Item as TableInfo).Selected = false;
+                    if ((e.Item as TableInfo).Selected)
+                        e.Accepted = true;
+                    else
+                        e.Accepted = false;
                 }
 
+            }
+            if (e.Accepted)
+            {
+                if (iAllCheck == 1) (e.Item as TableInfo).Selected = true;
+                if (iAllCheck == 2) (e.Item as TableInfo).Selected = false;
             }
 
 
@@ -1414,52 +1412,47 @@ namespace DevelopWorkspace.Main.View
                 {
 
                     case Key.Up:
-                        int currentIdx = 0;
-                        List<TableInfo> reOrderList = null;
-                        int totalnum = 0;
+                        int currentIdx = this.trvFamilies.SelectedIndex;
 
-                        currentIdx = this.trvFamilies.SelectedIndex;
                         if (currentIdx <= 0) return;
-                        totalnum = tableList.Count;
-                        reOrderList = new List<TableInfo>();
-                        for (int i = 0; i < tableList.Count; i++) {
-                            if (i == currentIdx - 1) {
-                                reOrderList.Add(tableList.ElementAt(i + 1));
-                                reOrderList.Add(tableList.ElementAt(i));
-                                i++;
-                            }
-                            else
-                                reOrderList.Add(tableList.ElementAt(i));
-                        }
-                        tableList = reOrderList;
-                        view.Source = tableList;
-                        view.Filter += new FilterEventHandler(view_Filter);
-                        this.trvFamilies.DataContext = view;
+
+                        TableInfo selectedTableInfo = this.trvFamilies.SelectedItem as TableInfo;
+                        int selectedRealIndex = tableList.FindIndex((tableInfo) => tableInfo.TableName.Equals(selectedTableInfo.TableName));
+
+                        this.trvFamilies.SelectedIndex = currentIdx - 1;
+                        TableInfo previousTableInfo = this.trvFamilies.SelectedItem as TableInfo;
+                        int previousRealIndex = tableList.FindIndex((tableInfo) => tableInfo.TableName.Equals(previousTableInfo.TableName));
+
+                        tableList.RemoveAt(selectedRealIndex);
+                        tableList.Insert(previousRealIndex, selectedTableInfo);
+
+                        view.View.Refresh();
                         this.trvFamilies.SelectedIndex = currentIdx - 1;
                         //handle D key
                         break;
                     case Key.Down:
 
                         currentIdx = this.trvFamilies.SelectedIndex;
-                        if (currentIdx >= tableList.Count-1) return;
-                        totalnum = tableList.Count;
-                        reOrderList = new List<TableInfo>();
-                        for (int i = 0; i < tableList.Count; i++)
-                        {
-                            if (i == currentIdx )
-                            {
-                                reOrderList.Add(tableList.ElementAt(i + 1));
-                                reOrderList.Add(tableList.ElementAt(i));
-                                i++;
-                            }
-                            else
-                                reOrderList.Add(tableList.ElementAt(i));
-                        }
-                        tableList = reOrderList;
-                        view.Source = tableList;
-                        view.Filter += new FilterEventHandler(view_Filter);
-                        this.trvFamilies.DataContext = view;
+                        if (currentIdx >= ((System.Windows.Data.ListCollectionView)view.View).Count - 1) return;
+
+
+                        selectedTableInfo = this.trvFamilies.SelectedItem as TableInfo;
+                        selectedRealIndex = tableList.FindIndex((tableInfo) => tableInfo.TableName.Equals(selectedTableInfo.TableName));
+
                         this.trvFamilies.SelectedIndex = currentIdx + 1;
+                        TableInfo nextTableInfo = this.trvFamilies.SelectedItem as TableInfo;
+                        int nextRealIndex = tableList.FindIndex((tableInfo) => tableInfo.TableName.Equals(nextTableInfo.TableName));
+
+                        tableList.RemoveAt(nextRealIndex);
+                        tableList.Insert(selectedRealIndex, nextTableInfo);
+
+                        tableList.RemoveAt(selectedRealIndex + 1);
+                        tableList.Insert(nextRealIndex, selectedTableInfo);
+
+                        view.View.Refresh();
+                        this.trvFamilies.SelectedIndex = currentIdx + 1;
+
+
 
                         //handle X key
                         break;
@@ -1566,17 +1559,14 @@ namespace DevelopWorkspace.Main.View
 
         private void toggleSelectFilter_Checked(object sender, RoutedEventArgs e)
         {
-            iAllCheck = 3;
+            
             if (view.View != null) view.View.Refresh();
-            iAllCheck = 0;
 
         }
 
         private void toggleSelectFilter_Unchecked(object sender, RoutedEventArgs e)
         {
-            iAllCheck = 4;
             if (view.View != null) view.View.Refresh();
-            iAllCheck = 0;
 
         }
 
