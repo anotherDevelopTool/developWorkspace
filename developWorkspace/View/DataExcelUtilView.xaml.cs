@@ -394,7 +394,7 @@ namespace DevelopWorkspace.Main.View
             //2019/03/06
             xlApp.SchemaName = (cmbSavedDatabases.SelectedItem as ConnectionHistory).Schema;
 
-            string limitCondition = $"{iProvider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
+            //string limitCondition = $"{iProvider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
 
             //DB连接
             try
@@ -507,7 +507,7 @@ namespace DevelopWorkspace.Main.View
                             SchemaName = xlApp.SchemaName,
                             Remark = string.IsNullOrWhiteSpace(rdr["remark"].ToString()) ? rdr["name"].ToString() : rdr["remark"].ToString(),
                             WhereClause = whereClause == null ? "" : whereClause.WhereClauseString,
-                            LimitCondition = limitCondition,
+                            LimitCondition = iProvider.LimitCondition,
                             DateTimeFormatter = iProvider.DateTimeFormatter,
                             DeleteClause = whereClause == null ? "" : whereClause.DeleteClauseString,
                             ExcelTableHeaderThemeColor = themeColor,
@@ -1307,8 +1307,6 @@ namespace DevelopWorkspace.Main.View
 
                         DbCommand cmd = xlApp.DbConnection.CreateCommand();
 
-                        string limitCondition = $"{xlApp.Provider.LimitCondition.FormatWith(new { MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount })}";
-
                         Regex regex = new Regex(@"^\s{0,}select\b", RegexOptions.IgnoreCase);
 
                         string commandText = "";
@@ -1316,7 +1314,7 @@ namespace DevelopWorkspace.Main.View
                         if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText))
                         {
                             if(regex.Match(this.txtOutput.Text).Success)
-                                commandText = $"select * from ({this.txtOutput.Text}) subquery where {limitCondition}";
+                                commandText = xlApp.Provider.LimitCondition.FormatWith(new { RawSQL = this.txtOutput.Text, MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount });
                             else
                                 commandText = this.txtOutput.Text;
 
@@ -1324,9 +1322,9 @@ namespace DevelopWorkspace.Main.View
                         else
                         {
                             if (regex.Match(this.txtOutput.SelectedText).Success)
-                                commandText = $"select * from ({this.txtOutput.SelectedText}) subquery where {limitCondition}";
-                            else
-                                commandText = this.txtOutput.SelectedText;
+                            commandText = xlApp.Provider.LimitCondition.FormatWith(new { RawSQL = this.txtOutput.SelectedText, MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount });
+                        else
+                            commandText = this.txtOutput.SelectedText;
                         }
                         //有时从项目文件里取出的代码带有/*parameter*/的注解，为了能够无需删除它后方可执行的麻烦这里略作替换 
                         //似乎用不上，属于SQL本身的语法

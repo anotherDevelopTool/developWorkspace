@@ -297,20 +297,79 @@
                     selectDataSqlBuilder.Append(" from " + fullTableName);
                     _selectDataSql = selectDataSqlBuilder.ToString();
                 }
-                if (!string.IsNullOrWhiteSpace(WhereClause))
-                {
-                    Regex regex = new Regex(@"limit\s+[0-9]+$", RegexOptions.IgnoreCase);
-                    var result = regex.Match(WhereClause);
-                    if (result.Success)
-                        return _selectDataSql + " where " + WhereClause;
-                    else
-                        return _selectDataSql + " where " + WhereClause + " and " + LimitCondition;
 
-                }
-                else
+                // where内容整理，除了where的过滤条件，对order by以及限制取得件数做简单调整
+                // 对限制件数目前支持 oracle的rownum方式以及 limit 的方式
+
+                Regex regex = new Regex(@"^\bwhere\s+|\blimit\b\s{0,}[0-9]+$|\border\s+by\s+", RegexOptions.IgnoreCase);
+                var result = regex.Matches(WhereClause);
+                int whereKeywordIndex = -1;
+                int orderKeywordIndex = -1;
+                int limitKeywordIndex = -1;
+                string analyzedWhereString = "";
+                string analyzedOrderString = "";
+                string analyzedLimitString = "";
+
+                foreach (Match match in result)
                 {
-                    return _selectDataSql + " where " + LimitCondition;
+                    if (match.Value.IndexOf("where", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                    {
+                        whereKeywordIndex = match.Value.Length;
+                    }
+                    if (match.Value.IndexOf("order", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                    {
+                        orderKeywordIndex = match.Index;
+                    }
+                    if (match.Value.IndexOf("limit", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                    {
+                        limitKeywordIndex = match.Index;
+                    }
                 }
+                int whereLastIndex = WhereClause.Length;
+                if ((limitKeywordIndex >= 0 && orderKeywordIndex >= 0))
+                {
+                    whereLastIndex = new int[] { orderKeywordIndex, limitKeywordIndex }.Min();
+                }
+                else if (limitKeywordIndex >= 0)
+                {
+                    whereLastIndex = limitKeywordIndex;
+                }
+                else if (orderKeywordIndex >= 0)
+                {
+                    whereLastIndex = orderKeywordIndex;
+                }
+
+                if (whereKeywordIndex == -1) whereKeywordIndex = 0;
+                analyzedWhereString = WhereClause.Substring(whereKeywordIndex, whereLastIndex - whereKeywordIndex);
+
+                if (orderKeywordIndex >= 0)
+                {
+                    if (limitKeywordIndex >= 0)
+                        analyzedOrderString = WhereClause.Substring(orderKeywordIndex, limitKeywordIndex - orderKeywordIndex);
+                    else
+                        analyzedOrderString = WhereClause.Substring(orderKeywordIndex);
+                }
+                if (limitKeywordIndex >= 0) analyzedLimitString = WhereClause.Substring(limitKeywordIndex);
+
+                string modifiedSql = _selectDataSql;
+                if (!string.IsNullOrWhiteSpace(analyzedWhereString))
+                {
+                    modifiedSql += " where " + analyzedWhereString;
+                }
+                if (!string.IsNullOrWhiteSpace(analyzedOrderString))
+                {
+                    modifiedSql += " " + analyzedOrderString;
+                }
+
+                if (!string.IsNullOrWhiteSpace(analyzedLimitString))
+                {
+                    modifiedSql = LimitCondition.FormatWith(new { RawSQL = modifiedSql,MaxRecord = analyzedLimitString.Substring("limit".Length) });
+                }
+                else {
+                    modifiedSql = LimitCondition.FormatWith(new { RawSQL = modifiedSql, MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount });
+                }
+
+                return modifiedSql;
             }
         }
         [Newtonsoft.Json.JsonIgnore]
