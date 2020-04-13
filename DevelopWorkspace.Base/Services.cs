@@ -8,6 +8,8 @@ using System.Windows.Controls;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.IO;
+using System.Windows.Threading;
+using System.Threading;
 
 namespace DevelopWorkspace.Base
 {
@@ -57,14 +59,20 @@ namespace DevelopWorkspace.Base
         public static LongTimeTaskState longTimeTaskState = LongTimeTaskState.Continue;
         public static void CancelLongTimeTaskOn() {
             if (cancelLongTimeTask != null) {
-                cancelLongTimeTask.Visibility = System.Windows.Visibility.Visible;
+                cancelLongTimeTask.Dispatcher.BeginInvoke((Action)delegate () {
+                    cancelLongTimeTask.Visibility = System.Windows.Visibility.Visible;
+
+                });
             }
         }
         public static void CancelLongTimeTaskOff()
         {
             if (cancelLongTimeTask != null)
             {
-                cancelLongTimeTask.Visibility = System.Windows.Visibility.Hidden;
+                cancelLongTimeTask.Dispatcher.BeginInvoke((Action)delegate () {
+                    cancelLongTimeTask.Visibility = System.Windows.Visibility.Hidden;
+
+                });
             }
             longTimeTaskState = LongTimeTaskState.Continue;
         }
@@ -104,7 +112,34 @@ namespace DevelopWorkspace.Base
                 activeModel = value;
             }
         }
+        // 数据库连接过长时画面freeze防止
+        public static void executeWithBackgroundAction(Action action)
+        {
+            Exception exception = null;
+            Task backgroundJob = new Task(() => {
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
 
+            });
+            backgroundJob.Start();
+
+            while (!backgroundJob.Wait(100))
+            {
+                //Thread.Sleep(100);
+                System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+
+            }
+            if (exception != null)
+            {
+                throw exception;
+            }
+        }
         public static void ErrorMessage(string errorMsg)
         {
             System.Windows.Controls.ToolTip tooltip = new System.Windows.Controls.ToolTip();

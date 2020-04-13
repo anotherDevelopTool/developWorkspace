@@ -570,7 +570,6 @@
         public const string SCHEMA_REMARK = "Remark";
         const string SCHEMA_COLUMN_SIZE = "ColumnSize";
         // CPU密集处理时UI描画机会
-        int iRefresh = 0;
         /// <summary>
         /// 表头行的输出信息定义
         /// </summary>
@@ -743,8 +742,6 @@
             dynamic excel = null;
             try
             {
-                iRefresh = 0;
-
                 //2019/02/27
                 excel = Excel.GetLatestActiveExcelRef();
                 if (excel == null)
@@ -807,7 +804,6 @@
                         //如果是表头则开始处理表名以及其余属性行信息
                         if (bTableTokenHit)
                         {
-                            iRefresh = 0;
                             bDbCreateOnOff = true;
 
                             dicShema = new Dictionary<string, List<string>>();
@@ -975,9 +971,6 @@
                     }
                     if (bTableTokenHit)
                     {
-                        // CPU密集处理时UI描画机会
-                        doUIEvents();
-
                         #region 逐行取得数据区域数据
                         //process data region
                         lstRowData = new List<string>();
@@ -1257,8 +1250,6 @@
                         string dividedSql = batchSelectSql;
                         for (int rowIdx = 0; rowIdx < workArea[tableKEY].Rows.Count; rowIdx++)
                         {
-                            doUIEvents();
-
                             KeyValuePair<int, List<string>> row = workArea[tableKEY].Rows[rowIdx];
                             var lstRowDataWithIdx = row.Value.Select((token, idx) => new { token, idx });
                             //Postsql的时候需要 text类型提示 oracle的时候需要from dual对应
@@ -1341,8 +1332,6 @@
                     }
                     for (int rowIdx = 0; rowIdx < workArea[tableKEY].Rows.Count; rowIdx++)
                     {
-                        doUIEvents();
-
                         iRewindRow = workArea[tableKEY].Rows.Count - rowIdx;
                         KeyValuePair<int, List<string>> row = workArea[tableKEY].Rows[rowIdx];
                         var lstRowDataWithIdx = row.Value.Select((token, idx) => new { token, idx });
@@ -1687,8 +1676,6 @@
             dynamic excel = null;
             try
             {
-                iRefresh = 0;
-
                 //2019/02/27
                 excel = Excel.GetLatestActiveExcelRef(true);
                 if (excel == null)
@@ -1742,136 +1729,143 @@
                     //2019/03/15
                     System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
                     if (Base.Services.longTimeTaskState == LongTimeTaskState.Cancel) break;
-                    
+
                     //System.Threading.Thread.Sleep(1000);
-                    if (goodFormatMode)
+                    Services.executeWithBackgroundAction(() =>
                     {
-                        //Table属性定义行区域颜色定制
-                        selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
-                            targetSheet.Cells(sartRow, startCol + 1));
-                        selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
-                        //selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent4;
-                         selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(tableInfo.ExcelTableHeaderThemeColor);
-
-                        selected.Value2 = new string[] { tableInfo.TableName, tableInfo.Remark };
-                        XlApp.DrawBorder(selected);
-                        sartRow++;
-
-                        //TODO 2019/3/4
-                        string[,] value2_copy = null;
-                        if (DatabaseConfig.This.backgroundWorkerMode)
-                            value2_copy = GetTableDataWithSchemaFromCache(tableInfo, cmd);
-                        else
-                            value2_copy = GetTableDataWithSchema(tableInfo, cmd);
-
-                        //Table属性定义行区域颜色定制
-                        selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
-                            targetSheet.Cells(sartRow + schemaList.GetLength(0) - 1, value2_copy.GetLength(1) + startCol - 1));
-                        selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
-                        //selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent5;
-                        selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(tableInfo.ExcelSchemaHeaderThemeColor);
-
-                        //通过SQL文做成数据时第一行为dummy数据，用于提示用户
-                        if (tableInfo.WhereCondition != null)
+                        if (goodFormatMode)
                         {
-                            selected = targetSheet.Range(targetSheet.Cells(sartRow + schemaList.GetLength(0), startCol),
-                                targetSheet.Cells(sartRow + schemaList.GetLength(0), value2_copy.GetLength(1) + startCol - 1));
+                            //Table属性定义行区域颜色定制
+                            selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
+                                targetSheet.Cells(sartRow, startCol + 1));
                             selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
-                            selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent2;
-                        }
-                        //Data拷贝到指定区域
-                        selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
-                            targetSheet.Cells(value2_copy.GetLength(0) + sartRow - 1, value2_copy.GetLength(1) + startCol - 1));
-                        selected.NumberFormat = "@";
-                        selected.Value2 = value2_copy;
-                        XlApp.DrawBorder(selected);
-                        sartRow = value2_copy.GetLength(0) + sartRow + 2;
+                            //selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent4;
+                            selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(tableInfo.ExcelTableHeaderThemeColor);
 
-                        //TODO 2019/3/4 为了防止缓存参照过长阻碍垃圾回收
-                        value2_copy = null;
-                    }
-                    else
-                    {
-                        tableProcessCount++;
-                        string[,] block_header = new string[,] { { tableInfo.TableName, tableInfo.Remark } };
-                        string[,] block_data = GetTableDataWithSchema(tableInfo, cmd);
+                            selected.Value2 = new string[] { tableInfo.TableName, tableInfo.Remark };
+                            XlApp.DrawBorder(selected);
+                            sartRow++;
 
-                        int total = 0;
-                        int maxColumnSize = 0;
-                        cacheResults.ForEach(block => { total += block.GetLength(0); });
-                        //last one or much than 10000
-                        if (tableProcessCount == selectTableNameList.Count() || total != 0 && total + block_header.GetLength(0) + block_data.GetLength(0) > DatabaseConfig.This.plainFormatRoundupSize)
-                        {
-                            if (tableProcessCount == selectTableNameList.Count()) {
-                                cacheResults.Add(block_header);
-                                cacheResults.Add(block_data);
-                            }
-                            //draw data to Excel
-                            total = 0;
-                            maxColumnSize = 0;
-                            cacheResults.ForEach(block => { maxColumnSize = (block.GetLength(1) > maxColumnSize)?block.GetLength(1): maxColumnSize; });
-                            cacheResults.ForEach(block => { total += block.GetLength(0); });
-                            total += cacheResults.Count();
+                            //TODO 2019/3/4
+                            string[,] value2_copy = null;
+                            if (DatabaseConfig.This.backgroundWorkerMode)
+                                value2_copy = GetTableDataWithSchemaFromCache(tableInfo, cmd);
+                            else
+                                value2_copy = GetTableDataWithSchema(tableInfo, cmd);
 
-                            string[,] value2_copy = new string[total, maxColumnSize];
+                            //Table属性定义行区域颜色定制
+                            selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
+                                targetSheet.Cells(sartRow + schemaList.GetLength(0) - 1, value2_copy.GetLength(1) + startCol - 1));
+                            selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
+                            //selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent5;
+                            selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(tableInfo.ExcelSchemaHeaderThemeColor);
 
-                            //merge into a single string[,]
-                            int iRowNum, iColNum,iRow,iCol,iHeaderRow,iTotalRowNum=0;
-                            for (int idx = 0; idx < cacheResults.Count(); idx++) {
-
-                                //header
-                                iRowNum = cacheResults[idx].GetLength(0);
-                                iColNum = cacheResults[idx].GetLength(1);
-                                for (iRow = 0; iRow < iRowNum; iRow++)
-                                {
-                                    for (iCol = 0; iCol < iColNum; iCol++)
-                                    {
-                                        value2_copy[iTotalRowNum+iRow, iCol] = cacheResults[idx][iRow,iCol];
-                                    }
-                                }
-                                idx++;
-                                iHeaderRow = iRowNum;
-                                //data
-                                iRowNum = cacheResults[idx].GetLength(0);
-                                iColNum = cacheResults[idx].GetLength(1);
-                                for (iRow = 0; iRow < iRowNum; iRow++)
-                                {
-                                    for (iCol = 0; iCol < iColNum; iCol++)
-                                    {
-                                        value2_copy[iTotalRowNum+ iRow + iHeaderRow, iCol] = cacheResults[idx][iRow, iCol];
-                                    }
-                                }
-                                //table split row
-                                value2_copy[iTotalRowNum + iRow + iHeaderRow, 0] = "";
-                                value2_copy[iTotalRowNum + iRow + iHeaderRow + 1, 0] = "";
-
-                                iTotalRowNum += iHeaderRow + iRowNum + 2;
-
+                            //通过SQL文做成数据时第一行为dummy数据，用于提示用户
+                            if (tableInfo.WhereCondition != null)
+                            {
+                                selected = targetSheet.Range(targetSheet.Cells(sartRow + schemaList.GetLength(0), startCol),
+                                    targetSheet.Cells(sartRow + schemaList.GetLength(0), value2_copy.GetLength(1) + startCol - 1));
+                                selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
+                                selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent2;
                             }
                             //Data拷贝到指定区域
                             selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
                                 targetSheet.Cells(value2_copy.GetLength(0) + sartRow - 1, value2_copy.GetLength(1) + startCol - 1));
                             selected.NumberFormat = "@";
                             selected.Value2 = value2_copy;
-                            //XlApp.DrawBorder(selected);
+                            XlApp.DrawBorder(selected);
                             sartRow = value2_copy.GetLength(0) + sartRow + 2;
 
-                            //clear data for GC
-                            cacheResults.Clear();
-                            
-                            //
-                            if (!(tableProcessCount == selectTableNameList.Count()))
+                            //TODO 2019/3/4 为了防止缓存参照过长阻碍垃圾回收
+                            value2_copy = null;
+                        }
+                        else
+                        {
+                            tableProcessCount++;
+                            string[,] block_header = new string[,] { { tableInfo.TableName, tableInfo.Remark } };
+                            string[,] block_data = GetTableDataWithSchema(tableInfo, cmd);
+
+                            int total = 0;
+                            int maxColumnSize = 0;
+                            cacheResults.ForEach(block => { total += block.GetLength(0); });
+                            //last one or much than 10000
+                            if (tableProcessCount == selectTableNameList.Count() || total != 0 && total + block_header.GetLength(0) + block_data.GetLength(0) > DatabaseConfig.This.plainFormatRoundupSize)
+                            {
+                                if (tableProcessCount == selectTableNameList.Count())
+                                {
+                                    cacheResults.Add(block_header);
+                                    cacheResults.Add(block_data);
+                                }
+                                //draw data to Excel
+                                total = 0;
+                                maxColumnSize = 0;
+                                cacheResults.ForEach(block => { maxColumnSize = (block.GetLength(1) > maxColumnSize) ? block.GetLength(1) : maxColumnSize; });
+                                cacheResults.ForEach(block => { total += block.GetLength(0); });
+                                total += cacheResults.Count();
+
+                                string[,] value2_copy = new string[total, maxColumnSize];
+
+                                //merge into a single string[,]
+                                int iRowNum, iColNum, iRow, iCol, iHeaderRow, iTotalRowNum = 0;
+                                for (int idx = 0; idx < cacheResults.Count(); idx++)
+                                {
+
+                                    //header
+                                    iRowNum = cacheResults[idx].GetLength(0);
+                                    iColNum = cacheResults[idx].GetLength(1);
+                                    for (iRow = 0; iRow < iRowNum; iRow++)
+                                    {
+                                        for (iCol = 0; iCol < iColNum; iCol++)
+                                        {
+                                            value2_copy[iTotalRowNum + iRow, iCol] = cacheResults[idx][iRow, iCol];
+                                        }
+                                    }
+                                    idx++;
+                                    iHeaderRow = iRowNum;
+                                    //data
+                                    iRowNum = cacheResults[idx].GetLength(0);
+                                    iColNum = cacheResults[idx].GetLength(1);
+                                    for (iRow = 0; iRow < iRowNum; iRow++)
+                                    {
+                                        for (iCol = 0; iCol < iColNum; iCol++)
+                                        {
+                                            value2_copy[iTotalRowNum + iRow + iHeaderRow, iCol] = cacheResults[idx][iRow, iCol];
+                                        }
+                                    }
+                                    //table split row
+                                    value2_copy[iTotalRowNum + iRow + iHeaderRow, 0] = "";
+                                    value2_copy[iTotalRowNum + iRow + iHeaderRow + 1, 0] = "";
+
+                                    iTotalRowNum += iHeaderRow + iRowNum + 2;
+
+                                }
+                                //Data拷贝到指定区域
+                                selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
+                                    targetSheet.Cells(value2_copy.GetLength(0) + sartRow - 1, value2_copy.GetLength(1) + startCol - 1));
+                                selected.NumberFormat = "@";
+                                selected.Value2 = value2_copy;
+                                //XlApp.DrawBorder(selected);
+                                sartRow = value2_copy.GetLength(0) + sartRow + 2;
+
+                                //clear data for GC
+                                cacheResults.Clear();
+
+                                //
+                                if (!(tableProcessCount == selectTableNameList.Count()))
+                                {
+                                    cacheResults.Add(block_header);
+                                    cacheResults.Add(block_data);
+                                }
+                            }
+                            else
                             {
                                 cacheResults.Add(block_header);
                                 cacheResults.Add(block_data);
                             }
-                        }
-                        else {
-                            cacheResults.Add(block_header);
-                            cacheResults.Add(block_data);
-                        }
 
-                    }
+                        }
+                    });
+
                 }
                 targetSheet.Columns("B:AZ").EntireColumn.AutoFit();
                 if (!goodFormatMode) {
@@ -1895,13 +1889,6 @@
                  }
             }
         }
-        void doUIEvents() {
-            // CPU密集处理时UI描画机会
-            iRefresh++;
-            if (iRefresh % 100 == 0) System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
-        }
-
-
         /// <summary>
         /// 这个的写法参照VBA的关联部分，可以在VBA开发环境中的寻找各种定义
         /// </summary>
@@ -2086,7 +2073,7 @@
         string[,] GetTableDataWithSchema(TableInfo tableInfo, DbCommand cmd, DataSet orgDataset = null)
         {
             List<List<string>> linked = new List<List<string>>();
-            string[,] ret;
+            string[,] ret = null;
             cmd.CommandText = tableInfo.SelectDataSQL;
             DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, Base.Level.DEBUG);
 
@@ -2168,45 +2155,48 @@
                         }
                         else
                         {
-                        string whereClause = "";
-                        foreach (DataColumn keyColumn in orgDataset.Tables[tableInfo.TableName].PrimaryKey)
-                        {
-                            whereClause += string.Format(whereClause == "" ? "{0} = '{1}'" : "AND {0} = '{1}'", keyColumn.ColumnName, rdr[keyColumn.ColumnName]);
-                        }
-                        //Added row
-                        DataRow[] selectedRows = orgDataset.Tables[tableInfo.TableName].Select(whereClause);
-                        if (selectedRows.GetLength(0) == 0)
-                        {
-                            //新规2019/03/05
-                            List<object> newRow = new List<object>();
-                            rowData.ForEach((itemValue)=> {
-                                if (string.IsNullOrEmpty(itemValue))
-                                {
-                                    newRow.Add(DBNull.Value);
-                                }
-                                else {
-                                    newRow.Add(itemValue);
-                                }
-                            });
-                            orgDataset.Tables[tableInfo.TableName].Rows.Add(newRow.ToArray());
-
-                        }
-                        //Modified row
-                        else
-                        {
-                            foreach (var valueIdx in rowData.Select((value, idx) => new { value, idx }))
+                            string whereClause = "";
+                            foreach (DataColumn keyColumn in orgDataset.Tables[tableInfo.TableName].PrimaryKey)
                             {
-                                //if (selectedRows[0][valueIdx.idx].ToString() != valueIdx.value)
-                                if (string.IsNullOrEmpty(valueIdx.value)) {
-                                   //DatabaseConfig.isStringLikeColumn(orgDataset.Tables[tableInfo.TableName].Columns[valueIdx.idx].DataType.FullName)
-                                   selectedRows[0][valueIdx.idx] = DBNull.Value;
-                                }
-                                else {
-                                    selectedRows[0][valueIdx.idx] = valueIdx.value;
+                                whereClause += string.Format(whereClause == "" ? "{0} = '{1}'" : "AND {0} = '{1}'", keyColumn.ColumnName, rdr[keyColumn.ColumnName]);
+                            }
+                            //Added row
+                            DataRow[] selectedRows = orgDataset.Tables[tableInfo.TableName].Select(whereClause);
+                            if (selectedRows.GetLength(0) == 0)
+                            {
+                                //新规2019/03/05
+                                List<object> newRow = new List<object>();
+                                rowData.ForEach((itemValue) => {
+                                    if (string.IsNullOrEmpty(itemValue))
+                                    {
+                                        newRow.Add(DBNull.Value);
+                                    }
+                                    else
+                                    {
+                                        newRow.Add(itemValue);
+                                    }
+                                });
+                                orgDataset.Tables[tableInfo.TableName].Rows.Add(newRow.ToArray());
+
+                            }
+                            //Modified row
+                            else
+                            {
+                                foreach (var valueIdx in rowData.Select((value, idx) => new { value, idx }))
+                                {
+                                    //if (selectedRows[0][valueIdx.idx].ToString() != valueIdx.value)
+                                    if (string.IsNullOrEmpty(valueIdx.value))
+                                    {
+                                        //DatabaseConfig.isStringLikeColumn(orgDataset.Tables[tableInfo.TableName].Columns[valueIdx.idx].DataType.FullName)
+                                        selectedRows[0][valueIdx.idx] = DBNull.Value;
+                                    }
+                                    else
+                                    {
+                                        selectedRows[0][valueIdx.idx] = valueIdx.value;
+                                    }
                                 }
                             }
                         }
-                    }
                     }
                     #endregion
                     linked.Add(rowData);
@@ -2249,8 +2239,10 @@
                         ret[row, col] = linked[row][col];
                     }
                 }
-                return ret;
+                   
             }
+
+            return ret;
         }
     }
 }

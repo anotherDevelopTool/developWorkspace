@@ -410,10 +410,9 @@ namespace DevelopWorkspace.Main.View
                 DevelopWorkspace.Base.Logger.WriteLine($"Shema:{xlApp.SchemaName}", Base.Level.DEBUG);
                 model.Title = $"DB[{(cmbSavedDatabases.SelectedItem as ConnectionHistory).ConnectionHistoryName}]";
 
-                //xlApp.DbConnection.Open();
-
-                openWithRetry(xlApp.DbConnection);
-
+                xlApp.DbConnection.Open();
+                // 2020/4/14 效果不明显，删除。对花时间还需要画面主线程同步的场景利用executeWithBackgroundAction
+                //openWithRetry(xlApp.DbConnection);
 
                 DbCommand dbCommand = xlApp.DbConnection.CreateCommand();
 
@@ -1051,8 +1050,7 @@ namespace DevelopWorkspace.Main.View
             {
                 Base.Services.CancelLongTimeTaskOn();
 
-//                xlApp.DbConnection.Open();
-                openWithRetry(xlApp.DbConnection);
+                xlApp.DbConnection.Open();
 
                 xlApp.LoadDataIntoExcel(selected.ToArray(), xlApp.DbConnection.CreateCommand());
 
@@ -1107,7 +1105,6 @@ namespace DevelopWorkspace.Main.View
                 finally
                 {
                     SetViewActionState(ViewActionState.do_end);
-
                 }
             }));
         }
@@ -1119,10 +1116,12 @@ namespace DevelopWorkspace.Main.View
             {
                 try
                 {
-                    //xlApp.DbConnection.Open();
-                    openWithRetry(xlApp.DbConnection);
+                    xlApp.DbConnection.Open();
+                    Services.executeWithBackgroundAction(() => {
+                        xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY);
 
-                    xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName,tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY);
+                    });
+
                 }
                 finally
                 {
@@ -1140,13 +1139,13 @@ namespace DevelopWorkspace.Main.View
             {
                 try
                 {
+
                     Base.Services.CancelLongTimeTaskOn();
 
-//                    xlApp.DbConnection.Open();
-                    openWithRetry(xlApp.DbConnection);
+                    xlApp.DbConnection.Open();
 
                     //根据sheet的内容做出基础dataset
-                    DataSet diffDataSet = xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName,tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DIFF_USE);
+                    DataSet diffDataSet = xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DIFF_USE);
                     if (diffDataSet == null) return;
 
                     //2019/03/15
@@ -1198,9 +1197,11 @@ namespace DevelopWorkspace.Main.View
                             xlApp.DrawDifferenceToExcel(diffDataSet);
                         }
                     }
-                    else {
+                    else
+                    {
                         DevelopWorkspace.Base.Logger.WriteLine("Please compare active data with same schema of database", Base.Level.WARNING);
                     }
+
                 }
                 finally
                 {
@@ -1302,8 +1303,7 @@ namespace DevelopWorkspace.Main.View
             {
                     try
                     {
-                        //xlApp.DbConnection.Open();
-                        openWithRetry(xlApp.DbConnection);
+                        xlApp.DbConnection.Open();
 
                         DbCommand cmd = xlApp.DbConnection.CreateCommand();
 
@@ -1337,49 +1337,53 @@ namespace DevelopWorkspace.Main.View
                         List<int> columnPadSizeList = new List<int>();
                         List<List<string>> dataListList = new List<List<string>>();
                         bool titleInitial = false;
-                        using (DbDataReader rdr = cmd.ExecuteReader())
+                        Services.executeWithBackgroundAction(() =>
                         {
-                            while (rdr.Read())
+                            using (DbDataReader rdr = cmd.ExecuteReader())
                             {
-                                if (!titleInitial)
+                                while (rdr.Read())
                                 {
-                                    titleInitial = true;
+                                    if (!titleInitial)
+                                    {
+                                        titleInitial = true;
+                                        for (int idx = 0; idx < rdr.FieldCount; idx++)
+                                        {
+                                            titleList.Add(rdr.GetName(idx).ToString());
+                                            columnPadSizeList.Add(rdr.GetName(idx).ToString().Length);
+                                        }
+                                    }
+                                    List<string> dataList = new List<string>();
                                     for (int idx = 0; idx < rdr.FieldCount; idx++)
                                     {
-                                        titleList.Add(rdr.GetName(idx).ToString());
-                                        columnPadSizeList.Add(rdr.GetName(idx).ToString().Length);
+                                        string data = rdr[idx] == null ? "" : rdr[idx].ToString();
+                                        dataList.Add(data);
+                                        if (columnPadSizeList[idx] < data.Length) columnPadSizeList[idx] = data.Length;
                                     }
+                                    dataListList.Add(dataList);
                                 }
-                                List<string> dataList = new List<string>();
-                                for (int idx = 0; idx < rdr.FieldCount; idx++)
-                                {
-                                    string data = rdr[idx] == null ? "" : rdr[idx].ToString();
-                                    dataList.Add(data);
-                                    if (columnPadSizeList[idx] < data.Length) columnPadSizeList[idx] = data.Length;
-                                }
-                                dataListList.Add(dataList);
                             }
-                        }
-                        if (dataListList.Count > 0)
-                        {
-                            string titleOutput = "";
-                            for (int idx = 0; idx < titleList.Count; idx++)
+                            if (dataListList.Count > 0)
                             {
-                                titleOutput += string.Format("{0," + (0 - columnPadSizeList[idx] - 4) + "}", titleList[idx]);
-                            }
-                            Base.Logger.WriteLine(titleOutput);
-                            int outputLimit = dataListList.Count;
-                            if (outputLimit > AppConfig.DatabaseConfig.This.maxRecordCount) outputLimit = AppConfig.DatabaseConfig.This.maxRecordCount;
-                            for (int idx = 0; idx < dataListList.Count; idx++)
-                            {
-                                string dataOutput = "";
-                                for (int jdx = 0; jdx < dataListList[idx].Count; jdx++)
+                                string titleOutput = "";
+                                for (int idx = 0; idx < titleList.Count; idx++)
                                 {
-                                    dataOutput += string.Format("{0," + (0 - columnPadSizeList[jdx] - 4) + "}", dataListList[idx][jdx]);
+                                    titleOutput += string.Format("{0," + (0 - columnPadSizeList[idx] - 4) + "}", titleList[idx]);
                                 }
-                                Base.Logger.WriteLine(dataOutput);
+                                Base.Logger.WriteLine(titleOutput);
+                                int outputLimit = dataListList.Count;
+                                if (outputLimit > AppConfig.DatabaseConfig.This.maxRecordCount) outputLimit = AppConfig.DatabaseConfig.This.maxRecordCount;
+                                for (int idx = 0; idx < dataListList.Count; idx++)
+                                {
+                                    string dataOutput = "";
+                                    for (int jdx = 0; jdx < dataListList[idx].Count; jdx++)
+                                    {
+                                        dataOutput += string.Format("{0," + (0 - columnPadSizeList[jdx] - 4) + "}", dataListList[idx][jdx]);
+                                    }
+                                    Base.Logger.WriteLine(dataOutput);
+                                }
                             }
-                        }
+                        });
+
                     }
                     catch (Exception ex)
                     {
@@ -1699,7 +1703,6 @@ namespace DevelopWorkspace.Main.View
         {
             object lockObj = new object();
             Boolean hasException = false;
-            Boolean backjobRunning = true;
             Task backgroundJob = new Task(() => {
                 lock (lockObj)
                 {
@@ -1721,32 +1724,28 @@ namespace DevelopWorkspace.Main.View
                 lock (lockObj)
                 {
                     if (i == 3) hasException = true;
-                    backjobRunning = false;
                 }
 
             });
             backgroundJob.Start();
 
-            Boolean runing;
-            lock (lockObj) { runing = backjobRunning; }
-            while (runing)
+            while (!backgroundJob.Wait(100))
             {
-                Thread.Sleep(100);
+                //Thread.Sleep(100);
                 System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
-                lock (lockObj)
+
+            }
+            lock (lockObj)
+            {
+                if (hasException)
                 {
-                    runing = backjobRunning;
-                    if (hasException)
-                    {
-                        //throw new Exception("DB接続" + "(ConnectionString:" + dbConnection.ConnectionString + ")" + "に失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続して下さい");
-                        string formatMessage = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.connection.error") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.connection.error"].ToString() : "";
-                        throw new Exception(String.Format(formatMessage, "(ConnectionString:" + dbConnection.ConnectionString + ")"));
-                    }
+                    //throw new Exception("DB接続" + "(ConnectionString:" + dbConnection.ConnectionString + ")" + "に失敗しました。Setting...のConnectionHistoryテーブルにある接続情報を確認の上、再度接続して下さい");
+                    string formatMessage = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.connection.error") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.connection.error"].ToString() : "";
+                    throw new Exception(String.Format(formatMessage, "(ConnectionString:" + dbConnection.ConnectionString + ")"));
                 }
             }
-            
         }
- 
+
         /// <summary>
         /// 根据输入的SQL文来解析出表一览以及抽出条件后把数据导入到EXCEL里
         /// </summary>
@@ -1784,9 +1783,7 @@ namespace DevelopWorkspace.Main.View
                 }
                 try
                 {
-                    //xlApp.DbConnection.Open();
-                    openWithRetry(xlApp.DbConnection);
-
+                    xlApp.DbConnection.Open();
                     xlApp.LoadDataIntoExcel(selectedTables.ToArray(), xlApp.DbConnection.CreateCommand());
                 }
                 finally

@@ -327,7 +327,11 @@ namespace DevelopWorkspace.Main
             Base.Services.BusyWorkService = new Base.Services.BusyWork(doBusyWork);
             Base.Services.BusyWorkIndicatorService = (string indicatorMessage) =>
             {
-                busy.SetIndicator(indicatorMessage);
+                busy.Dispatcher.BeginInvoke((Action)delegate ()
+                {
+                    busy.SetIndicator(indicatorMessage);
+                });
+                    
             };
 
             string language = AppConfig.SysConfig.This.Language;
