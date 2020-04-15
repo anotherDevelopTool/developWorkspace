@@ -130,18 +130,6 @@
 		                    <GridViewColumn>
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">本地用户名</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding local_pc_user}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
 		                                <TextBlock HorizontalAlignment="Left">数据库连接信息</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>

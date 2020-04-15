@@ -5,7 +5,6 @@ using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -32,7 +31,7 @@ using AutoIt;
 //css_reference AutoItX3.Assembly.dll
 using System.Text;
 using System.Text.RegularExpressions;
-
+using Microsoft.WindowsAPICodePack.Shell;
 public class AutoItInfo:ViewModelBase{
 	private string _service_type = "rba-bo-api";
     public string service_type
@@ -86,19 +85,6 @@ public class AutoItInfo:ViewModelBase{
         }
       }
     }	
-	private string _local_pc_user = "os-jiangjiang.xu";
-    public string local_pc_user
-    {
-      get { return _local_pc_user; }
-      set
-      {
-        if (_local_pc_user != value)
-        {
-          _local_pc_user = value;
-          RaisePropertyChanged("local_pc_user");
-        }
-      }
-    }		
 	private string _bastion_host = "stg-loginjpe1101z.stg.jp.local";
     public string bastion_host
     {
@@ -210,7 +196,7 @@ public class Script
                 dynamic autoItInfo = listView.SelectedItem;
                 DevelopWorkspace.Base.Logger.WriteLine(autoItInfo.service_type);
                 DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {
-                autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.local_pc_user,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,sqlSource.Text);
+                autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,sqlSource.Text);
                 });
 
             }
@@ -225,7 +211,7 @@ public class Script
             try{
                 dynamic autoItInfo = listView.SelectedItem;
 				DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {                
-                	autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.local_pc_user,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,"");
+                	autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,"");
 				});
             }
             catch(Exception ex){
@@ -237,7 +223,7 @@ public class Script
 		// hostkbn = 0:core 1:front
 		// processkbn = 0:table data download 1:teraterm login only
 
-		public void autoDoIt(string username,string password,string local_pc_user,string ttermpro,string filezilla,int hostkbn,string target_host,string dbstring,int processkbn,string sqltext)
+		public void autoDoIt(string username,string password,string ttermpro,string filezilla,int hostkbn,string target_host,string dbstring,int processkbn,string sqltext)
 		{
 			
 			AutoItX.Run(ttermpro,"");
@@ -366,7 +352,7 @@ public class Script
 			AutoItX.ControlClick("FileZilla", "", "Button1");
 			
 			
-			var dir = new DirectoryInfo(@"D:\Users\" + local_pc_user + @"\Downloads\");
+			var dir = new DirectoryInfo(KnownFolders.Downloads.Path);
 			
 			foreach (var file in dir.EnumerateFiles("*.csv")) {
 				file.Delete();
@@ -376,7 +362,7 @@ public class Script
 			AutoItX.WinWaitActive("sftp://" + username + "@stg-loginjpe1101z.stg.jp.local");
 			AutoItX.ControlClick("sftp://" + username + "@stg-loginjpe1101z.stg.jp.local", "", "Edit5");
 			AutoItX.Sleep(1000);
-			AutoItX.ControlSend("sftp://" + username + "@stg-loginjpe1101z.stg.jp.local", "", "Edit5", @"D:\Users\" + local_pc_user + @"\Downloads\");
+			AutoItX.ControlSend("sftp://" + username + "@stg-loginjpe1101z.stg.jp.local", "", "Edit5", KnownFolders.Downloads.Path);
 			AutoItX.ControlSend("sftp://" + username + "@stg-loginjpe1101z.stg.jp.local", "", "Edit5", "{ENTER}");
 			
 			AutoItX.ControlClick("sftp://" + username + "@stg-loginjpe1101z.stg.jp.local", "", "Edit7");
