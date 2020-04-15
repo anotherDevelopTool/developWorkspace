@@ -11,7 +11,7 @@
              mc:Ignorable="d">
 
              <StackPanel>
-		        <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" BorderThickness="1">
+		        <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" BorderThickness="1" ToolTip="通过修改addins路径下的文件autoDoIt.setting的内容定制用户关联信息">
 		            <ListView.ItemContainerStyle>
 		                <Style TargetType="ListViewItem">
 		                    <Setter Property="Background" Value="Transparent"/>
@@ -58,7 +58,7 @@
 		                    <GridViewColumn>
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">service</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">机能</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
@@ -70,7 +70,7 @@
 		                    <GridViewColumn>
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">environment</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">环境</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
@@ -79,10 +79,34 @@
 		                            </DataTemplate>
 		                        </GridViewColumn.CellTemplate>
 		                    </GridViewColumn>
+		                    <GridViewColumn>
+		                        <GridViewColumn.Header>
+		                            <StackPanel HorizontalAlignment="Left">
+		                                <TextBlock HorizontalAlignment="Left">远程服务器</TextBlock>
+		                            </StackPanel>
+		                        </GridViewColumn.Header>
+		                        <GridViewColumn.CellTemplate>
+		                            <DataTemplate>
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding target_host}" TextTrimming="WordEllipsis" />
+		                            </DataTemplate>
+		                        </GridViewColumn.CellTemplate>
+		                    </GridViewColumn>
+		                    <GridViewColumn>
+		                        <GridViewColumn.Header>
+		                            <StackPanel HorizontalAlignment="Left">
+		                                <TextBlock HorizontalAlignment="Left">跳板服务器</TextBlock>
+		                            </StackPanel>
+		                        </GridViewColumn.Header>
+		                        <GridViewColumn.CellTemplate>
+		                            <DataTemplate>
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding bastion_host}" TextTrimming="WordEllipsis" />
+		                            </DataTemplate>
+		                        </GridViewColumn.CellTemplate>
+		                    </GridViewColumn>
 		                    <GridViewColumn  x:Name="column1">
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left" >
-		                                <TextBlock HorizontalAlignment="Left">username</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">短用户名</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
@@ -94,7 +118,7 @@
 		                    <GridViewColumn>
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">password</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">密码</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
@@ -106,7 +130,7 @@
 		                    <GridViewColumn>
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">local_pc_user</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">本地用户名</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
@@ -118,36 +142,12 @@
 		                    <GridViewColumn>
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">dbstring</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">数据库连接信息</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
 		                            <DataTemplate>
 		                                <TextBlock TextWrapping="Wrap" Text="{Binding dbstring}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">bastion_host</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding bastion_host}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">target_host</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding target_host}" TextTrimming="WordEllipsis" />
 		                            </DataTemplate>
 		                        </GridViewColumn.CellTemplate>
 		                    </GridViewColumn>
@@ -202,7 +202,7 @@
 		                </GridView>
 		            </ListView.View>
 		        </ListView>
-                <avalonEdit:EdiTextEditor Grid.Row="2" x:Name="sqlSource" 
+                <avalonEdit:EdiTextEditor Grid.Row="2" x:Name="sqlSource" ToolTip="输出想要执行的SQL，可以复数"
                            IsReadOnly="False" 
                            ShowLineNumbers="True"
                            SyntaxHighlighting="SQL"

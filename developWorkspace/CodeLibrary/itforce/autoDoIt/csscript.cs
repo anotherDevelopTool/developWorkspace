@@ -203,13 +203,15 @@ public class Script
     {
         System.Windows.Controls.ListView listView;
         ICSharpCode.AvalonEdit.Edi.EdiTextEditor sqlSource;
-        [MethodMeta(Name = "DB取得", Date = "2009-07-20", Description = "指定したSQL文の出力結果をExportして、ローカルに落とす", LargeIcon = "Export")]
+        [MethodMeta(Name = "db取得", Date = "2009-07-20", Description = "指定したSQL文の出力結果をExportして、ローカルに落とす", LargeIcon = "Export")]
         public void EventHandler1(object sender, RoutedEventArgs e)
         {
             try{
                 dynamic autoItInfo = listView.SelectedItem;
                 DevelopWorkspace.Base.Logger.WriteLine(autoItInfo.service_type);
+                DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {
                 autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.local_pc_user,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,sqlSource.Text);
+                });
 
             }
             catch(Exception ex){
@@ -217,13 +219,14 @@ public class Script
             }
             
         }
-        [MethodMeta(Name = "Teraterm登録", Date = "2009-07-20", Description = "Teraterm登録", LargeIcon = "teraterm")]
+        [MethodMeta(Name = "term登録", Date = "2009-07-20", Description = "Teraterm登録", LargeIcon = "teraterm")]
         public void EventHandler2(object sender, RoutedEventArgs e)
         {
             try{
                 dynamic autoItInfo = listView.SelectedItem;
-                autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.local_pc_user,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,"");
-
+				DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {                
+                	autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.local_pc_user,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,"");
+				});
             }
             catch(Exception ex){
                 DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
