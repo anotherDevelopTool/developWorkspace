@@ -194,9 +194,28 @@ public class Script
         {
             try{
                 dynamic autoItInfo = listView.SelectedItem;
-                DevelopWorkspace.Base.Logger.WriteLine(autoItInfo.service_type);
+                string username = autoItInfo.username;
+                string password = autoItInfo.password;
+                string ttermpro = autoItInfo.ttermpro;
+                string filezilla = autoItInfo.filezilla;
+                int hostkbn = autoItInfo.hostkbn;
+                string target_host = autoItInfo.target_host;
+                string dbstring = autoItInfo.dbstring;
+                int processkbn = autoItInfo.processkbn;
+                string sql = sqlSource.Text;
+                if(!fileExist(ref ttermpro)){
+                	DevelopWorkspace.Base.Logger.WriteLine(ttermpro + " does not exist...");
+					return;
+                }
+                if(!fileExist(ref filezilla)){
+                	DevelopWorkspace.Base.Logger.WriteLine(filezilla + " does not exist...");
+					return;
+                }
+                
+                
+                
                 DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {
-                autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,sqlSource.Text);
+                	autoDoIt(username,password,ttermpro,filezilla,hostkbn,target_host,dbstring,processkbn,sql);
                 });
 
             }
@@ -210,9 +229,22 @@ public class Script
         {
             try{
                 dynamic autoItInfo = listView.SelectedItem;
-				DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {                
-                	autoDoIt(autoItInfo.username,autoItInfo.password,autoItInfo.ttermpro,autoItInfo.filezilla,autoItInfo.hostkbn,autoItInfo.target_host,autoItInfo.dbstring,autoItInfo.processkbn,"");
-				});
+                string username = autoItInfo.username;
+                string password = autoItInfo.password;
+                string ttermpro = autoItInfo.ttermpro;
+                string filezilla = autoItInfo.filezilla;
+                int hostkbn = autoItInfo.hostkbn;
+                string target_host = autoItInfo.target_host;
+                string dbstring = autoItInfo.dbstring;
+                int processkbn = 1;
+                string sql = sqlSource.Text;
+                if(!fileExist(ref ttermpro)){
+                	DevelopWorkspace.Base.Logger.WriteLine(ttermpro + " does not exist...");
+					return;
+                }
+                DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {
+                	autoDoIt(username,password,ttermpro,filezilla,hostkbn,target_host,dbstring,processkbn,sql);
+                });
             }
             catch(Exception ex){
                 DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
@@ -220,6 +252,20 @@ public class Script
             
         }
 
+        public bool fileExist(ref string filename){
+	        if(Regex.IsMatch(filename, "^[a-z]:", RegexOptions.IgnoreCase)){
+	        }
+	        else{
+	        	filename = System.IO.Path.Combine(DevelopWorkspace.Main.StartupSetting.instance.homeDir, filename);
+	        }
+	        if(File.Exists(filename)){
+        		return true;
+	        }
+	        else{
+	        	return false;
+	        }
+
+        }
 		// hostkbn = 0:core 1:front
 		// processkbn = 0:table data download 1:teraterm login only
 
