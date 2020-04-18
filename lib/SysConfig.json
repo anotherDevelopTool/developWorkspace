@@ -1,12 +1,14 @@
 ﻿{
-  "Top": 238.0,
-  "Left": 591.0,
-  "Height": 725.0,
-  "Width": 1699.0,
+  "Top": 64.0,
+  "Left": 136.0,
+  "Height": 818.0,
+  "Width": 1639.0,
   "Maximized": false,
   "logLevel": 0,
-  "WatchExcelActivity": false,
-  "Language": "zh",
+  "WatchExcelActivity": true,
+  "WatchFileSystemActivity": true,
+  "ThirdPartyEditor": "C:\\Program Files\\Hidemaru\\Hidemaru.exe",
+  "Language": "jp",
   "typeName": "SysConfig",
-  "jsonfile": "C:\\xujingjiang\\workspace\\developWorkspaceSource\\developWorkspace\\bin\\Debug\\SysConfig.json"
+  "jsonfile": "C:\\Users\\xujingjiang\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\SysConfig.json"
 }

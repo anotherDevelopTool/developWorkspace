@@ -94,7 +94,9 @@ namespace DevelopWorkspace.Main
         public event RibbonSelectionChangeEventHandler ribbonSelectionChangeEvent;
         public event WorksheetActiveChangeEventHandler WorksheetActiveChangeEvent;
 
-        
+        //
+        public FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
+
         //监控excel的行为以达到和developworkspace进行配合的目的
         System.Timers.Timer excelWatchTimer = null;
         readonly object syncLock = new object();
@@ -418,6 +420,17 @@ namespace DevelopWorkspace.Main
             //    System.Windows.Application.Current.Shutdown();
             //}
 
+
+
+            //file
+            if (AppConfig.SysConfig.This.WatchFileSystemActivity)
+            {
+                fileSystemWatcher.Path = StartupSetting.instance.homeDir;
+                fileSystemWatcher.IncludeSubdirectories = true;   //设置监控C盘文件夹下的全部子文件夹
+                fileSystemWatcher.Filter = "*.*";   //设置监控文件的类型;
+                fileSystemWatcher.NotifyFilter = NotifyFilters.LastWrite;
+                DevelopWorkspace.Base.Logger.WriteLine($"monitor change of files in {StartupSetting.instance.homeDir}", Level.DEBUG);
+            }
         }
         Stopwatch stopWatch = new Stopwatch();
         private void MainWindow_Deactivated(object sender, EventArgs e)

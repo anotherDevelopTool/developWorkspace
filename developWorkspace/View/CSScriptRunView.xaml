@@ -29,9 +29,11 @@
                 </Fluent:DropDownButton>
 
                 <Fluent:Button  Click="Button_Click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.execute.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.execute}" Icon="Images\run.png" LargeIcon="Images\run.png"/>
-                <Fluent:Button  Click="Save_click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.execute.save.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.save}" Icon="Images\save.png" LargeIcon="Images\save.png"/>
+                <Fluent:Button  Click="Save_click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.save.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.save}" Icon="Images\save.png" LargeIcon="Images\save.png"/>
             </Fluent:RibbonGroupBox>
-
+            <Fluent:RibbonGroupBox Header="{DynamicResource  script.lang.tools.ribbon.groupbox.edit}">
+                <Fluent:Button  Click="Button_Click_2" x:Name="btnEditor" ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.edit.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.edit}" Icon="Images\editor.png" LargeIcon="Images\editor.png"/>
+            </Fluent:RibbonGroupBox>
             <Fluent:RibbonGroupBox Header="{DynamicResource  script.lang.tools.ribbon.groupbox.setting}">
                 <Fluent:DropDownButton  ResizeMode="Both" Icon="Images\setting.png" LargeIcon="Images\script_setting.png">
                     <extoolkit:PropertyGrid Name="propertygrid1"
@@ -43,7 +45,7 @@
                         Loaded="TreeView_Loaded" />
                 </Fluent:DropDownButton>
             </Fluent:RibbonGroupBox>
-            
+
             <!--<Fluent:RibbonGroupBox Header="概要">
                 <Fluent:TwoLineLabel  Name="basicInfoLabel" Foreground="Blue" Text="">
                 </Fluent:TwoLineLabel>

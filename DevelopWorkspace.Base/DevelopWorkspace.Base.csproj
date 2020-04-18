@@ -113,6 +113,7 @@
     <Compile Include="Utils\ConfirmDialog.xaml.cs">
       <DependentUpon>ConfirmDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\Files.cs" />
     <Compile Include="Utils\Script.cs" />
     <Compile Include="Utils\SqlParserWarpper.cs" />
     <Compile Include="Utils\SqlParser.cs" />

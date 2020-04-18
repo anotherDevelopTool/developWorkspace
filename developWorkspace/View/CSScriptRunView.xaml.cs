@@ -90,6 +90,8 @@ namespace DevelopWorkspace.Main.View
         DataSet selectedScriptDataSet;
         string selectedScriptPath;
         DropDownButton popupSelectScript;
+        Fluent.Button btnEditor;
+        FileSystemEventHandler fileSystemEventHandler;
         public CSScriptRunView()
         {
             //BusyWorkServiceの外側で処理を入れる場合、this.DataContextがうまく取得できない場合があるので要注意
@@ -143,7 +145,28 @@ namespace DevelopWorkspace.Main.View
 
                 SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, (byte)204, (byte)236, (byte)255));
                 (this.DataContext as PaneViewModel).ThemeColorBrush = brush;
+                btnEditor = Base.Utils.WPF.FindLogicaChild<Fluent.Button>(ribbonTabTool, "btnEditor");
 
+                //支持第三方编辑器打开
+                string thirdPartyEditorPath = AppConfig.SysConfig.This.ThirdPartyEditor;
+                if (thirdPartyEditorPath != null && fileExist(ref thirdPartyEditorPath))
+                {
+                    btnEditor.IsEnabled = true;
+                    string exefilename = System.IO.Path.GetFileName(thirdPartyEditorPath);
+                    btnEditor.Header = exefilename.EndsWith(".exe") ? "...." + exefilename.Substring(0,exefilename.Length - 4) + "...." : exefilename;
+                }
+                else {
+                    btnEditor.IsEnabled = false;
+                    btnEditor.ToolTip = thirdPartyEditorPath;
+                }
+
+
+                //2020/4/19
+                if (AppConfig.SysConfig.This.WatchFileSystemActivity) {
+                    fileSystemEventHandler = new FileSystemEventHandler(OnProcess);
+                    (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.Changed += fileSystemEventHandler;
+                    (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.EnableRaisingEvents = true;
+                }
 
 
 
@@ -192,7 +215,8 @@ public class Script
         {
             if (System.Windows.MessageBox.Show("close this tab?", "Confirm Message", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel) return false;
 
-
+            //
+            if (AppConfig.SysConfig.This.WatchFileSystemActivity) (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.Changed -= fileSystemEventHandler;
             return true;
         }
 
@@ -592,8 +616,8 @@ public class Script
         }
         private void loadCodeLibraryTree(System.IO.DirectoryInfo root, ItemsControl treeView, bool bRoot)
         {
-            Base.Services.BusyWorkService(new Action(() =>
-            {
+            //Base.Services.BusyWorkService(new Action(() =>
+            //{
                 ItemsControl treeViewItem = null;
                 if (bRoot == true)
                 {
@@ -660,7 +684,7 @@ public class Script
                     // Resursive call for each subdirectory.
                     loadCodeLibraryTree(dirInfo, treeViewItem, false);
                 }
-            }));
+            //}));
         }
 
         private void TreeView_Loaded(object sender, RoutedEventArgs e)
@@ -759,5 +783,60 @@ public class Script
                 }
             }));
         }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            if (selectedScriptDataSet == null) return;
+            Base.Services.BusyWorkService(new Action(() =>
+            {
+                string thirdPartyEditorPath = AppConfig.SysConfig.This.ThirdPartyEditor;
+                if (fileExist(ref thirdPartyEditorPath))
+                {
+                    foreach (System.Data.DataRow codeBlk in selectedScriptDataSet.Tables["codeBlock"].Rows)
+                    {
+                        string writtingfile = System.IO.Path.Combine(selectedScriptPath, codeBlk["file"].ToString());
+                        MainWindow.ShellExecute(IntPtr.Zero, "open", thirdPartyEditorPath, writtingfile, "", MainWindow.ShowWindowStyles.SW_SHOWNORMAL);
+                    }
+                }
+            }));
+        }
+        private bool fileExist(ref string filename)
+        {
+            if (Regex.IsMatch(filename, "^[a-z]:", RegexOptions.IgnoreCase))
+            {
+            }
+            else
+            {
+                filename = System.IO.Path.Combine(DevelopWorkspace.Main.StartupSetting.instance.homeDir, filename);
+            }
+            if (File.Exists(filename))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        private void OnProcess(object source, FileSystemEventArgs e)
+        {
+            // get the file's extension
+            string strFileExt = getFileExt(e.FullPath);
+            // filter file types
+            if (strFileExt.Equals(".cs") || strFileExt.Equals(".xml"))
+            {
+                //e.FullPath
+                DevelopWorkspace.Base.Logger.WriteLine($"{e.FullPath} has changed,reload it for continued use...", Base.Level.WARNING);
+            }
+        }
+        private string getFileExt(string filePath)
+        {
+            if (filePath == null) return "";
+            if (filePath.Length == 0) return "";
+            if (filePath.LastIndexOf(".") == -1) return "";
+            return filePath.Substring(filePath.LastIndexOf("."));
+        }
+
     }
 }

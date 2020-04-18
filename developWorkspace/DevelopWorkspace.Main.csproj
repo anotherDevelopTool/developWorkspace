@@ -304,6 +304,18 @@
     <None Include="CodeLibrary\Excel\simple\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="CodeLibrary\itforce\addinCodeConverter2\dataConvertTools2.2.ConvertRule" />
+    <None Include="CodeLibrary\itforce\addinCodeConverter2\dataConvertTools2.3.ConvertRule" />
+    <None Include="CodeLibrary\itforce\addinCodeConverter2\dataConvertTools2.9.ConvertRule" />
+    <None Include="CodeLibrary\itforce\addinCodeConverter2\dataConvertTools2.xlsx" />
+    <None Include="CodeLibrary\itforce\addinCodeConverter2\ScriptConfig.json" />
+    <None Include="CodeLibrary\itforce\addinCodeConverter\ScriptConfig.json" />
+    <None Include="CodeLibrary\itforce\addinElastic\ScriptConfig.json" />
+    <None Include="CodeLibrary\itforce\autoDoIt\autoDoIt.setting" />
+    <None Include="CodeLibrary\itforce\autoDoIt\ScriptConfig.json" />
+    <None Include="CodeLibrary\itforce\autoitAddin\ScriptConfig.json" />
+    <None Include="CodeLibrary\itforce\autoit\ScriptConfig.json" />
+    <None Include="CodeLibrary\itforce\elastic_nest_client\ScriptConfig.json" />
     <None Include="CodeLibrary\Professional\jsconsole\JsConsole\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -341,6 +353,27 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\CodeGenerator\addinCodeConverter3\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\addinCodeConverter2\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\addinCodeConverter\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\addinElastic\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\autoDoIt\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\autoitAddin\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\autoit\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\elastic_nest_client\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="View\ScriptAddinView.xaml.cs">
@@ -1335,6 +1368,33 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="CodeLibrary\CodeGenerator\addinCodeConverter3\project.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="CodeLibrary\itforce\addinCodeConverter2\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\addinCodeConverter2\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\addinCodeConverter2\setting.xml" />
+    <Resource Include="CodeLibrary\itforce\addinCodeConverter\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\addinCodeConverter\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\addinCodeConverter\setting.xml" />
+    <Resource Include="CodeLibrary\itforce\addinElastic\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\addinElastic\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\addinElastic\setting.xml" />
+    <Resource Include="CodeLibrary\itforce\autoDoIt\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\autoDoIt\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\autoDoIt\setting.xml" />
+    <Resource Include="CodeLibrary\itforce\autoDoIt\teraterm.png" />
+    <Resource Include="CodeLibrary\itforce\autoitAddin\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\autoitAddin\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\autoitAddin\setting.xml" />
+    <Resource Include="CodeLibrary\itforce\autoit\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\autoit\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\autoit\setting.xml" />
+    <Resource Include="CodeLibrary\itforce\elastic_nest_client\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\elastic_nest_client\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\elastic_nest_client\setting.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\editor.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

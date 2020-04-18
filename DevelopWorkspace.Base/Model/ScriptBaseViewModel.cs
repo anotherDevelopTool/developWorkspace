@@ -9,6 +9,7 @@
     using System.IO;
     using Newtonsoft.Json;
     using System.Text;
+    using System.Windows.Input;
 
     /// <summary>
     /// Base class that shares common properties, methods, and intefaces
@@ -130,11 +131,38 @@
             {
                 string json = File.ReadAllText(currentJson, Encoding.UTF8);
                 AddinMetaAttribute attribute = (AddinMetaAttribute)JsonConvert.DeserializeObject(json, typeof(AddinMetaAttribute));
-                listType.Add(attribute);
+                if (!string.IsNullOrEmpty(attribute.Name))
+                {
+                    listType.Add(attribute);
+                }
             }
             return listType;
         }
 
+        RelayCommand _closeCommand = null;
+        public ICommand CloseCommand
+        {
+            get
+            {
+                if (_closeCommand == null)
+                {
+                    _closeCommand = new RelayCommand((p) => OnClose(), (p) => CanClose());
+                }
+
+                return _closeCommand;
+            }
+        }
+
+        private bool CanClose()
+        {
+            return true;
+        }
+
+        private void OnClose()
+        {
+            //清除占用资源
+            if (this.clearance != null ) clearance(null);
+        }
 
     }
 

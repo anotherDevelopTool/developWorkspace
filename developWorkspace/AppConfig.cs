@@ -219,6 +219,10 @@ namespace DevelopWorkspace.Main
             [Category(@"common...")]
             public Boolean WatchExcelActivity { get; set; }
             [Category(@"common...")]
+            public Boolean WatchFileSystemActivity { get; set; }
+            [Category(@"common...")]
+            public string ThirdPartyEditor { get; set; }
+            [Category(@"common...")]
             public string Language { get; set; }
 
             public SysConfig()

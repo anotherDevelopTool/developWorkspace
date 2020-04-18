@@ -29,6 +29,7 @@ using System.Reflection;
 using DevelopWorkspace.Base.Model;
 using AutoIt;
 //css_reference AutoItX3.Assembly.dll
+
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.WindowsAPICodePack.Shell;
@@ -189,6 +190,8 @@ public class Script
     {
         System.Windows.Controls.ListView listView;
         ICSharpCode.AvalonEdit.Edi.EdiTextEditor sqlSource;
+	    FileSystemEventHandler fileSystemEventHandler;
+        string settingFileHash = "";
         [MethodMeta(Name = "db取得", Date = "2009-07-20", Description = "指定したSQL文の出力結果をExportして、ローカルに落とす", LargeIcon = "Export")]
         public void EventHandler1(object sender, RoutedEventArgs e)
         {
@@ -251,7 +254,50 @@ public class Script
             }
             
         }
-
+        [MethodMeta(Name = "sqlplus>", Date = "2009-07-20", Description = "Teraterm登録", LargeIcon = "sqlplus")]
+        public void EventHandler3(object sender, RoutedEventArgs e)
+        {
+            try{
+                dynamic autoItInfo = listView.SelectedItem;
+                string username = autoItInfo.username;
+                string password = autoItInfo.password;
+                string ttermpro = autoItInfo.ttermpro;
+                string filezilla = autoItInfo.filezilla;
+                int hostkbn = autoItInfo.hostkbn;
+                string target_host = autoItInfo.target_host;
+                string dbstring = autoItInfo.dbstring;
+                int processkbn = 2;
+                string sql = sqlSource.Text;
+                if(!fileExist(ref ttermpro)){
+                	DevelopWorkspace.Base.Logger.WriteLine(ttermpro + " does not exist...");
+					return;
+                }
+                DevelopWorkspace.Base.Services.executeWithBackgroundAction(() => {
+                	autoDoIt(username,password,ttermpro,filezilla,hostkbn,target_host,dbstring,processkbn,sql);
+                });
+            }
+            catch(Exception ex){
+                DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
+            }
+            
+        }
+        [MethodMeta(Name = "    Setting...    ", Date = "2009-07-20", Description = "change setting...", LargeIcon = "editor")]
+        public void EventHandler4(object sender, RoutedEventArgs e)
+        {
+            try{
+				string json = getResPathByExt("setting.json");
+                string thirdPartyEditorPath =  DevelopWorkspace.Main.AppConfig.SysConfig.This.ThirdPartyEditor;
+                if (thirdPartyEditorPath != null && fileExist(ref thirdPartyEditorPath))
+                {
+                	DevelopWorkspace.Main.MainWindow.ShellExecute(IntPtr.Zero, "open", thirdPartyEditorPath, json, "", DevelopWorkspace.Main.MainWindow.ShowWindowStyles.SW_SHOWNORMAL);
+					//Process.Start(thirdPartyEditorPath,json);                
+                }
+            }
+            catch(Exception ex){
+                DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
+            }
+            
+        }
         public bool fileExist(ref string filename){
 	        if(Regex.IsMatch(filename, "^[a-z]:", RegexOptions.IgnoreCase)){
 	        }
@@ -330,6 +376,14 @@ public class Script
 				AutoItX.Send("source /usr/local/oracle/env/tora111.rc");;
 				AutoItX.Send("{ENTER}");
 			}
+			// sqlplus 
+			if(processkbn == 2 ){
+				AutoItX.Send("sqlplus " + dbstring + "{ENTER}");
+				AutoItX.Send("SET AUTOTRACE ON{ENTER}");
+				AutoItX.Send("set lin 200{ENTER}");
+				return;
+			}
+
 			//tmpに切り替え
 			AutoItX.Send("cd /tmp");
 			AutoItX.Send("{ENTER}");
@@ -442,13 +496,61 @@ select * from  F_JUCHUDTL where rownum < 1000;
 select * from  F_KOKANJUCHU where rownum < 1000;
 select * from  F_SHKSEIDTL where rownum < 1000;
 ";
-			string json = File.ReadAllText(getResPathByExt("setting"), Encoding.UTF8);
+			string json = DevelopWorkspace.Base.Utils.Files.ReadAllText(getResPathByExt("setting.json"), Encoding.UTF8);
 			AutoItSetting autoItSetting = (AutoItSetting)JsonConvert.DeserializeObject(json, typeof(AutoItSetting));
 			
             listView.DataContext = autoItSetting.setting;
+		
+	        clearance= new Func<string, bool>(DoClearance);	
+		
             listView.SelectedIndex = 0;
-            
+
+            settingFileHash = DevelopWorkspace.Base.Utils.Files.GetSha256Hash(json);
+            //2020/4/19
+            if (DevelopWorkspace.Main.AppConfig.SysConfig.This.WatchFileSystemActivity)
+            {
+                fileSystemEventHandler = new FileSystemEventHandler(OnProcess);
+                (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.Changed += fileSystemEventHandler;
+                (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.EnableRaisingEvents = true;
+            }
+
             return view;
+        }
+	    //后期清理处理
+	    public bool DoClearance(string bookName)
+        {
+            //
+            if (DevelopWorkspace.Main.AppConfig.SysConfig.This.WatchFileSystemActivity)
+            {
+                (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.Changed -= fileSystemEventHandler;
+            }
+            return true;
+        }
+	
+		private void OnProcess(object source, FileSystemEventArgs e)
+        {
+			try{
+                // get the file's extension
+                if (getResPathByExt("setting.json").Equals(e.FullPath))
+                {
+                    string json = DevelopWorkspace.Base.Utils.Files.ReadAllText(getResPathByExt("setting.json"), Encoding.UTF8);
+                    string lastedSettingFileHash = DevelopWorkspace.Base.Utils.Files.GetSha256Hash(json);
+                    if (!settingFileHash.Equals(lastedSettingFileHash)) {
+                        settingFileHash = lastedSettingFileHash;
+                        listView.Dispatcher.BeginInvoke((Action)delegate () {
+                            json = DevelopWorkspace.Base.Utils.Files.ReadAllText(getResPathByExt("setting.json"), Encoding.UTF8);
+                            if (!string.IsNullOrWhiteSpace(json))
+                            {
+                                AutoItSetting autoItSetting = (AutoItSetting)JsonConvert.DeserializeObject(json, typeof(AutoItSetting));
+                                listView.DataContext = autoItSetting.setting;
+                                listView.SelectedIndex = 0;
+                            }
+                        });
+                    }
+                }
+             }catch (Exception ex) {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.DEBUG);
+            }
         }
     }
 
@@ -488,7 +590,6 @@ select * from  F_SHKSEIDTL where rownum < 1000;
     }
     public static void Main(string[] args)
     {
-        DevelopWorkspace.Base.Logger.WriteLine("Process called");
         string strXaml = args[0].ToString();
         MainWindow win = new MainWindow(strXaml);
         win.Show();

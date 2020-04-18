@@ -1,0 +1,118 @@
+{
+  "setting": [
+    {
+      "service_type": "DB",
+      "environment_name": "STG QA CORE",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "CORESTYL_USER_QA/stg_corestyl_user@SV_CORESTYL_QA",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "stg-bstylifebo101z.stg.jp.local",
+      "hostkbn": 0,
+      "processkbn": 0    
+	},
+    {
+      "service_type": "DB",
+      "environment_name": "STG QA FRONT",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "fstyluser_qa/stg_fstyluser@100.67.71.39:2050/sv_fstyl_qa",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "stg-bstylife101z.stg.jp.local",
+      "hostkbn": 1,
+      "processkbn": 0    
+	},
+    {
+      "service_type": "rba-bo-api",
+      "environment_name": "STG",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "CORESTYL_USER_QA/stg_corestyl_user@SV_CORESTYL_QA",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "stg-arbabointraapi101z.stg.jp.local",
+      "hostkbn": 0,
+      "processkbn": 1    
+	},
+    {
+      "service_type": "batch",
+      "environment_name": "STG",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "CORESTYL_USER_QA/stg_corestyl_user@SV_CORESTYL_QA",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "stg-brbabo101z.stg.jp.local",
+      "hostkbn": 0,
+      "processkbn": 1    
+	},
+    {
+      "service_type": "rba-bo-api",
+      "environment_name": "STG QA",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "CORESTYL_USER_QA/stg_corestyl_user@SV_CORESTYL_QA",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "stg-qa-arbabointraapi101z.stg.jp.local",
+      "hostkbn": 0,
+      "processkbn": 1    
+	},	
+    {
+      "service_type": "batch",
+      "environment_name": "STG QA",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "CORESTYL_USER_QA/stg_corestyl_user@SV_CORESTYL_QA",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "stg-qa-brbabo101z.stg.jp.local",
+      "hostkbn": 0,
+      "processkbn": 1    
+	},	
+    {
+      "service_type": "rba-bo-api",
+      "environment_name": "DEV",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "CORESTYL_USER_QA/stg_corestyl_user@SV_CORESTYL_QA",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "dev-arbabo101z.dev.jp.local",
+      "hostkbn": 0,
+      "processkbn": 1    
+	},	
+    {
+      "service_type": "batch",
+      "environment_name": "DEV",
+      "username": "os-xujiangji01",
+      "password": "bos-c202001",
+      "local_pc_user": "os-jiangjiang.xu",
+      "ttermpro": "C:\\xujingjiang\\tools\\teraterm-4.105\\ttermpro.exe",
+      "filezilla": "C:\\xujingjiang\\tools\\FileZilla-3.47.2.1\\filezilla.exe",
+      "dbstring": "CORESTYL_USER_QA/stg_corestyl_user@SV_CORESTYL_QA",
+      "bastion_host": "stg-loginjpe1101z.stg.jp.local",
+      "target_host": "dev-brbabo101z.dev.jp.local",
+      "hostkbn": 0,
+      "processkbn": 1    
+	}	
+  ]
+}
+
+
