@@ -101,14 +101,23 @@ public class Script
 {
     //https://stackoverflow.com/questions/248362/how-do-i-build-a-datatemplate-in-c-sharp-code
     //TODO 面向Addin基类化
-    [AddinMeta(Name = "elasticSearch", Date = "2009-07-20", Description = "elastic utility",Red =128,Green=145,Blue=213)]
+    [AddinMeta(Name = "elasticSearch", Date = "2009-07-20", Description = "elastic utility", LargeIcon = "elasticsearch", Red =128,Green=145,Blue=213)]
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
         System.Windows.Controls.ListView listView;
         ElasticClient client;
         List<ElasticInfo> elasticInfoList = new List<ElasticInfo>();
         
-        [MethodMeta(Name = "import", Date = "2009-07-20", Description = "导入指定index的所有document到EXCEL", LargeIcon = "import")]
+        [MethodMeta(Name = "Excelにエクスポート", Date = "2009-07-20", Description = "指定EXCEL内的数据反映到Elastic", LargeIcon = "export")]
+        public void EventHandler3(object sender, RoutedEventArgs e)
+        {
+            dynamic content = listView.SelectedItem;
+            string slectetedIndex = content.index;
+
+			search(slectetedIndex);
+            
+        }
+        [MethodMeta(Name = "Elasticへ更新", Date = "2009-07-20", Description = "导入指定index的所有document到EXCEL,@timestampe must input like 2017-02-03T19:27:20.606Z", LargeIcon = "import")]
         public async void EventHandler2(object sender, RoutedEventArgs e)
         {
             try{
@@ -180,16 +189,8 @@ public class Script
             }
             
         }
-        [MethodMeta(Name = "export", Date = "2009-07-20", Description = "指定EXCEL内的数据反映到Elastic", LargeIcon = "export")]
-        public void EventHandler3(object sender, RoutedEventArgs e)
-        {
-            dynamic content = listView.SelectedItem;
-            string slectetedIndex = content.index;
 
-			search(slectetedIndex);
-            
-        }
-        [MethodMeta(Name = "delete", Date = "2009-07-20", Description = "删除指定index的所有document，index本身不删除", LargeIcon = "delete")]
+        [MethodMeta(Name = "インデックスクリア", Date = "2009-07-20", Description = "删除指定index的所有document，index本身不删除", LargeIcon = "delete")]
         public void EventHandler4(object sender, RoutedEventArgs e)
         {
             dynamic content = listView.SelectedItem;
