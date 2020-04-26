@@ -315,6 +315,7 @@
     <None Include="CodeLibrary\itforce\autoDoIt\ScriptConfig.json" />
     <None Include="CodeLibrary\itforce\autoitAddin\ScriptConfig.json" />
     <None Include="CodeLibrary\itforce\autoit\ScriptConfig.json" />
+    <None Include="CodeLibrary\itforce\elastic3x\ScriptConfig.json" />
     <None Include="CodeLibrary\itforce\elastic_nest_client\ScriptConfig.json" />
     <None Include="CodeLibrary\Professional\jsconsole\JsConsole\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -374,6 +375,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="CodeLibrary\itforce\elastic_nest_client\csscript.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CodeLibrary\itforce\elastic3x\csscript.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="View\ScriptAddinView.xaml.cs">
@@ -1395,6 +1399,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\editor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="CodeLibrary\itforce\elastic3x\input_xml.xml" />
+    <Resource Include="CodeLibrary\itforce\elastic3x\input_xslt.xsl" />
+    <Resource Include="CodeLibrary\itforce\elastic3x\setting.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

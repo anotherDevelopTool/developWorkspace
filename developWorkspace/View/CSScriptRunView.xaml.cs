@@ -71,7 +71,6 @@ namespace DevelopWorkspace.Main.View
                 assemblyCache.Add(script.GetHashCode(), compiled);
             }
         }
-
     }
 
     /// <summary>
@@ -140,7 +139,7 @@ namespace DevelopWorkspace.Main.View
 
 
                 //TODO
-                (this.DataContext as Base.Model.ViewModelBase).clearance= new Func<string, bool>(DoClearance);
+                (this.DataContext as Base.Model.ViewModelBase).clearance= new Func<string, bool>(doClearance);
 
 
                 SolidColorBrush brush = new SolidColorBrush(Color.FromArgb((byte)255, (byte)204, (byte)236, (byte)255));
@@ -210,12 +209,9 @@ public class Script
                 }
             }));
         }
-
-        public bool DoClearance(string bookName)
+        public bool doClearance(string bookName)
         {
-            if (System.Windows.MessageBox.Show("close this tab?", "Confirm Message", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel) return false;
-
-            //
+            //if (System.Windows.MessageBox.Show("close this tab?", "Confirm Message", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel) return false;
             if (AppConfig.SysConfig.This.WatchFileSystemActivity) (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.Changed -= fileSystemEventHandler;
             return true;
         }
@@ -249,13 +245,11 @@ public class Script
             {
                 return this.ScriptContent.Text;
             }
-
             set
             {
                 this.ScriptContent.Text = value;
             }
         }
-
 
         #region C#执行引擎
         Action actionCSharpScript { get
@@ -827,7 +821,7 @@ public class Script
             if (strFileExt.Equals(".cs") || strFileExt.Equals(".xml"))
             {
                 //e.FullPath
-                DevelopWorkspace.Base.Logger.WriteLine($"{e.FullPath} has changed,reload it for continued use...", Base.Level.WARNING);
+                DevelopWorkspace.Base.Logger.WriteLine($"{e.FullPath} has changed,reload it for continued use...", Base.Level.DEBUG);
             }
         }
         private string getFileExt(string filePath)

@@ -591,7 +591,7 @@
                                    ActiveContent="{Binding ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}"
    								   behav:DropFileCommand.DropCommand="comm:AppCommand.LoadFile"
                                    AllowDrop="True"
-                                   Grid.Row="1" Margin="1,0,1,0" BorderThickness="0" ActiveContentChanged="dockManager_ActiveContentChanged" Loaded="dockManager_Loaded" Initialized="dockManager_Initialized" LayoutChanged="dockManager_LayoutChanged">
+                                   Grid.Row="1" Margin="1,0,1,0" BorderThickness="0" ActiveContentChanged="dockManager_ActiveContentChanged" Loaded="dockManager_Loaded" Initialized="dockManager_Initialized" LayoutChanged="dockManager_LayoutChanged" DocumentClosed="dockManager_DocumentClosed" DocumentClosing="dockManager_DocumentClosing">
 
                         <avalonDock:DockingManager.Theme>
                             <avalonDock:GenericTheme/>

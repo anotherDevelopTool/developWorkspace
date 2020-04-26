@@ -281,8 +281,40 @@ public class Script
             }
             
         }
-        [MethodMeta(Name = "    Setting...    ", Date = "2009-07-20", Description = "change setting...", LargeIcon = "editor")]
+        [MethodMeta(Name = "load csv files", Date = "2009-07-20", Description = "csv report", LargeIcon = "load")]
         public void EventHandler4(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                List<List<List<string>>> alltables = new List<List<List<string>>>();
+                foreach (var filename in Directory.GetFiles(KnownFolders.Downloads.Path, "*.csv"))
+                {
+                    List<List<string>> currenttable = new List<List<string>> { new List<string> { Path.GetFileName(filename).Split('.')[0] } };
+                    var tests = DevelopWorkspace.Base.Utils.Files.ReadAllText(filename, Encoding.UTF8);
+                    var csvStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(tests));
+                    var csvReader = new DevelopWorkspace.Base.Utils.CsvReader(new StreamReader(csvStream), ",");
+                    while (csvReader.Read())
+                    {
+                        List<string> linedata = new List<string>();
+                        for (int idx = 0; idx < csvReader.FieldsCount; idx++)
+                        {
+                            linedata.Add(csvReader[idx]);
+                        }
+                        currenttable.Add(linedata);
+                    }
+                    alltables.Add(currenttable);
+                }
+                //表名所在行的高度，结构的高度，所有表的表名，结构，数据的列表的集合
+                DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet(1, 0, alltables);
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.ToString());
+            }
+
+        }
+        [MethodMeta(Name = "    Setting...    ", Date = "2009-07-20", Description = "change setting...", LargeIcon = "editor")]
+        public void EventHandler5(object sender, RoutedEventArgs e)
         {
             try{
 				string json = getResPathByExt("setting.json");

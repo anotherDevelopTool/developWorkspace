@@ -2244,5 +2244,173 @@
 
             return ret;
         }
+
+        //把数据输出到excel的当前sheet中
+        public static void loadDataIntoActiveSheet(string header, List<List<string>> schemaList, List<List<string>> rowdataList) {
+            List<List<string>> headerList = new List<List<string>> { new List<string> { header } };
+            loadDataIntoActiveSheet(headerList, schemaList,rowdataList);
+        }
+        public static void loadDataIntoActiveSheet(string header,List<List<string>> rowdataList)
+        {
+            List<List<string>> headerList = new List<List<string>> { new List<string> { header } };
+            loadDataIntoActiveSheet(headerList, null, rowdataList);
+        }
+        public static void loadDataIntoActiveSheet(List<List<string>> rowdataList)
+        {
+            List<List<string>> headerList = new List<List<string>> { new List<string>() };
+            loadDataIntoActiveSheet(headerList, null, rowdataList);
+        }
+        public static void loadDataIntoActiveSheet(int headerHeight, int schemaHeight, List<List<List<string>>> allTables) {
+            List<List<string>> headerList = allTables[0].GetRange(0, headerHeight);
+            List<List<string>> schemaList = allTables[0].GetRange(headerHeight, schemaHeight);
+            List<List<string>> rowdataList = allTables[0].GetRange(headerHeight + schemaHeight, allTables[0].Count - headerHeight - schemaHeight);
+            allTables.RemoveAt(0);
+            loadDataIntoActiveSheet(headerList, schemaList, rowdataList, allTables.ToArray());
+        }
+        public static void loadDataIntoActiveSheet(List<List<string>> headerList, List<List<string>> schemaList,List<List<string>> rowdataList, params List<List<string>>[] otherTables)
+        {
+            dynamic excel = null;
+            try
+            {
+                //2019/02/27
+                excel = Excel.GetLatestActiveExcelRef(true);
+                if (excel == null)
+                {
+                    DevelopWorkspace.Base.Services.ErrorMessage("Excelをただしく起動できないので、PC環境をご確認の上、再度実行してください");
+                    return;
+                }
+                excel.Visible = true;
+                var targetSheet = excel.ActiveWorkbook.ActiveSheet;
+                if (targetSheet.UsedRange.Rows.Count > 1)
+                {
+                    //(System.Windows.Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).UnInstallExcelWatch();
+                    excel.ActiveWorkbook.Worksheets.Add(System.Reflection.Missing.Value, excel.ActiveWorkbook.Worksheets[excel.ActiveWorkbook.Worksheets.Count], System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+                    targetSheet = excel.ActiveWorkbook.ActiveSheet;
+                }
+                excel.ScreenUpdating = false;
+
+                int startRow = 1;
+                int startCol = 1;
+                Range selected;
+                int headerHeight = 0;
+                int schemaHeight = 0;
+                int rowdataHeight = 0;
+
+                for (int i = -1; i < otherTables.Length ; i++) {
+                    if (i == -1)
+                    {
+                        //Table属性定义行区域颜色定制
+                        if (headerList != null && headerList.Count() > 0 && headerList[0].Count() > 0)
+                        {
+                            headerHeight = headerList.Count();
+                            selected = targetSheet.Range(targetSheet.Cells(startRow, startCol),
+                                targetSheet.Cells(startRow + headerList.Count() - 1, startCol + headerList[0].Count() - 1));
+                            selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
+                            selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.FromArgb(180, 212, 180, 180));
+                            selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(headerList);
+                            XlApp.DrawBorder(selected);
+                            startRow += headerList.Count();
+                        }
+                        //TODO 2019/3/4
+                        if (schemaList != null && schemaList.Count() > 0 && schemaList[0].Count() > 0)
+                        {
+                            schemaHeight = schemaList.Count();
+                            //Table属性定义行区域颜色定制
+                            selected = targetSheet.Range(targetSheet.Cells(startRow, startCol),
+                            targetSheet.Cells(startRow + schemaList.Count() - 1, startCol + schemaList[0].Count() - 1));
+                            selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
+                            selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.FromArgb(180, 180, 180, 212));
+                            selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(schemaList);
+                            XlApp.DrawBorder(selected);
+                            startRow += schemaList.Count();
+                        }
+                        if (rowdataList != null && rowdataList.Count() > 0 && rowdataList[0].Count() > 0)
+                        {
+                            rowdataHeight = rowdataList.Count();
+                            //Table属性定义行区域颜色定制
+                            selected = targetSheet.Range(targetSheet.Cells(startRow, startCol),
+                            targetSheet.Cells(startRow + rowdataList.Count() - 1, startCol + rowdataList[0].Count() - 1));
+                            selected.NumberFormat = "@";
+                            selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(rowdataList);
+                            XlApp.DrawBorder(selected);
+                            selected.EntireColumn.AutoFit();
+                            startRow += rowdataList.Count();
+
+                        }
+                    }
+                    else
+                    {
+                        if (otherTables[i].Count() < headerHeight + schemaHeight) continue;
+                        int offset;
+                        List<List<string>> tempHeaderList = new List<List<string>>();
+                        List<List<string>> tempSchemaList = new List<List<string>>();
+                        List<List<string>> tempRowdataList = new List<List<string>>();
+                        for (offset = 0; offset < headerHeight; offset++)
+                        {
+                            tempHeaderList.Add(otherTables[i][offset]);
+                        }
+                        for (offset = headerHeight; offset < headerHeight + schemaHeight; offset++)
+                        {
+                            tempSchemaList.Add(otherTables[i][offset]);
+                        }
+                        for (offset = headerHeight + schemaHeight; offset < otherTables[i].Count(); offset++)
+                        {
+                            tempRowdataList.Add(otherTables[i][offset]);
+                        }
+                        //Table属性定义行区域颜色定制
+                        if (tempHeaderList != null && tempHeaderList.Count() > 0 && tempHeaderList[0].Count() > 0)
+                        {
+                            selected = targetSheet.Range(targetSheet.Cells(startRow, startCol),
+                                targetSheet.Cells(startRow + tempHeaderList.Count() - 1, startCol + tempHeaderList[0].Count() - 1));
+                            selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
+                            selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.FromArgb(180, 212, 180, 180));
+                            selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(tempHeaderList);
+                            XlApp.DrawBorder(selected);
+                            startRow += tempHeaderList.Count();
+                        }
+                        //TODO 2019/3/4
+                        if (tempSchemaList != null && tempSchemaList.Count() > 0 && tempSchemaList[0].Count() > 0)
+                        {
+                            //Table属性定义行区域颜色定制
+                            selected = targetSheet.Range(targetSheet.Cells(startRow, startCol),
+                            targetSheet.Cells(startRow + tempSchemaList.Count() - 1, startCol + tempSchemaList[0].Count() - 1));
+                            selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
+                            selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.FromArgb(180, 180, 180, 212));
+                            selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(tempSchemaList);
+                            XlApp.DrawBorder(selected);
+                            startRow += tempSchemaList.Count();
+                        }
+                        if (tempRowdataList != null && tempRowdataList.Count() > 0 && tempRowdataList[0].Count() > 0)
+                        {
+                            //Table属性定义行区域颜色定制
+                            selected = targetSheet.Range(targetSheet.Cells(startRow, startCol),
+                            targetSheet.Cells(startRow + tempRowdataList.Count() - 1, startCol + tempRowdataList[0].Count() - 1));
+                            selected.NumberFormat = "@";
+                            selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(tempRowdataList);
+                            XlApp.DrawBorder(selected);
+                            selected.EntireColumn.AutoFit();
+                            startRow += tempRowdataList.Count();
+                        }
+                    }
+                    startRow += 2;
+                }
+                excel.ScreenUpdating = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Print(ex.Message);
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+            }
+            finally
+            {
+                if (excel != null)
+                {
+                    //todo
+                    //(System.Windows.Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).InstallExcelWatch();
+                    excel.ScreenUpdating = true;
+                    Marshal.ReleaseComObject(excel);
+                }
+            }
+        }
     }
 }

@@ -131,7 +131,6 @@ namespace DevelopWorkspace.Base
 
             while (!backgroundJob.Wait(100))
             {
-                //Thread.Sleep(100);
                 System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
 
             }

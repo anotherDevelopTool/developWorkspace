@@ -805,9 +805,19 @@ namespace DevelopWorkspace.Main
                 ribbonSelectionChangeEvent(dockManager.ActiveContent,new RibbonSelectionChangeEventArgs(ribbon.SelectedTabIndex));
         }
         private SolidColorBrush _solidColorBrush = new SolidColorBrush(Color.FromArgb((byte)255, (byte)0, (byte)255, (byte)0));
-}
 
-public class DebugBindingConverter : IValueConverter
+        private void dockManager_DocumentClosed(object sender, Xceed.Wpf.AvalonDock.DocumentClosedEventArgs e)
+        {
+            Workspace.This.Close(e.Document.Content as PaneViewModel);
+        }
+
+        private void dockManager_DocumentClosing(object sender, Xceed.Wpf.AvalonDock.DocumentClosingEventArgs e)
+        {
+
+        }
+    }
+
+    public class DebugBindingConverter : IValueConverter
     {
 
         #region IValueConverter Members
