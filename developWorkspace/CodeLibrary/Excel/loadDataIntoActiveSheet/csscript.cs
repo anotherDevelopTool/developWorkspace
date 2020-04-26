@@ -13,7 +13,12 @@ public class Script
 {
     public static void Main(string[] args)
     {
-    	/*
+
+    	/*// demo for get data from active sheet
+		List<List<string>> rowDataList = DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet();
+		*/
+
+    	/*// demo for export data to active sheet
 		List<List<string>> headerList = new List<List<string>>{
 		    new List<string> { "h1","h2" }
 		};
@@ -40,7 +45,7 @@ public class Script
 		DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet(headerList, schemarList, rowList,rowList,rowList2,rowList2);
 		*/
 
-
+    	/*// demo for export data to active sheet
       	List<List<string>> rowList = new List<List<string>>{
             new List<string> { "h1","h2" },
             new List<string> { "saledate","sum","avg","max" },

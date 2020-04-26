@@ -2412,5 +2412,61 @@
                 }
             }
         }
+        public static List<List<string>> getDataFromActiveSheet()
+        {
+            dynamic excel = null;
+            List<List<string>> rowDataList = new List<List<string>>();
+            try
+            {
+                //2019/02/27
+                excel = Excel.GetLatestActiveExcelRef();
+                if (excel == null)
+                {
+                    DevelopWorkspace.Base.Services.ErrorMessage("対象のExcelのワークシートを選択して、再度実行してください");
+                    return rowDataList; 
+                }
+                var targetSheet = excel.ActiveWorkbook.ActiveSheet;
+                if (targetSheet.UsedRange.Rows.Count < 2)
+                {
+                    DevelopWorkspace.Base.Services.ErrorMessage("対象のExcelのワークシートを選択して、再度実行してください");
+                    return rowDataList;
+                }
+                object[,] value2_copy = targetSheet.Range(targetSheet.Cells(1, 1),
+                                            targetSheet.Cells(targetSheet.UsedRange.Rows.Count + 1,
+                                            targetSheet.UsedRange.Columns.Count + 1)).Value2;
+                for (int iRow = 1; iRow < value2_copy.GetLength(0); iRow++)
+                {
+                    List<string> rowData = new List<string>();
+                    for (int iCol = 1; iCol < value2_copy.GetLength(1); iCol++)
+                    {
+                        if (value2_copy[iRow, iCol] == null)
+                        {
+                            rowData.Add("");
+                        }
+                        else {
+                            rowData.Add(value2_copy[iRow, iCol].ToString());
+                        }
+
+                    }
+                    rowDataList.Add(rowData);
+                }
+                return rowDataList;
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                return rowDataList;
+            }
+            finally
+            {
+                if (excel != null)
+                {
+                    excel.ScreenUpdating = true;
+                    Marshal.ReleaseComObject(excel);
+                }
+            }
+        }
+
+
     }
 }

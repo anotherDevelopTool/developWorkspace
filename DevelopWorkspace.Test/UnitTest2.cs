@@ -17,6 +17,7 @@ namespace DevelopWorkspace.Test
         {
 
 
+            
 
             foreach (var filename in Directory.GetFiles(@"C:\wbc_sam\", "*.txt")) {
                 System.Diagnostics.Debug.WriteLine(filename);
