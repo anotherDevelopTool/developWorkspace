@@ -292,7 +292,7 @@ public class Script
                     List<List<string>> currenttable = new List<List<string>> { new List<string> { Path.GetFileName(filename).Split('.')[0] } };
                     var tests = DevelopWorkspace.Base.Utils.Files.ReadAllText(filename, Encoding.UTF8);
                     var csvStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(tests));
-                    var csvReader = new DevelopWorkspace.Base.Utils.CsvReader(new StreamReader(csvStream), ",");
+                    var csvReader = new DevelopWorkspace.Base.Utils.CsvReader(new StreamReader(csvStream), "|");
                     while (csvReader.Read())
                     {
                         List<string> linedata = new List<string>();
@@ -305,7 +305,7 @@ public class Script
                     alltables.Add(currenttable);
                 }
                 //表名所在行的高度，结构的高度，所有表的表名，结构，数据的列表的集合
-                DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet(1, 0, alltables);
+                DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet(1, 1, alltables);
             }
             catch (Exception ex)
             {
@@ -445,7 +445,7 @@ public class Script
 						AutoItX.Send("set term off   {ENTER}");
 						AutoItX.Send("set echo off   {ENTER}");
 						AutoItX.Send("set underline off   {ENTER}");
-						AutoItX.Send("set colsep '\",\"' {ENTER}");
+						AutoItX.Send("set colsep | {ENTER}");
 						AutoItX.Send("set linesize 32767   {ENTER}");
 						AutoItX.Send("set pages 10000   {ENTER}");
 						AutoItX.Send("set trimspool on   {ENTER}");
