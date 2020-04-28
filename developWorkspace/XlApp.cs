@@ -740,6 +740,8 @@
             string fullTableName = null;
             int iRow = 0, iCol = 0, iRewindRow = 0;
             dynamic excel = null;
+            //防止无限等待导致死锁
+            cmd.CommandTimeout = 30;
             try
             {
                 //2019/02/27
@@ -1427,7 +1429,7 @@
             }
             catch (Exception ex)
             {
-                DevelopWorkspace.Base.Services.ErrorMessage(ex.Message);
+                //DevelopWorkspace.Base.Services.ErrorMessage(ex.Message);
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
                 DevelopWorkspace.Base.Logger.WriteLine(string.Format("there are some problem at {0} row {1} column in Activesheet", iRow - iRewindRow, iCol), Base.Level.ERROR);
                 if (dbTran != null)
