@@ -121,10 +121,6 @@ public class Script
         public async void EventHandler2(object sender, RoutedEventArgs e)
         {
             try{
-                dynamic content = listView.SelectedItem;
-                string slectetedIndex = content.index;
-                await getMapping(slectetedIndex);
-				var elasticInfo = elasticInfoList.FirstOrDefault(current => current.index == slectetedIndex);    
 				
                 dynamic xlApp = DevelopWorkspace.Base.Excel.GetLatestActiveExcelRef();
                 xlApp.Visible = true;
@@ -132,6 +128,14 @@ public class Script
     
                 var targetSheet = xlApp.ActiveWorkbook.ActiveSheet;
                 object[,] value2_copy = targetSheet.Range(targetSheet.Cells(1, 1), targetSheet.Cells(targetSheet.UsedRange.Rows.Count, targetSheet.UsedRange.Columns.Count)).Value2;
+
+                string slectetedIndex = value2_copy[1,1].ToString();
+                await getMapping(slectetedIndex);
+				var elasticInfo = elasticInfoList.FirstOrDefault(current => current.index == slectetedIndex);    
+				if(elasticInfo == null ){
+					DevelopWorkspace.Base.Logger.WriteLine("Please Conform whether data of activesheet are well formatted",DevelopWorkspace.Base.Level.ERROR);
+					return;
+				}
                 List<string> headerList = new List<string>();
                 //header
                 for (int iidx = 1; iidx < value2_copy.GetLength(1) + 1; iidx++) {
