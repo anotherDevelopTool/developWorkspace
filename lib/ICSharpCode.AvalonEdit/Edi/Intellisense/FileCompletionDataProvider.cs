@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.Intellisense
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.Intellisense
 {
   using System;
   using System.Collections.Generic;
@@ -7,7 +7,7 @@
   using System.Windows;
   using System.Xml.Serialization;
 
-  using ICSharpCode.AvalonEdit.CodeCompletion;
+  using ICSharpCodeX.AvalonEdit.CodeCompletion;
 
   /// <summary>
   /// File based text completion class.

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) AlphaSierraPapa for the SharpDevelop Team (for details please see \doc\copyright.txt)
 // This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
 
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 using System;
 
-namespace ICSharpCode.AvalonEdit
+namespace ICSharpCodeX.AvalonEdit
 {
 	/// <summary>
 	/// Contains weak event managers for <see cref="ITextEditorComponent"/>.

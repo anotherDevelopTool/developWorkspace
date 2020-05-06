@@ -8,9 +8,9 @@ using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit
+namespace ICSharpCodeX.AvalonEdit
 {
 	/// <summary>
 	/// Exposes <see cref="TextEditor"/> to automation.

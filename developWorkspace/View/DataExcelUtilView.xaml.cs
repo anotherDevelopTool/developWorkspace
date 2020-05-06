@@ -1,5 +1,5 @@
 ﻿using Heidesoft.Components.Controls;
-using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCodeX.AvalonEdit.Highlighting;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

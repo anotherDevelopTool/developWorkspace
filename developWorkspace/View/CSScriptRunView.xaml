@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:avalonEdit="http://icsharpcodex.net/sharpdevelop/avalonedit"
+             xmlns:editor="clr-namespace:RoslynPad.Editor;assembly=RoslynPad.Editor.Windows"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:heid="http://schemas.heidesoft.com/components"
              xmlns:local="clr-namespace:DevelopWorkspace.Main.View"
@@ -30,6 +31,7 @@
 
                 <Fluent:Button  Click="Button_Click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.execute.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.execute}" Icon="Images\run.png" LargeIcon="Images\run.png"/>
                 <Fluent:Button  Click="Save_click"  ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.save.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.save}" Icon="Images\save.png" LargeIcon="Images\save.png"/>
+                <Fluent:Button  Click="Click_formatter" ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.formatter.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.formatter}" Icon="Images\formatter.png" LargeIcon="Images\formatter.png"/>
             </Fluent:RibbonGroupBox>
             <Fluent:RibbonGroupBox Header="{DynamicResource  script.lang.tools.ribbon.groupbox.edit}">
                 <Fluent:Button  Click="Button_Click_2" x:Name="btnEditor" ToolTip="{DynamicResource  script.lang.tools.ribbon.groupbox.edit.hint}"  Header="{DynamicResource  script.lang.tools.ribbon.groupbox.edit}" Icon="Images\editor.png" LargeIcon="Images\editor.png"/>
@@ -178,16 +180,24 @@
 
                     </TabControl.Resources>
                     <TabItem  Header="Script">
-                <avalonEdit:EdiTextEditor Name="ScriptContent" 
+                <Grid>
+                <editor:RoslynCodeEditor x:Name="ScriptContent" 
                                IsReadOnly="False" 
                                ShowLineNumbers="True"
                                SyntaxHighlighting="C#"
+                               Loaded="RoslynCodeEditor_Loaded"
                                HorizontalScrollBarVisibility="Auto" 
                                VerticalScrollBarVisibility="Auto" BorderThickness="0" FontFamily="Consolas" >
+                        <editor:RoslynCodeEditor.Resources>
+                            <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
 
-                    </avalonEdit:EdiTextEditor>
+                            </Style>
 
-      </TabItem>
+                        </editor:RoslynCodeEditor.Resources>
+                    </editor:RoslynCodeEditor>
+                </Grid>
+
+            </TabItem>
                           <TabItem Header="Template">
                 <avalonEdit:EdiTextEditor Name="Cell_1_1" 
                                Grid.Row="1"
@@ -200,7 +210,7 @@
                     </avalonEdit:EdiTextEditor>
                           </TabItem>
                          <TabItem  Header="Template">
-                            <avalonEdit:EdiTextEditor Name="Cell_1_2" 
+                <avalonEdit:EdiTextEditor Name="Cell_1_2" 
                                Grid.Row="1"
                                IsReadOnly="False" 
                                ShowLineNumbers="True"

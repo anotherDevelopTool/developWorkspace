@@ -3,9 +3,9 @@
 
 using System;
 using System.Windows.Media;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Snippets
+namespace ICSharpCodeX.AvalonEdit.Snippets
 {
 	/// <summary>
 	/// Represents an active element that allows the snippet to stay interactive after insertion.

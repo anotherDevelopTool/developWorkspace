@@ -5,7 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// A collection that cannot contain null values.

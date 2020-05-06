@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	sealed class TextViewCachedElements : IDisposable
 	{

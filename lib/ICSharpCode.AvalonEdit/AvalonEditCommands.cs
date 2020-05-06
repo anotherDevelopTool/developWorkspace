@@ -4,7 +4,7 @@
 using System;
 using System.Windows.Input;
 
-namespace ICSharpCode.AvalonEdit
+namespace ICSharpCodeX.AvalonEdit
 {
 	/// <summary>
 	/// Custom commands for AvalonEdit.

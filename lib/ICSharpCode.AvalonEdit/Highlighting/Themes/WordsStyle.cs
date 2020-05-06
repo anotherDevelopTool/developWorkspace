@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Highlighting.Themes
+﻿namespace ICSharpCodeX.AvalonEdit.Highlighting.Themes
 {
   using System.Windows;
   using System.Windows.Media;

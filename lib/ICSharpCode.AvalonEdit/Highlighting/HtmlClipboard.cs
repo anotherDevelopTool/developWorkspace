@@ -8,9 +8,9 @@ using System.IO;
 using System.Text;
 using System.Windows;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// Allows copying HTML text to the clipboard.

@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Folding
+namespace ICSharpCodeX.AvalonEdit.Folding
 {
 	/// <summary>
 	/// Holds information about the start of a fold in an xml string.

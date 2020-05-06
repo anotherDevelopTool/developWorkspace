@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.BracketRenderer
+﻿namespace ICSharpCodeX.AvalonEdit.BracketRenderer
 {
   /// <summary>
   /// Class is used to highlight brackets within the text that is being edit.
@@ -19,7 +19,7 @@
     /// <param name="document"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    public BracketSearchResult SearchBracket(ICSharpCode.AvalonEdit.Document.TextDocument document, int offset)
+    public BracketSearchResult SearchBracket(ICSharpCodeX.AvalonEdit.Document.TextDocument document, int offset)
     {
       return null;
     }

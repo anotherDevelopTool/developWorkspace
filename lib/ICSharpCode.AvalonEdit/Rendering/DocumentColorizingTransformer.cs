@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	/// <summary>
 	/// Base class for <see cref="IVisualLineTransformer"/> that helps

@@ -3,11 +3,11 @@
 
 using System;
 using System.ComponentModel;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit
+namespace ICSharpCodeX.AvalonEdit
 {
 	/// <summary>
 	/// Represents a text editor control (<see cref="TextEditor"/>, <see cref="TextArea"/>

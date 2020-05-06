@@ -1,9 +1,9 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi
+﻿namespace ICSharpCodeX.AvalonEdit.Edi
 {
   using System.Windows.Input;
 
-  using ICSharpCode.AvalonEdit.CodeCompletion;
-  using ICSharpCode.AvalonEdit.Edi.Intellisense;
+  using ICSharpCodeX.AvalonEdit.CodeCompletion;
+  using ICSharpCodeX.AvalonEdit.Edi.Intellisense;
 
   /// <summary>
   /// This part of the AvalonEdit externsion contains methods that

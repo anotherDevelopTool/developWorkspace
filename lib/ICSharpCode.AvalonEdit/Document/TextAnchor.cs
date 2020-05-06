@@ -2,9 +2,9 @@
 // This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
 
 using System;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Document
+namespace ICSharpCodeX.AvalonEdit.Document
 {
 	/// <summary>
 	/// The TextAnchor class references an offset (a position between two characters).

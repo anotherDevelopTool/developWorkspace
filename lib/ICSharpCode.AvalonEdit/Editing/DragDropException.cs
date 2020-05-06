@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	/// <summary>
 	/// Wraps exceptions that occur during drag'n'drop.

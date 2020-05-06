@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	static class Resources
 	{

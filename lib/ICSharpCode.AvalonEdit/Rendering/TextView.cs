@@ -1,7 +1,7 @@
 ﻿// Copyright (c) AlphaSierraPapa for the SharpDevelop Team (for details please see \doc\copyright.txt)
 // This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
   using System;
   using System.Collections.Generic;
@@ -19,8 +19,8 @@ namespace ICSharpCode.AvalonEdit.Rendering
   using System.Windows.Media.TextFormatting;
   using System.Windows.Threading;
 
-  using ICSharpCode.AvalonEdit.Document;
-  using ICSharpCode.AvalonEdit.Utils;
+  using ICSharpCodeX.AvalonEdit.Document;
+  using ICSharpCodeX.AvalonEdit.Utils;
   
   /// <summary>
 	/// A virtualizing panel producing+showing <see cref="VisualLine"/>s for a <see cref="TextDocument"/>.

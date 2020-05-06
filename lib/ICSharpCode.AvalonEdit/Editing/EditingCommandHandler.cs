@@ -12,12 +12,12 @@ using System.Text;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Search;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Highlighting;
+using ICSharpCodeX.AvalonEdit.Search;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	/// <summary>
 	/// We re-use the CommandBinding and InputBinding instances between multiple text areas,

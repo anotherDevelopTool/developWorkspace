@@ -1,12 +1,12 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi
+﻿namespace ICSharpCodeX.AvalonEdit.Edi
 {
   using System;
   using System.Collections.Generic;
   using System.Linq;
   using System.Text;
-  using ICSharpCode.AvalonEdit.Folding;
-  using ICSharpCode.AvalonEdit.Highlighting;
-  using ICSharpCode.AvalonEdit.Edi.Folding;
+  using ICSharpCodeX.AvalonEdit.Folding;
+  using ICSharpCodeX.AvalonEdit.Highlighting;
+  using ICSharpCodeX.AvalonEdit.Edi.Folding;
   using System.Windows.Threading;
   using System.Windows.Input;
 
@@ -56,24 +56,24 @@
           case "XML":
           case "HTML":
             mFoldingStrategy = new XmlFoldingStrategy() { ShowAttributesWhenFolded = true };
-            this.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.DefaultIndentationStrategy();
+            this.TextArea.IndentationStrategy = new ICSharpCodeX.AvalonEdit.Indentation.DefaultIndentationStrategy();
             break;
           case "C#":
-            this.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(this.Options);
+            this.TextArea.IndentationStrategy = new ICSharpCodeX.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(this.Options);
             mFoldingStrategy = new CSharpBraceFoldingStrategy();
             break;
           case "C++":
           case "PHP":
           case "Java":
-            this.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(this.Options);
+            this.TextArea.IndentationStrategy = new ICSharpCodeX.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(this.Options);
             mFoldingStrategy = new CSharpBraceFoldingStrategy();
             break;
           case "VBNET":
-            this.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(this.Options);
+            this.TextArea.IndentationStrategy = new ICSharpCodeX.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(this.Options);
             mFoldingStrategy = new VBNetFoldingStrategy();
             break;
           default:
-            this.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.DefaultIndentationStrategy();
+            this.TextArea.IndentationStrategy = new ICSharpCodeX.AvalonEdit.Indentation.DefaultIndentationStrategy();
             mFoldingStrategy = null;
             break;
         }

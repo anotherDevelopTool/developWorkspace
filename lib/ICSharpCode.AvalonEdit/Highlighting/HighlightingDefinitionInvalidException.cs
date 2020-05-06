@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// Indicates that the highlighting definition that was tried to load was invalid.

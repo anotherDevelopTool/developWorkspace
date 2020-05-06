@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Utils;
 using System.Windows.Input;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	sealed class EmptySelection : Selection
 	{

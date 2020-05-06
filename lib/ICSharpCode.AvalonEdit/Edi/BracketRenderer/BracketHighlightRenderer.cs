@@ -1,10 +1,10 @@
-﻿namespace ICSharpCode.AvalonEdit.BracketRenderer
+﻿namespace ICSharpCodeX.AvalonEdit.BracketRenderer
 {
   using System;
   using System.Collections.Generic;
   using System.Windows.Media;
-  using ICSharpCode.AvalonEdit.Document;
-  using ICSharpCode.AvalonEdit.Rendering;
+  using ICSharpCodeX.AvalonEdit.Document;
+  using ICSharpCodeX.AvalonEdit.Rendering;
 
   /// <summary>
   /// Highlight opening and closing brackets when when moving the carret in the text

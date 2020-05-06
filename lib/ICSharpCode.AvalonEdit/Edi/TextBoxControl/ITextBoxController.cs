@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.TextBoxControl
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.TextBoxControl
 {
   /// <summary>
   /// Define a deligate method that is called for processing the SelectAll event.

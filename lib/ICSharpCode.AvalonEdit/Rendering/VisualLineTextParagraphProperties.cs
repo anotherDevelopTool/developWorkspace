@@ -5,7 +5,7 @@ using System;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	sealed class VisualLineTextParagraphProperties : TextParagraphProperties
 	{

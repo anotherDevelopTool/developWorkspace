@@ -2,9 +2,9 @@
 // This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
 
 using System;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Indentation.CSharp
+namespace ICSharpCodeX.AvalonEdit.Indentation.CSharp
 {
 	/// <summary>
 	/// Smart indentation for C#.

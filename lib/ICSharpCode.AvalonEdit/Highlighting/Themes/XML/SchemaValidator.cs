@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Highlighting.Themes.XML
+﻿namespace ICSharpCodeX.AvalonEdit.Highlighting.Themes.XML
 {
   using System.IO;
   using System.Xml;

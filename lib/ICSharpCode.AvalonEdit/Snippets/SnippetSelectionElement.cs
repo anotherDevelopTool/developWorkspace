@@ -4,9 +4,9 @@
 using System;
 using System.Text;
 using System.Windows.Input;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Snippets
+namespace ICSharpCodeX.AvalonEdit.Snippets
 {
 	/// <summary>
 	/// Inserts the previously selected text at the selection marker.

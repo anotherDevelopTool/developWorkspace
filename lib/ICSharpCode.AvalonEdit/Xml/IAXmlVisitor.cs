@@ -4,7 +4,7 @@
 using System;
 using System.Text;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary>
 	/// Visitor for the XML tree

@@ -30,7 +30,7 @@ using System.Diagnostics;
 using DevelopWorkspace.Base;
 using System.Text.RegularExpressions;
 using DevelopWorkspace.Base.Utils;
-using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCodeX.AvalonEdit.Highlighting;
 using static DevelopWorkspace.Main.AppConfig;
 using Fluent;
 using DevelopWorkspace.Base.Model;

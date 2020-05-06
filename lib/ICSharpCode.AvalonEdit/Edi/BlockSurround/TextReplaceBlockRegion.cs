@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.BlockSurround
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.BlockSurround
 {
   using System;
   using System.Collections.Generic;

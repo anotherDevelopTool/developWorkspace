@@ -16,12 +16,12 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-namespace ICSharpCode.AvalonEdit.Edi.Folding
+namespace ICSharpCodeX.AvalonEdit.Edi.Folding
 {
   using System.Collections.Generic;
   using System.Text.RegularExpressions;
-  using ICSharpCode.AvalonEdit.Document;
-  using ICSharpCode.AvalonEdit.Folding;
+  using ICSharpCodeX.AvalonEdit.Document;
+  using ICSharpCodeX.AvalonEdit.Folding;
 
   /// <summary>
   /// Allows producing foldings from a document based on braces.

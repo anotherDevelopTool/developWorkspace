@@ -1,11 +1,11 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.BlockSurround
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.BlockSurround
 {
   using System;
   using System.Collections.Generic;
   using System.Linq;
   using System.Text;
-  using ICSharpCode.AvalonEdit.Document;
-  using ICSharpCode.AvalonEdit.Editing;
+  using ICSharpCodeX.AvalonEdit.Document;
+  using ICSharpCodeX.AvalonEdit.Editing;
 
   /// <summary>
   /// Expand selection with intro and outro text elements

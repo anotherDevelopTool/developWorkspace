@@ -1,7 +1,7 @@
 ﻿// Copyright (c) AlphaSierraPapa for the SharpDevelop Team (for details please see \doc\copyright.txt)
 // This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
   using System;
   using System.Collections.Generic;
@@ -10,8 +10,8 @@ namespace ICSharpCode.AvalonEdit.Highlighting
   using System.IO;
   using System.Xml;
 
-  using ICSharpCode.AvalonEdit.Highlighting.Themes;
-  using ICSharpCode.AvalonEdit.Utils;
+  using ICSharpCodeX.AvalonEdit.Highlighting.Themes;
+  using ICSharpCodeX.AvalonEdit.Utils;
   using System.Windows.Media;
 
   /// <summary>

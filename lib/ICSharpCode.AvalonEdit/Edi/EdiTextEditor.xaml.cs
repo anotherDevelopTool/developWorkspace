@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi
+﻿namespace ICSharpCodeX.AvalonEdit.Edi
 {
   using System;
   using System.Collections.Generic;
@@ -8,11 +8,11 @@
   using System.Windows.Input;
   using System.Windows.Media;
   using System.Windows.Threading;
-  using ICSharpCode.AvalonEdit.BracketRenderer;
-  using ICSharpCode.AvalonEdit.Edi.BlockSurround;
-  using ICSharpCode.AvalonEdit.Editing;
-  using ICSharpCode.AvalonEdit.Rendering;
-  using ICSharpCode.AvalonEdit.Utils;
+  using ICSharpCodeX.AvalonEdit.BracketRenderer;
+  using ICSharpCodeX.AvalonEdit.Edi.BlockSurround;
+  using ICSharpCodeX.AvalonEdit.Editing;
+  using ICSharpCodeX.AvalonEdit.Rendering;
+  using ICSharpCodeX.AvalonEdit.Utils;
 
   /// <summary>
   /// </summary>
@@ -148,7 +148,7 @@
 
           // See OnMouseCaretBoxSelection in Editing\CaretNavigationCommandHandler.cs
           // Convert normal selection to rectangle selection
-          this.TextArea.Selection = new ICSharpCode.AvalonEdit.Editing.RectangleSelection(this.TextArea,
+          this.TextArea.Selection = new ICSharpCodeX.AvalonEdit.Editing.RectangleSelection(this.TextArea,
                                                                                           this.TextArea.Selection.StartPosition,
                                                                                           this.TextArea.Selection.EndPosition);
         }
