@@ -1,0 +1,7 @@
+public class BuhinSearchCondition extends PagingCondition{
+
+
+public void setSelcolumn(String selcolumn) {
+this.selcolumn = selcolumn;
+}
+}

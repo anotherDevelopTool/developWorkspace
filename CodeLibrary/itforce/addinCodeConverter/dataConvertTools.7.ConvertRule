@@ -1,0 +1,60 @@
+UPDATE   
+  $root.TableInfo.TableName
+SET  
+#set( $comma = " ")
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.IsKey != "*")
+#if($ColumnInfo.ColumnName == "UPD_DT")
+  $comma$ColumnInfo.ColumnName = sysdate
+#elseif($ColumnInfo.ColumnName == "DEL_FLG")
+  $comma$ColumnInfo.ColumnName = 0
+#else
+#if($ColumnInfo.DataTypeName.equals("int"))
+#set($para = "100")
+#elseif($ColumnInfo.DataTypeName.equals("tinyint"))
+#set($para = "100")
+#elseif($ColumnInfo.DataTypeName.equals("number"))
+#set($para = "100")
+#elseif($ColumnInfo.DataTypeName.equals("datetime"))
+#set($para = "'2020/12/12 11:11:11.000000'")
+#elseif($ColumnInfo.DataTypeName.equals("timestamp"))
+#set($para = "'2020/12/12 11:11:11.000000'")
+#elseif($ColumnInfo.DataTypeName.equals("date"))
+#set($para = "'2020/12/12 11:11:11'")
+#else
+#set($para = "'abcdef'")
+#end
+  $comma$ColumnInfo.ColumnName = /*${root.TableInfo.ClassName.ToLower()}.$ColumnInfo.CameralVariable*/ $para
+#end  
+#end
+#set( $comma = ",")   
+#end
+WHERE
+#set( $idx = 1)
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+##VelocityDictionary use...
+#if($ColumnInfo.getValue(${root.TableInfo.CurrentSqlKey}) == "*")
+#if($ColumnInfo.DataTypeName.equals("int"))
+#set($para = "100")
+#elseif($ColumnInfo.DataTypeName.equals("tinyint"))
+#set($para = "100")
+#elseif($ColumnInfo.DataTypeName.equals("number"))
+#set($para = "100")
+#elseif($ColumnInfo.DataTypeName.equals("datetime"))
+#set($para = "'2020/12/12 11:11:11.000000'")
+#elseif($ColumnInfo.DataTypeName.equals("timestamp"))
+#set($para = "'2020/12/12 11:11:11.000000'")
+#elseif($ColumnInfo.DataTypeName.equals("date"))
+#set($para = "'2020/12/12 11:11:11'")
+#else
+#set($para = "'abcdef'")
+#end
+#if($idx == 1 )
+  $ColumnInfo.ColumnName = /*${root.TableInfo.ClassName.ToLower()}.$ColumnInfo.CameralVariable*/ $para
+#else
+  AND
+  $ColumnInfo.ColumnName = /*${root.TableInfo.ClassName.ToLower()}.$ColumnInfo.CameralVariable*/ $para
+#end
+#set( $idx = $idx + 1)
+#end
+#end

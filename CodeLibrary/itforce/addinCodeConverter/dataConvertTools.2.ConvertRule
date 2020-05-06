@@ -1,0 +1,71 @@
+﻿#set($keynum = 0)
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.IsKey.equals("*"))
+  #set($keynum = $keynum + 1)
+#end
+#end
+#if($root.TableInfo.DataSource.EndsWith("core"))
+	#set($jpa = "core")
+#elseif($root.TableInfo.DataSource.EndsWith("front"))
+	#set($jpa = "front")
+#elseif($root.TableInfo.DataSource.EndsWith("ics"))
+	#set($jpa = "ics")
+#else
+	#set($jpa = "core")
+#end
+package ${root.Setting.RootPackage}.db.${jpa}.entity;
+
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * ${root.TableInfo.Remark}一件に該当するエンティティクラス
+ *
+ */
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Data
+#if($keynum > 1)
+@IdClass(${root.TableInfo.ClassName}EntityId.class)
+#end
+public class ${root.TableInfo.ClassName}Entity { 
+#foreach ( $ColumnInfo in $root.TableInfo.Columns )
+#if($ColumnInfo.DataTypeName.equals("int"))
+	#set($type = "Integer")
+#elseif($ColumnInfo.DataTypeName.equals("tinyint"))
+	#set($type = "Integer")
+#elseif($ColumnInfo.DataTypeName.equals("number"))
+	#set($type = "Integer")
+#elseif($ColumnInfo.DataTypeName.equals("datetime"))
+	#set($type = "Timestamp")
+#elseif($ColumnInfo.DataTypeName.equals("timestamp"))
+	#set($type = "Timestamp")
+#elseif($ColumnInfo.DataTypeName.equals("date"))
+	#set($type = "Timestamp")
+#else
+	#set($type = "String")
+
+#end
+#if($ColumnInfo.IsKey.equals("-"))
+
+#else
+  // $ColumnInfo.Remark
+#if($ColumnInfo.IsKey.equals("*"))
+  @Id
+#end
+  @Column(name = "$ColumnInfo.ColumnName") 
+  private $type $ColumnInfo.CameralVariable;
+#end
+#end
+
+}
+

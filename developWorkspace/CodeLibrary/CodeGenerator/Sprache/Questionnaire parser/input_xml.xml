@@ -1,8 +1,0 @@
-first "The First Step" [
-value		"First Value"
-]
-
-second "The Second Step" [
-#another	"Second Value"
-?more		"Yet More"
-]

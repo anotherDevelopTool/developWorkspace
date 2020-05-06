@@ -351,10 +351,18 @@ namespace DevelopWorkspace.Main
             Base.Services.BusyWorkService = new Base.Services.BusyWork(doBusyWork);
             Base.Services.BusyWorkIndicatorService = (string indicatorMessage) =>
             {
-                busy.Dispatcher.BeginInvoke((Action)delegate ()
+                var dispatcher = Application.Current.Dispatcher;
+                if (dispatcher.Thread != Thread.CurrentThread)
                 {
+                    busy.Dispatcher.BeginInvoke((Action)delegate ()
+                    {
+                        busy.SetIndicator(indicatorMessage);
+                    });
+                }
+                else {
                     busy.SetIndicator(indicatorMessage);
-                });
+                }
+
 
             };
 

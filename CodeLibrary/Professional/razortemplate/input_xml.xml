@@ -1,0 +1,71 @@
+@using RazorEngine
+@using Java.Code
+@using System
+@using System.Linq
+@@inherits RazorEngine.Templating.TemplateBase<JavaClazz>
+
+@layout layout
+
+<!-- Single statement block -->
+@{ var myMessage = "Hello World"; }
+<!-- 在控制语句范围外可以不使用html tag括起来  -->
+ffffffffffffffffffffffffffffffffffffffffffffffffff@myMessage
+
+<!-- Inline expression or variable -->
+<p>The value of myMessage is: @myMessage</p>
+
+<!-- Multi-statement block -->
+@{
+var greeting = "Welcome to our site!";
+var weekDay = DateTime.Now.DayOfWeek;
+var greetingMessage = greeting + " Here in Huston it is: " + weekDay;
+}
+
+<p>The greeting is: @greetingMessage</p>
+@Model.dict.Count()
+
+<!-- 外部传进来的变量都被razor动态化了，导致不能象外部一样使用变量，需要cast后才可以
+var result1 = service.Run("template1",null,new { Name = "World", dict = dic.ToExpando() ,god = list});  -->
+
+@{
+  List<string> list = new List<string>(){"1","2"};
+  var num = list.Where( new Func<string, bool>(hilo)).Count();
+  var select = from paire in list where paire == "name" select paire;
+  var godlist =  (IEnumerable<string>)Model.god;
+  var select2 = from paire in godlist where paire == "name" select paire;
+  
+  var keyColumns = (Model.dict.columns as IEnumerable<dynamic>).Where(item => item.isKey.ToString().Equals("*"));
+}
+@for(var i = 10; i < 12; i++)
+{
+<p>Line @i</p>
+}
+<!-- 函数定义可以用作共通处理  -->
+@{
+  var flg = hilao("dd");
+}
+@flg
+
+@functions {
+  public static bool hilo(string item){
+    return true;
+  }
+}
+<!-- 在控制语句范围内需要将自由文字使用@@:逐行追加或者用text tag括起来  -->
+
+@foreach (dynamic column in keyColumns)
+{
+  @:@column.isKey
+  @:@column.ColumnName 
+  <text>
+  this is a primary key:@column.isKey
+  </text>
+}
+
+@foreach (dynamic column in keyColumns)
+{
+  @column.isKey
+  @:this is columnname @column.ColumnName 
+
+}
+

@@ -38,7 +38,7 @@ namespace DevelopWorkspace.Base
         /// <summary>
         /// Maximum number of list or IEnumerable items to display
         /// </summary>
-        public int MaxItems = 50;
+        public int MaxItems = 100;
 
         /// <summary>
         /// true = display private members of the class/struct
@@ -450,9 +450,10 @@ namespace DevelopWorkspace.Base
                 }
                 _usedMap[o] = ++_counter;
             }
-            if (t.IsArray && ((Array)o).Rank == 1)
-            {
-                Array arr;
+            //if (t.IsArray && ((Array)o).Rank == 1)
+            if (t.IsArray)
+                {
+                    Array arr;
                 if (t.IsArray)
                     arr = (o as Array);
                 else
@@ -592,9 +593,38 @@ namespace DevelopWorkspace.Base
                 _out.Append(" ]");
                 return;
             }
-            _out.Append(" array[" + arr.Length + "] ");
+            string holderstring = "";
+            for (int i = 0; i < arr.Rank; i++) {
+                holderstring += arr.GetLength(i);
+                if (i < arr.Rank - 1) holderstring += ",";
+            }
+            _out.Append(" array[" + holderstring + "] ");
             writeBrace(arr);
-            processEnumerables(arr, nLevel);
+            //for excel usage 
+            if (arr.Rank == 2)
+            {
+                object[,] castarray = (object[,])arr;
+                for (int idx = 0; idx < arr.GetLength(0); idx++)
+                {
+                    for (int jdx = 0; jdx < arr.GetLength(1); jdx++)
+                    {
+                        Type tinside = ((object[,])arr)[idx,jdx] == null ? typeof(object) : ((object[,])arr)[idx, jdx].GetType();
+                        process2("[" + idx + "," + jdx + "]", tinside, ((object[,])arr)[idx, jdx], nLevel + 1);
+                        _out.AppendLine();
+                        if (jdx + 1 > _settings.MaxItems)
+                        {
+                            _out.AppendLine("...");
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                processEnumerables(arr, nLevel);
+            }
+
+
         }
 
         #endregion

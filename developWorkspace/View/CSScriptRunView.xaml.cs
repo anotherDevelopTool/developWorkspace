@@ -43,6 +43,8 @@ using RoslynPad.Roslyn;
 using System.Reflection;
 using Script = DevelopWorkspace.Base.Utils.Script;
 using System.Runtime.CompilerServices;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -64,6 +66,8 @@ namespace DevelopWorkspace.Main.View
             {
                 //CSScript.GlobalSettings.SearchDirs = App.searchDirs.Aggregate((total, next) => total + ";" + next);
                 StartupSetting startup = AppDomain.CurrentDomain.GetData("StartupSetting") as StartupSetting;
+                CSScript.GlobalSettings.UseAlternativeCompiler = System.IO.Path.Combine(startup.homeDir, "CSSRoslynProvider.dll");
+                CSScript.GlobalSettings.InMemoryAssembly = false;
                 CSScript.GlobalSettings.SearchDirs = startup.searchDirs.Aggregate((total, next) => total + ";" + next);
                 foreach (var dir in startup.searchDirs)
                 {
@@ -112,7 +116,7 @@ namespace DevelopWorkspace.Main.View
                 InitializeComponent();
 
                 ScriptContent.PreviewMouseWheel += EditorOnPreviewMouseWheel;
-
+                //ScriptContent.Document.TextChanged += (o, e) => OnTextChanged();
                 //ribbon工具条注意resource定义在usercontrol内这样click等事件直接可以和view代码绑定
                 Fluent.Ribbon ribbon = Base.Utils.WPF.FindChild<Fluent.Ribbon>(Application.Current.MainWindow, "ribbon");
                 //之前的active内容关联的tab需要隐藏
@@ -183,6 +187,7 @@ namespace DevelopWorkspace.Main.View
                     (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.EnableRaisingEvents = true;
                 }
 
+                CSScript.GlobalSettings.UseAlternativeCompiler = System.IO.Path.Combine(StartupSetting.instance.homeDir, "CSSRoslynProvider.dll");
 
 
                 ScriptContent.Text = @"using System;
@@ -223,7 +228,12 @@ public class Script
                     singleAppDomain.SetData("StartupSetting", AppDomain.CurrentDomain.GetData("StartupSetting"));
                     singleAppDomain.AssemblyResolve += new ResolveEventHandler(App.CurrentDomain_AssemblyResolve);
                 }
+
+                //注意CustomRoslynHost.instance()方法里的await需要ConfigureAwait(false);否则会造成死锁...
+                host = roslynTask.GetResult();
+
             }));
+
         }
         public bool doClearance(string bookName)
         {
@@ -857,8 +867,6 @@ public class Script
 
         private void RoslynCodeEditor_Loaded(object sender, RoutedEventArgs e)
         {
-            //注意CustomRoslynHost.instance()方法里的await需要ConfigureAwait(false);否则会造成死锁...
-            host = roslynTask.GetResult();
             documentid = ScriptContent.Initialize(host, new ClassificationHighlightColors(), Directory.GetCurrentDirectory(), String.Empty);
 
         }
@@ -872,6 +880,20 @@ public class Script
         private void Click_formatter(object sender, RoutedEventArgs e)
         {
             FormatDocument();
+        }
+        //实验代码...代码输入的using...参照动态反映 暂时放弃
+        public void OnTextChanged()
+        {
+            if (documentid == null || host == null) return;
+                
+            var document = host.GetDocument(documentid);
+            if (document == null)
+            {
+                return;
+            }
+            var project = document.Project.AddMetadataReference(MetadataReference.CreateFromFile("C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2\\System.Net.Http.dll"));
+            document = project.GetDocument(documentid);
+            host.UpdateDocument(document);
         }
     }
 }

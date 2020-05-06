@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "確認ダイアログボックスサンプル",
+  "Description": "確認ダイアログボックスサンプル",
+  "Path": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\ConfirmDialog",
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\workspace\\developWorkspace\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\ConfirmDialog\\ScriptConfig.json"
+}

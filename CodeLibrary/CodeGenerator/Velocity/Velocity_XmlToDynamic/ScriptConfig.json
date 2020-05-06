@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "velocity—XML通用对象做成",
+  "Description": "velocity—XML通用对象做成",
+  "Path": "C:\\Users\\xujingjiang\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Velocity\\Velocity_XmlToDynamic",
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\Users\\xujingjiang\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\Velocity\\Velocity_XmlToDynamic\\ScriptConfig.json"
+}

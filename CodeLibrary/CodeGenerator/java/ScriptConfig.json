@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 1,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "java",
+  "Description": "java",
+  "Path": "E:\\work\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\java",
+  "typeName": "ScriptConfig",
+  "jsonfile": "E:\\work\\developWorkspace\\developWorkspace\\bin\\Debug\\CodeLibrary\\CodeGenerator\\java\\ScriptConfig.json"
+}

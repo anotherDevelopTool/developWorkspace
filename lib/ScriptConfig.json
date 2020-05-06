@@ -4,11 +4,8 @@
     "ApiKey": "",
     "UseCache": false,
     "RefAssemblies": [
-      "WindowsBase",
-      "PresentationCore",
-      "PresentationFramework",
-      "System.Xaml",
-      "PresentationFramework"
+      "AutoItX\\AutoItX3.Assembly.dll",
+      "Microsoft.Office.Interop.Excel.dll"
     ]
   },
   "AppDomain": 0,
@@ -19,5 +16,5 @@
   "Description": null,
   "Path": null,
   "typeName": "ScriptConfig",
-  "jsonfile": "C:\\xujingjiang\\tools\\developWorkspace1.4\\ScriptConfig.json"
+  "jsonfile": "C:\\xujingjiang\\tools\\developWorkspace1.5\\ScriptConfig.json"
 }

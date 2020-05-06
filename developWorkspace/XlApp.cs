@@ -2298,12 +2298,23 @@
                 int schemaHeight = 0;
                 int rowdataHeight = 0;
 
-                for (int i = -1; i < otherTables.Length ; i++) {
+                for (int i = -1; i < otherTables.Length; i++)
+                {
                     if (i == -1)
                     {
                         //Table属性定义行区域颜色定制
                         if (headerList != null && headerList.Count() > 0 && headerList[0].Count() > 0)
                         {
+                            for (int idx = headerList[0].Count-1; idx > 0; idx--) {
+                                if (string.IsNullOrWhiteSpace(headerList[0][idx]))
+                                {
+                                    foreach (var headerlist in headerList) headerlist.RemoveAt(idx);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
                             headerHeight = headerList.Count();
                             selected = targetSheet.Range(targetSheet.Cells(startRow, startCol),
                                 targetSheet.Cells(startRow + headerList.Count() - 1, startCol + headerList[0].Count() - 1));
@@ -2396,11 +2407,11 @@
                     }
                     startRow += 2;
                 }
+               
                 excel.ScreenUpdating = true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.Print(ex.Message);
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
             }
             finally

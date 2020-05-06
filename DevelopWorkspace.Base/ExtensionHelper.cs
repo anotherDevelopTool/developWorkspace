@@ -16,6 +16,13 @@ namespace DevelopWorkspace.Base
     //可以通过这个方式缩短代码量
     public static  class ExtensionHelper
     {
+        /// <summary>
+        /// 
+        /// @"{javac} -cp {cp} {g4}".FormatWith(setting)
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
         public static string FormatWith(this string format, object source)
         {
             return FormatWith(format, null, source);
@@ -134,6 +141,34 @@ namespace DevelopWorkspace.Base
             return expando;
         }
 
+        public static void Dump<T>(this T o)
+        {
+            Ilogger Inner = AppDomain.CurrentDomain.GetData("logger") as Ilogger;
+            if (Inner == null) return;
+            if (Inner.level == Level.DEBUG || Inner.level == Level.TRACE)
+            {
+                Inner.WriteLine(DevelopWorkspace.Base.Dump.ToDump(o), Level.DEBUG);
+            }
+            return;
+        }
+
+        public static T[,] To2dArray<T>(this List<List<T>> list) {
+            return DevelopWorkspace.Base.Utils.DataConvert.To2dArray<T>(list);
+        }
+        public static List<List<T>>  ToListWithList<T>(this T[,] value2_copy)
+        {
+            List<List<T>> table = new List<List<T>>();
+            for (int i = 0; i < value2_copy.GetLength(0); i++)
+            {
+                List<T> temp = new List<T>();
+                for (int j = 0; j < value2_copy.GetLength(1); j++)
+                {
+                    temp.Add(value2_copy[i, j]);
+                }
+                table.Add(temp);
+            }
+            return table;
+        }
 
     }
 }

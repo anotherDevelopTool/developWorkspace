@@ -1,0 +1,31 @@
+<Script>
+  <run>
+    <title>parser java demo</title>
+    <description>parser java demo</description>
+    <appdomain>REQUESTED</appdomain>  
+  </run>
+  <codeBlock>
+    <row>1</row>
+    <col>1</col>
+    <type>xml</type>
+    <file>input_xml.xml</file>
+  </codeBlock>
+  <codeBlock>
+    <row>1</row>
+    <col>2</col>
+    <type>xml</type>
+    <file>JavaLexer.g4</file>
+  </codeBlock>
+  <codeBlock>
+    <row>1</row>
+    <col>3</col>
+    <type>xml</type>
+    <file>JavaParser.g4</file>
+  </codeBlock>
+  <codeBlock>
+    <row>2</row>
+    <col>1</col>
+    <type>c#</type>
+    <file>csscript.cs</file>
+  </codeBlock>
+</Script>
