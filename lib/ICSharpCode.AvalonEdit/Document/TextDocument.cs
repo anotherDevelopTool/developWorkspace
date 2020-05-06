@@ -10,9 +10,9 @@ using System.Linq;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Threading;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Document
+namespace ICSharpCodeX.AvalonEdit.Document
 {
     /// <summary>
     /// This class is the main class of the text model. Basically, it is a <see cref="System.Text.StringBuilder"/> with events.

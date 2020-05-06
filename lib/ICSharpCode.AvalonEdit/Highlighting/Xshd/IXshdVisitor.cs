@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ICSharpCode.AvalonEdit.Highlighting.Xshd
+namespace ICSharpCodeX.AvalonEdit.Highlighting.Xshd
 {
 	/// <summary>
 	/// A visitor over the XSHD element tree.

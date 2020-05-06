@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	/// <summary>
 	/// A node in the text view's height tree.

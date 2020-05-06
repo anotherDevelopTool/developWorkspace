@@ -2,10 +2,10 @@
 // This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
 
 using System;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 using System.Collections.Generic;
 
-namespace ICSharpCode.AvalonEdit.Folding
+namespace ICSharpCodeX.AvalonEdit.Folding
 {
 	/// <summary>
 	/// Base class for folding strategies.

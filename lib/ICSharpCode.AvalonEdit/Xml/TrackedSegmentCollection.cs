@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary>
 	/// Holds all objects that need to keep offsets up to date.

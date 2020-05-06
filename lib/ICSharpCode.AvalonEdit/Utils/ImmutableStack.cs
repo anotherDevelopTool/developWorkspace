@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// An immutable stack.

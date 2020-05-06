@@ -7,10 +7,10 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// A colorizes that interprets a highlighting rule set and colors the document accordingly.

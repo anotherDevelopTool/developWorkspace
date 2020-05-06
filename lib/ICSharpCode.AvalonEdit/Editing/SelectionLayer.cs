@@ -5,9 +5,9 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	sealed class SelectionLayer : Layer, IWeakEventListener
 	{

@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// Wrapper around Win32 functions.

@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	class TagReader: TokenReader
 	{

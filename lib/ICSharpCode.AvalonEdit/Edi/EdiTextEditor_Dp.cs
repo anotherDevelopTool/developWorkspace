@@ -1,9 +1,9 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi
+﻿namespace ICSharpCodeX.AvalonEdit.Edi
 {
   using System.Collections.ObjectModel;
   using System.Windows;
   using System.Windows.Media;
-  using ICSharpCode.AvalonEdit.Edi.BlockSurround;
+  using ICSharpCodeX.AvalonEdit.Edi.BlockSurround;
 
   /// <summary>
   /// This part of the AvalonEdit extension contains additional

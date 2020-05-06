@@ -10,9 +10,9 @@
     using System.Windows;
     using System.Windows.Media.Imaging;
     using System.Windows.Media;
-    using ICSharpCode.AvalonEdit.Document;
-    using ICSharpCode.AvalonEdit.Utils;
-    using ICSharpCode.AvalonEdit.Highlighting;
+    using ICSharpCodeX.AvalonEdit.Document;
+    using ICSharpCodeX.AvalonEdit.Utils;
+    using ICSharpCodeX.AvalonEdit.Highlighting;
     using DevelopWorkspace.Base;
     using DevelopWorkspace.Base.Model;
 
@@ -238,14 +238,14 @@
         #endregion ShowLineNumbers
 
         #region TextEditorOptions
-        private ICSharpCode.AvalonEdit.TextEditorOptions mTextOptions
-          = new ICSharpCode.AvalonEdit.TextEditorOptions()
+        private ICSharpCodeX.AvalonEdit.TextEditorOptions mTextOptions
+          = new ICSharpCodeX.AvalonEdit.TextEditorOptions()
           {
               ConvertTabsToSpaces = false,
               IndentationSize = 2
           };
 
-        public ICSharpCode.AvalonEdit.TextEditorOptions TextOptions
+        public ICSharpCodeX.AvalonEdit.TextEditorOptions TextOptions
         {
             get
             {

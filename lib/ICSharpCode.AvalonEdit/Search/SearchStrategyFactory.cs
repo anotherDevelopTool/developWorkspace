@@ -5,9 +5,9 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Search
+namespace ICSharpCodeX.AvalonEdit.Search
 {
 	/// <summary>
 	/// Provides factory methods for ISearchStrategies.

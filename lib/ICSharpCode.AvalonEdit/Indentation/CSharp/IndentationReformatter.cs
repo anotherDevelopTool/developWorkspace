@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace ICSharpCode.AvalonEdit.Indentation.CSharp
+namespace ICSharpCodeX.AvalonEdit.Indentation.CSharp
 {
 	sealed class IndentationSettings
 	{

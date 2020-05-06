@@ -3,9 +3,9 @@
 
 using System;
 using System.ComponentModel;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	/// <summary>
 	/// Represents a collapsed line section.

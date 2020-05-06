@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary>
 	/// Exception used for internal errors in XML parser.

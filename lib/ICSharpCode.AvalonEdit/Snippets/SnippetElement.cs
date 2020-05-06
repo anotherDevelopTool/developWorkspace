@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Documents;
 
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Snippets
+namespace ICSharpCodeX.AvalonEdit.Snippets
 {
 	/// <summary>
 	/// An element inside a snippet.

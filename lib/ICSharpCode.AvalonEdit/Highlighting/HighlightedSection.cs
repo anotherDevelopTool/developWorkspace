@@ -2,9 +2,9 @@
 // This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
 
 using System;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// A text section with syntax highlighting information.

@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace ICSharpCode.AvalonEdit.CodeCompletion
+namespace ICSharpCodeX.AvalonEdit.CodeCompletion
 {
 	/// <summary>
 	/// Provides the items for the OverloadViewer.

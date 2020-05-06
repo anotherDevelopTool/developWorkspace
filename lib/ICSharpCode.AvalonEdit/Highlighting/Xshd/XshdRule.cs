@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ICSharpCode.AvalonEdit.Highlighting.Xshd
+namespace ICSharpCodeX.AvalonEdit.Highlighting.Xshd
 {
 	/// <summary>
 	/// &lt;Rule&gt; element.

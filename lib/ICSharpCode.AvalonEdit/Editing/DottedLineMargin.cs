@@ -7,7 +7,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	/// <summary>
 	/// Margin for use with the text area.

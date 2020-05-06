@@ -8,11 +8,11 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit.Search
+namespace ICSharpCodeX.AvalonEdit.Search
 {
 	class SearchResultBackgroundRenderer : IBackgroundRenderer
 	{

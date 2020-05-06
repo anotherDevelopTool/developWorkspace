@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.PrintEngine
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.PrintEngine
 {
   using System;
   using System.IO;

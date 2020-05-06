@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Windows.Media.TextFormatting;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	sealed class SimpleTextSource : TextSource
 	{

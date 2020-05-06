@@ -8,10 +8,10 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
-using ICSharpCode.AvalonEdit.Rendering;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	sealed class CaretLayer : Layer
 	{

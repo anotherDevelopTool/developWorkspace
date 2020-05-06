@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary>
 	/// Two collections in sequence

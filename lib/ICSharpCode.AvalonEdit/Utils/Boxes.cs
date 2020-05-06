@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// Reuse the same instances for boxed booleans.

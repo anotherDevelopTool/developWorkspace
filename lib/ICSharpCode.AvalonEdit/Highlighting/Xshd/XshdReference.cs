@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ICSharpCode.AvalonEdit.Highlighting.Xshd
+namespace ICSharpCodeX.AvalonEdit.Highlighting.Xshd
 {
 	/// <summary>
 	/// A reference to an xshd color, or an inline xshd color.

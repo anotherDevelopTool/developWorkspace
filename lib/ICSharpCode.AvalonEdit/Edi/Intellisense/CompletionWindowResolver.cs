@@ -1,9 +1,9 @@
-namespace ICSharpCode.AvalonEdit.Edi.Intellisense
+namespace ICSharpCodeX.AvalonEdit.Edi.Intellisense
 {
   using System.Collections.Generic;
   using System.Linq;
-  using ICSharpCode.AvalonEdit;
-  using ICSharpCode.AvalonEdit.CodeCompletion;
+  using ICSharpCodeX.AvalonEdit;
+  using ICSharpCodeX.AvalonEdit.CodeCompletion;
 
   /// <summary>
   /// Class that manages the auto complet window

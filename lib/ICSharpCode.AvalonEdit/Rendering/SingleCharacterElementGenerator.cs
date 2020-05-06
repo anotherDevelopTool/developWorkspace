@@ -7,10 +7,10 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	// This class is internal because it does not need to be accessed by the user - it can be configured using TextEditorOptions.
 	

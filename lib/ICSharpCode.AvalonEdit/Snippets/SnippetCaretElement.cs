@@ -3,9 +3,9 @@
 
 using System;
 using System.Windows.Input;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Snippets
+namespace ICSharpCodeX.AvalonEdit.Snippets
 {
 	/// <summary>
 	/// Sets the caret position after interactive mode has finished.

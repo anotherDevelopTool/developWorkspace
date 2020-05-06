@@ -9,9 +9,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary>
 	/// Abstact base class for all types

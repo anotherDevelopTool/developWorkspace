@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 
 using System.Text;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	// Class used to represent a node in the tree.
 	// There are three types of nodes:

@@ -4,7 +4,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// A highlighting rule.

@@ -4,9 +4,9 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.CodeCompletion
+namespace ICSharpCodeX.AvalonEdit.CodeCompletion
 {
 	/// <summary>
 	/// The list box used inside the CompletionList.

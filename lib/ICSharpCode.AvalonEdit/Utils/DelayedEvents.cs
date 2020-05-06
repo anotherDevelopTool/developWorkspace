@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// Maintains a list of delayed events to raise.

@@ -8,9 +8,9 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary> Identifies the context in which the text occured </summary>
 	enum TextType

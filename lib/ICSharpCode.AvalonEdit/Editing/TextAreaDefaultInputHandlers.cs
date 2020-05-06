@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	/// <summary>
 	/// Contains the predefined input handlers.

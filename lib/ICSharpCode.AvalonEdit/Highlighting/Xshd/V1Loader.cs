@@ -10,9 +10,9 @@ using System.Windows.Media;
 using System.Xml;
 using System.Xml.Schema;
 
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Highlighting.Xshd
+namespace ICSharpCodeX.AvalonEdit.Highlighting.Xshd
 {
 	/// <summary>
 	/// Loads .xshd files, version 1.0.

@@ -3,10 +3,10 @@
 
 using System;
 using System.Windows.Media;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Editing;
 
-namespace ICSharpCode.AvalonEdit.CodeCompletion
+namespace ICSharpCodeX.AvalonEdit.CodeCompletion
 {
 	/// <summary>
 	/// Describes an entry in the <see cref="CompletionList"/>.

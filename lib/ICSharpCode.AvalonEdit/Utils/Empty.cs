@@ -4,7 +4,7 @@
 using System;
 using System.Collections.ObjectModel;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// Provides immutable empty list instances.

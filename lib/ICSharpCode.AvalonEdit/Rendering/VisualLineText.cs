@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Windows.Documents;
 using System.Windows.Media.TextFormatting;
 
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	/// <summary>
 	/// VisualLineElement that represents a piece of text.

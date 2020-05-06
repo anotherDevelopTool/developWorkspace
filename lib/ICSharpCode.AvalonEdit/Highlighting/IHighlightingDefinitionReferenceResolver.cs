@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// Interface for resolvers that can solve cross-definition references.

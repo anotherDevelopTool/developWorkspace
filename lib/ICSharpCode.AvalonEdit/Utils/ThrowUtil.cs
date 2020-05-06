@@ -4,7 +4,7 @@
 using System;
 using System.Globalization;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// Contains exception-throwing helper methods.

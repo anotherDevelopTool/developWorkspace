@@ -8,10 +8,10 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit.Snippets
+namespace ICSharpCodeX.AvalonEdit.Snippets
 {
 	/// <summary>
 	/// Text element that is supposed to be replaced by the user.

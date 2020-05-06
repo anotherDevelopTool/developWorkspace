@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.PrintEngine
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.PrintEngine
 {
   using System;
   using System.Drawing.Printing;
@@ -7,10 +7,10 @@
   using System.Windows.Controls;
   using System.Windows.Documents;
 
-  using ICSharpCode.AvalonEdit.Highlighting;
-  using ICSharpCode.AvalonEdit.Document;
+  using ICSharpCodeX.AvalonEdit.Highlighting;
+  using ICSharpCodeX.AvalonEdit.Document;
   using PrintEngine;
-  using ICSharpCode.AvalonEdit;
+  using ICSharpCodeX.AvalonEdit;
 
   /// <summary>
   /// Print support class for Edi text editor control based ib AvalonEdit class.

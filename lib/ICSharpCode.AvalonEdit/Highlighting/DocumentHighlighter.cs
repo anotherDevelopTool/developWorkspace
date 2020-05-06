@@ -7,11 +7,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Utils;
-using SpanStack = ICSharpCode.AvalonEdit.Utils.ImmutableStack<ICSharpCode.AvalonEdit.Highlighting.HighlightingSpan>;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Utils;
+using SpanStack = ICSharpCodeX.AvalonEdit.Utils.ImmutableStack<ICSharpCodeX.AvalonEdit.Highlighting.HighlightingSpan>;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// This class can syntax-highlight a document.

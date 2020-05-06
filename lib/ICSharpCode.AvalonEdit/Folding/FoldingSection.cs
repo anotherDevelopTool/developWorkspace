@@ -5,10 +5,10 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Windows.Threading;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit.Folding
+namespace ICSharpCodeX.AvalonEdit.Folding
 {
 	/// <summary>
 	/// A section that can be folded.

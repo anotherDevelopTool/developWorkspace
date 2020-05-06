@@ -9,9 +9,9 @@ using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Media;
 
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// A brush used for syntax highlighting. Can retrieve a real brush on-demand.

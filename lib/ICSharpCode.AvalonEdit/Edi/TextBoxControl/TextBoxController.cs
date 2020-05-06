@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.TextBoxControl
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.TextBoxControl
 {
   using System;
 

@@ -1,7 +1,7 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi
+﻿namespace ICSharpCodeX.AvalonEdit.Edi
 {
   using System.Windows.Input;
-  using ICSharpCode.AvalonEdit.Edi.PrintEngine;
+  using ICSharpCodeX.AvalonEdit.Edi.PrintEngine;
 
   public partial class EdiTextEditor : TextEditor
   {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Globalization;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit
+namespace ICSharpCodeX.AvalonEdit
 {
 	/// <summary>
 	/// Represents a text location with a visual column.

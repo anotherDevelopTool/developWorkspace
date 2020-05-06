@@ -7,9 +7,9 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.TextFormatting;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	/// <summary>
 	/// Represents a visual element in the document.

@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	/// <summary>
 	/// Determines whether the document can be modified.

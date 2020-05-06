@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Highlighting.Themes.XML
+﻿namespace ICSharpCodeX.AvalonEdit.Highlighting.Themes.XML
 {
   using System;
   using System.Globalization;
@@ -8,7 +8,7 @@
   using System.Windows.Media;
   using System.Xml;
 
-  using ICSharpCode.AvalonEdit.Highlighting.Themes;
+  using ICSharpCodeX.AvalonEdit.Highlighting.Themes;
   using System.Collections.Generic;
 
   /// <summary>
@@ -159,7 +159,7 @@
       // Be careful: Names are case sensitiv and '.' are delimters.
       // Make sure your XSD file is an 'embedded resource'
       // "<Namespace>.<FolderName>.<Filename>.xsd"
-      const string XSD_Location = "ICSharpCode.AvalonEdit.Highlighting.Themes.XML.HlTheme.xsd";
+      const string XSD_Location = "ICSharpCodeX.AvalonEdit.Highlighting.Themes.XML.HlTheme.xsd";
       SchemaValidator vs = new SchemaValidator();
 
       Assembly a = Assembly.LoadFrom(sAssembly);

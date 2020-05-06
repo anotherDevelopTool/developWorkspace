@@ -30,10 +30,19 @@ using System.Diagnostics;
 using DevelopWorkspace.Base;
 using System.Text.RegularExpressions;
 using DevelopWorkspace.Base.Utils;
-using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCodeX.AvalonEdit.Highlighting;
 using static DevelopWorkspace.Main.AppConfig;
 using Fluent;
 using DevelopWorkspace.Base.Model;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
+using RoslynPad.Editor;
+using RoslynPad.Roslyn;
+using System.Reflection;
+using Script = DevelopWorkspace.Base.Utils.Script;
+using System.Runtime.CompilerServices;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -91,12 +100,19 @@ namespace DevelopWorkspace.Main.View
         DropDownButton popupSelectScript;
         Fluent.Button btnEditor;
         FileSystemEventHandler fileSystemEventHandler;
+        RoslynHost host;
+        private DocumentId documentid;
+        TaskAwaiter<CustomRoslynHost> roslynTask;
         public CSScriptRunView()
         {
             //BusyWorkServiceの外側で処理を入れる場合、this.DataContextがうまく取得できない場合があるので要注意
             Base.Services.BusyWorkService(new Action(() =>
             {
+                roslynTask = CustomRoslynHost.instance().GetAwaiter();
                 InitializeComponent();
+
+                ScriptContent.PreviewMouseWheel += EditorOnPreviewMouseWheel;
+
                 //ribbon工具条注意resource定义在usercontrol内这样click等事件直接可以和view代码绑定
                 Fluent.Ribbon ribbon = Base.Utils.WPF.FindChild<Fluent.Ribbon>(Application.Current.MainWindow, "ribbon");
                 //之前的active内容关联的tab需要隐藏
@@ -215,7 +231,14 @@ public class Script
             if (AppConfig.SysConfig.This.WatchFileSystemActivity) (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).fileSystemWatcher.Changed -= fileSystemEventHandler;
             return true;
         }
-
+        private void EditorOnPreviewMouseWheel(object sender, MouseWheelEventArgs args)
+        {
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+            {
+                ScriptContent.FontSize += args.Delta > 0 ? 1 : -1;
+                args.Handled = true;
+            }
+        }
         /// <summary>
         /// 提供简单访问各个文本内容的方法
         /// </summary>
@@ -726,13 +749,13 @@ public class Script
                         var typeConverter = new HighlightingDefinitionTypeConverter();
                         var csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("C#");
                         //JavaScript,SQL,Ruby,XML,ASP/XHTML
-                        this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
+                        //this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
                     }
                     else if (config.ScriptLanguage == Main.Language.java)
                     {
                         var typeConverter = new HighlightingDefinitionTypeConverter();
                         var csSyntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom("Java");
-                        this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
+                        //this.ScriptContent.SyntaxHighlighting = csSyntaxHighlighter;
                     }
 
                     //config.Title = dataSet.Tables["run"].Rows[0]["title"].ToString();
@@ -832,5 +855,23 @@ public class Script
             return filePath.Substring(filePath.LastIndexOf("."));
         }
 
+        private void RoslynCodeEditor_Loaded(object sender, RoutedEventArgs e)
+        {
+            //注意CustomRoslynHost.instance()方法里的await需要ConfigureAwait(false);否则会造成死锁...
+            host = roslynTask.GetResult();
+            documentid = ScriptContent.Initialize(host, new ClassificationHighlightColors(), Directory.GetCurrentDirectory(), String.Empty);
+
+        }
+        private async Task FormatDocument()
+        {
+            var document = host.GetDocument(documentid);
+            var formattedDocument = await Microsoft.CodeAnalysis.Formatting.Formatter.FormatAsync(document).ConfigureAwait(false);
+            host.UpdateDocument(formattedDocument);
+        }
+
+        private void Click_formatter(object sender, RoutedEventArgs e)
+        {
+            FormatDocument();
+        }
     }
 }

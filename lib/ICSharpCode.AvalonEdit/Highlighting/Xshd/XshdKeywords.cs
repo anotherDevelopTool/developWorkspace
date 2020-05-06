@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Highlighting.Xshd
+namespace ICSharpCodeX.AvalonEdit.Highlighting.Xshd
 {
 	/// <summary>
 	/// A list of keywords.

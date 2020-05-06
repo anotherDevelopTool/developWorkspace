@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary>
 	/// Converts the XML tree back to text in canonical form.

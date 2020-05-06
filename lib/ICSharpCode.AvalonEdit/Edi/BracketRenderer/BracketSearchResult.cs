@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.BracketRenderer
+﻿namespace ICSharpCodeX.AvalonEdit.BracketRenderer
 {
   /// <summary>
   /// Describes a pair of matching brackets found by IBracketSearcher.

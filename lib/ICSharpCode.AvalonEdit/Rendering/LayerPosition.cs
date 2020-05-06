@@ -4,7 +4,7 @@
 using System;
 using System.Windows;
 
-namespace ICSharpCode.AvalonEdit.Rendering
+namespace ICSharpCodeX.AvalonEdit.Rendering
 {
 	/// <summary>
 	/// An enumeration of well-known layers.

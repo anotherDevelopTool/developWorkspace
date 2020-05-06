@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ICSharpCode.AvalonEdit.Document
+namespace ICSharpCodeX.AvalonEdit.Document
 {
 	/// <summary>
 	/// A TextAnchorNode is placed in the TextAnchorTree.

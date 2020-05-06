@@ -8,12 +8,12 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Rendering;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.CodeCompletion
+namespace ICSharpCodeX.AvalonEdit.CodeCompletion
 {
 	/// <summary>
 	/// Base class for completion windows. Handles positioning the window at the caret.

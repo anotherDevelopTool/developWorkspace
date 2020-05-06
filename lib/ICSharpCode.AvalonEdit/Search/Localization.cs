@@ -4,7 +4,7 @@
 using System;
 using System.ComponentModel;
 
-namespace ICSharpCode.AvalonEdit.Search
+namespace ICSharpCodeX.AvalonEdit.Search
 {
 	/// <summary>
 	/// Holds default texts for buttons and labels in the SearchPanel. Override properties to add other languages.

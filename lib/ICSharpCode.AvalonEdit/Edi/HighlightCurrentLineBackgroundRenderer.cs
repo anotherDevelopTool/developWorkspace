@@ -1,11 +1,11 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi
+﻿namespace ICSharpCodeX.AvalonEdit.Edi
 {
   using System;
   using System.Collections.Generic;
   using System.Linq;
   using System.Text;
-  using ICSharpCode.AvalonEdit;
-  using ICSharpCode.AvalonEdit.Rendering;
+  using ICSharpCodeX.AvalonEdit;
+  using ICSharpCodeX.AvalonEdit.Rendering;
   using System.Windows.Media;
   using System.Windows;
 

@@ -1,10 +1,10 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.Intellisense
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.Intellisense
 {
   using System;
   using System.Windows.Media;
-  using ICSharpCode.AvalonEdit.CodeCompletion;
-  using ICSharpCode.AvalonEdit.Document;
-  using ICSharpCode.AvalonEdit.Editing;
+  using ICSharpCodeX.AvalonEdit.CodeCompletion;
+  using ICSharpCodeX.AvalonEdit.Document;
+  using ICSharpCodeX.AvalonEdit.Editing;
 
   /// <summary>
   /// Class to handle text completion data.

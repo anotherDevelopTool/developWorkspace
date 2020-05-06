@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Editing
+namespace ICSharpCodeX.AvalonEdit.Editing
 {
 	/// <summary>
 	/// Implementation for <see cref="IReadOnlySectionProvider"/> that stores the segments

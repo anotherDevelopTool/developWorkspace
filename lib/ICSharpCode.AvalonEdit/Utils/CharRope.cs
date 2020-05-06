@@ -5,7 +5,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// Poor man's template specialization: extension methods for Rope&lt;char&gt;.

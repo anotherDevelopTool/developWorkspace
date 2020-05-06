@@ -14,12 +14,12 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Folding;
-using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Folding;
+using ICSharpCodeX.AvalonEdit.Rendering;
 
-namespace ICSharpCode.AvalonEdit.Search
+namespace ICSharpCodeX.AvalonEdit.Search
 {
 	/// <summary>
 	/// Provides search functionality for AvalonEdit. It is displayed in the top-right corner of the TextArea.

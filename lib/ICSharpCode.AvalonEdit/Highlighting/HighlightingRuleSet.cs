@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// A highlighting rule set describes a set of spans that are valid at a given code location.

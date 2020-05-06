@@ -2,10 +2,10 @@
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 
-  xmlns:AEComplete="clr-namespace:ICSharpCode.AvalonEdit.CodeCompletion"
-  xmlns:rendering="clr-namespace:ICSharpCode.AvalonEdit.Rendering"
-  xmlns:editing="clr-namespace:ICSharpCode.AvalonEdit.Editing"
-	xmlns:local="clr-namespace:ICSharpCode.AvalonEdit.Edi"
+  xmlns:AEComplete="clr-namespace:ICSharpCodeX.AvalonEdit.CodeCompletion"
+  xmlns:rendering="clr-namespace:ICSharpCodeX.AvalonEdit.Rendering"
+  xmlns:editing="clr-namespace:ICSharpCodeX.AvalonEdit.Editing"
+	xmlns:local="clr-namespace:ICSharpCodeX.AvalonEdit.Edi"
   
   
   >
@@ -52,7 +52,7 @@
             </Style>
 
             <Style TargetType="{x:Type editing:LineNumberMargin}">
-              <Setter Property="Control.Cursor" Value="/ICSharpCode.AvalonEdit;component/themes/RightArrow.cur"/>
+              <Setter Property="Control.Cursor" Value="/ICSharpCodeX.AvalonEdit;component/themes/RightArrow.cur"/>
               <Setter Property="Margin" Value="9,0,15,0" />
             </Style>
 

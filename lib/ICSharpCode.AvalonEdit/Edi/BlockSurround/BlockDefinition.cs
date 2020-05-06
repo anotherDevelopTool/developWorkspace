@@ -1,4 +1,4 @@
-﻿namespace ICSharpCode.AvalonEdit.Edi.BlockSurround
+﻿namespace ICSharpCodeX.AvalonEdit.Edi.BlockSurround
 {
   /// <summary>
   /// Class can be used to mark/unmark text in a block of code.

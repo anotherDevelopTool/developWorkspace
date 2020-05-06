@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Highlighting.Xshd
+namespace ICSharpCodeX.AvalonEdit.Highlighting.Xshd
 {
 	[Serializable]
 	sealed class XmlHighlightingDefinition : IHighlightingDefinition

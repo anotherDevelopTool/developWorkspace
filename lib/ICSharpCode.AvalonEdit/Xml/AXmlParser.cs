@@ -8,9 +8,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-using ICSharpCode.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Document;
 
-namespace ICSharpCode.AvalonEdit.Xml
+namespace ICSharpCodeX.AvalonEdit.Xml
 {
 	/// <summary>
 	/// Creates object tree from XML document.

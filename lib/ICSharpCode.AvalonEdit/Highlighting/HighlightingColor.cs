@@ -9,7 +9,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 
-namespace ICSharpCode.AvalonEdit.Highlighting
+namespace ICSharpCodeX.AvalonEdit.Highlighting
 {
 	/// <summary>
 	/// A highlighting color is a set of font properties and foreground and background color.

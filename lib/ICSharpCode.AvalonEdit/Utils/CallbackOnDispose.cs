@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace ICSharpCode.AvalonEdit.Utils
+namespace ICSharpCodeX.AvalonEdit.Utils
 {
 	/// <summary>
 	/// Invokes an action when it is disposed.

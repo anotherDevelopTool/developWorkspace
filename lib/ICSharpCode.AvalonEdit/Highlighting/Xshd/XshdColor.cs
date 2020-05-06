@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Windows;
 
-namespace ICSharpCode.AvalonEdit.Highlighting.Xshd
+namespace ICSharpCodeX.AvalonEdit.Highlighting.Xshd
 {
 	/// <summary>
 	/// A color in an Xshd file.

@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-namespace ICSharpCode.AvalonEdit.Search
+namespace ICSharpCodeX.AvalonEdit.Search
 {
 	/// <summary>
 	/// A button that opens a drop-down menu when clicked.

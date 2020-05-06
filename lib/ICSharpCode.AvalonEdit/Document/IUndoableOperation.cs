@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ICSharpCode.AvalonEdit.Document
+namespace ICSharpCodeX.AvalonEdit.Document
 {
 	/// <summary>
 	/// This Interface describes a the basic Undo/Redo operation

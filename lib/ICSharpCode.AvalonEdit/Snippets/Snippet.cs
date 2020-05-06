@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Documents;
 
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Document;
+using ICSharpCodeX.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Snippets
+namespace ICSharpCodeX.AvalonEdit.Snippets
 {
 	/// <summary>
 	/// A code snippet that can be inserted into the text editor.

@@ -23,6 +23,15 @@ using DevelopWorkspace.Base.Model;
 using System.Collections.Generic;
 using DevelopWorkspace.Main.Model;
 using System.Windows.Controls.Primitives;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
+using RoslynPad.Editor;
+using RoslynPad.Roslyn;
+using System.Reflection;
+using Workspace = DevelopWorkspace.Main.Model.Workspace;
+using System.Threading.Tasks;
 
 namespace DevelopWorkspace.Main
 {
@@ -101,11 +110,13 @@ namespace DevelopWorkspace.Main
         System.Timers.Timer excelWatchTimer = null;
         readonly object syncLock = new object();
         readonly object syncStopWatchLock = new object();
-      
+
         Microsoft.Office.Interop.Excel.Application excelRefOnWatch;
         string currentTableNameOnWatch = "";
         bool isUninstalled = false;
         int procossIdOfExcel = 0;
+        RoslynHost host;
+
         public void Application_SheetActivate(object sh)
         {
             Microsoft.Office.Interop.Excel.Worksheet targetSheet = null;
@@ -131,7 +142,8 @@ namespace DevelopWorkspace.Main
                     }
                 }
             }
-            finally {
+            finally
+            {
                 if (targetSheet != null)
                 {
                     Marshal.ReleaseComObject(targetSheet);
@@ -216,11 +228,13 @@ namespace DevelopWorkspace.Main
             }
         }
 
-        public void UnInstallExcelWatch() {
+        public void UnInstallExcelWatch()
+        {
             //Bug 当前worksheet有内容需要自动追加一个新的worksheet时会引发例外：Microsoft Excel 正在等待某个应用程序以完成对象链接与嵌入操作
             if (!AppConfig.SysConfig.This.WatchExcelActivity) return;
 
-            lock (syncLock) {
+            lock (syncLock)
+            {
                 ClearExcelWatchEvent(excelRefOnWatch);
                 isUninstalled = true;
             }
@@ -246,7 +260,8 @@ namespace DevelopWorkspace.Main
                 // when application terminated,uninstall...
                 if (isUninstalled) return;
                 // 当程序不在活跃状态下超过30秒的话则临时把监视excel的机能清除掉以防止影响excel的整体性能
-                if (IsIdlingOverSomeSeconds) {
+                if (IsIdlingOverSomeSeconds)
+                {
                     ClearExcelWatchEvent(excelRefOnWatch);
                     procossIdOfExcel = 0;
                     return;
@@ -271,7 +286,8 @@ namespace DevelopWorkspace.Main
 
                     AppendExcelWatchEvent(excelRefOnWatch);
                 }
-                else {
+                else
+                {
                     Marshal.ReleaseComObject(excelRefTopMost);
                 }
             }
@@ -279,7 +295,7 @@ namespace DevelopWorkspace.Main
 
         public MainWindow()
         {
-            ICSharpCode.AvalonEdit.Edi.HighlightingExtension.RegisterCustomHighlightingPatterns(StartupSetting.instance.homeDir, null);
+            //ICSharpCode.AvalonEdit.Edi.HighlightingExtension.RegisterCustomHighlightingPatterns(StartupSetting.instance.homeDir, null);
             InitializeComponent();
             this.propertygrid.SelectedObject = JsonConfig<AppConfig.SysConfig>.load(StartupSetting.instance.homeDir);
             this.DataContext = Model.Workspace.This;
@@ -293,7 +309,8 @@ namespace DevelopWorkspace.Main
                 this.Width = AppConfig.SysConfig.This.Width;
 
             }
-            else {
+            else
+            {
                 this.Top = AppConfig.SysConfig.This.Top;
                 this.Left = AppConfig.SysConfig.This.Left;
                 this.Height = AppConfig.SysConfig.This.Height;
@@ -304,6 +321,11 @@ namespace DevelopWorkspace.Main
             ribbonSelectionChangeEvent += new RibbonSelectionChangeEventHandler(RibbonSelectionChangeEventFunc);
             WorksheetActiveChangeEvent += MainWindow_WorksheetActiveChangeEvent;
             ScriptBaseViewModel.AddinInstalledEvent += MainWindow_AddinInstalledEvent;
+
+            //
+            RegisterCustomHighlightingPatterns();
+
+
             //Excel切换监视
             if (AppConfig.SysConfig.This.WatchExcelActivity)
             {
@@ -333,25 +355,28 @@ namespace DevelopWorkspace.Main
                 {
                     busy.SetIndicator(indicatorMessage);
                 });
-                    
+
             };
 
             string language = AppConfig.SysConfig.This.Language;
-            if (string.IsNullOrWhiteSpace(language)) {
+            if (string.IsNullOrWhiteSpace(language))
+            {
                 language = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
             }
 
-            var messages = (from message in DbSettingEngine.GetEngine(true).Messages where message.Language.Equals(language)
+            var messages = (from message in DbSettingEngine.GetEngine(true).Messages
+                            where message.Language.Equals(language)
                             select message).ToArray<Message>();
             foreach (Message message in messages)
             {
                 Application.Current.Resources.Remove(message.MessageId);
-                Application.Current.Resources.Add(message.MessageId, message.Content.Replace("\\n","\n"));
+                Application.Current.Resources.Add(message.MessageId, message.Content.Replace("\\n", "\n"));
             }
 
             // addins service
             List<AddinMetaAttribute> addinsAttribute = ScriptBaseViewModel.ScanAddinsJson();
-            foreach (var attribute in addinsAttribute) {
+            foreach (var attribute in addinsAttribute)
+            {
                 Button addin = new Button();
                 addin.Header = attribute.Name;
                 addin.ToolTip = attribute.Description;
@@ -365,7 +390,7 @@ namespace DevelopWorkspace.Main
                 {
                     try
                     {
-                        var resourceString = "/DevelopWorkspace;component/Images/" + ( string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon ) + ".png";
+                        var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(attribute.LargeIcon) ? "plugin" : attribute.LargeIcon) + ".png";
                         addin.LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
                     }
                     catch (Exception ex)
@@ -480,13 +505,16 @@ namespace DevelopWorkspace.Main
         {
             AddinMetaAttribute attribute = e.MetaAttriute;
             Button selectedButton = null;
-            foreach(Fluent.Button button in this.tools.Items) {
-                if (button.Header.Equals(attribute.Name)) {
+            foreach (Fluent.Button button in this.tools.Items)
+            {
+                if (button.Header.Equals(attribute.Name))
+                {
                     selectedButton = button;
                     break;
                 }
             }
-            if (selectedButton == null) {
+            if (selectedButton == null)
+            {
                 selectedButton = new Button();
                 this.tools.Items.Add(selectedButton);
             }
@@ -507,7 +535,8 @@ namespace DevelopWorkspace.Main
                     {
                         selectedButton.LargeIcon = new BitmapImage(new Uri(resourceString, UriKind.Relative));
                     }
-                    else {
+                    else
+                    {
                         selectedButton.LargeIcon = new BitmapImage(new Uri("/DevelopWorkspace;component/Images/plugin.png", UriKind.Relative));
                     }
                 }
@@ -793,7 +822,8 @@ namespace DevelopWorkspace.Main
                 this.busy.Shutdown();
                 //Dispatcher.InvokeShutdown();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
             }
         }
@@ -802,7 +832,7 @@ namespace DevelopWorkspace.Main
         {
             var ribbon = sender as Ribbon;
             if (ribbon != null)
-                ribbonSelectionChangeEvent(dockManager.ActiveContent,new RibbonSelectionChangeEventArgs(ribbon.SelectedTabIndex));
+                ribbonSelectionChangeEvent(dockManager.ActiveContent, new RibbonSelectionChangeEventArgs(ribbon.SelectedTabIndex));
         }
         private SolidColorBrush _solidColorBrush = new SolidColorBrush(Color.FromArgb((byte)255, (byte)0, (byte)255, (byte)0));
 
@@ -814,6 +844,12 @@ namespace DevelopWorkspace.Main
         private void dockManager_DocumentClosing(object sender, Xceed.Wpf.AvalonDock.DocumentClosingEventArgs e)
         {
 
+        }
+        public static async void RegisterCustomHighlightingPatterns()
+        {
+            await Task.Run(() => {
+                ICSharpCodeX.AvalonEdit.Edi.HighlightingExtension.RegisterCustomHighlightingPatterns(StartupSetting.instance.homeDir);
+            }).ConfigureAwait(false);
         }
     }
 

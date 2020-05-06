@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.Document
+namespace ICSharpCodeX.AvalonEdit.Document
 {
 	/// <summary>
 	/// Undo stack implementation.

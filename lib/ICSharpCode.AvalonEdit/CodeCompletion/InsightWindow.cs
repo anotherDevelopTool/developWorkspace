@@ -4,10 +4,10 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Utils;
+using ICSharpCodeX.AvalonEdit.Editing;
+using ICSharpCodeX.AvalonEdit.Utils;
 
-namespace ICSharpCode.AvalonEdit.CodeCompletion
+namespace ICSharpCodeX.AvalonEdit.CodeCompletion
 {
 	/// <summary>
 	/// A popup-like window that is attached to a text segment.
