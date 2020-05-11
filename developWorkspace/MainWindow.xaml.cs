@@ -577,7 +577,7 @@ namespace DevelopWorkspace.Main
             //System.Diagnostics.Debug.Print(e.ToString());
         }
 
-        private void doBusyWork(Action action)
+        private void doBusyWork(Action action,Boolean hasContinuedAction=false)
         {
             try
             {
@@ -599,8 +599,11 @@ namespace DevelopWorkspace.Main
                         DevelopWorkspace.Base.Services.ErrorMessage(ex.Message);
                         DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
                     }
-                    busy.IsBusyIndicatorShowing = false;
-                    busy.ClearValue(BusyDecorator.FadeTimeProperty);
+                    if (!hasContinuedAction)
+                    {
+                        busy.IsBusyIndicatorShowing = false;
+                        busy.ClearValue(BusyDecorator.FadeTimeProperty);
+                    }
                 }), DispatcherPriority.Background);
             }
             catch (Exception ex)

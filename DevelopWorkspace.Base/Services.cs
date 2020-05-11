@@ -51,9 +51,9 @@ namespace DevelopWorkspace.Base
     public abstract class Services
     {
 
-        public delegate void BusyWork(Action action);
+        public delegate void BusyWork(Action action, Boolean hasContinuedAction = false);
         public delegate void BusyIndicator(string indicatorMessage);
-        static BusyWork _busyWork = (Action action) => { action.Invoke(); };
+        static BusyWork _busyWork = (Action action, Boolean hasContinuedAction) => { action.Invoke(); };
         //20190315 cancel longtimetask 
         public static Button cancelLongTimeTask = null;
         public static LongTimeTaskState longTimeTaskState = LongTimeTaskState.Continue;

@@ -2480,6 +2480,49 @@
             }
         }
 
+        public static void bringSpecialSheetToTop(string excelFilePath,string sheetName)
+        {
+            Microsoft.Office.Interop.Excel.Application excel = null;
+            try
+            {
+                excel = Excel.GetLatestActiveExcelRef(true);
+                foreach (Microsoft.Office.Interop.Excel.Workbook activeWorkbook in excel.Workbooks)
+                {
+                    if (excelFilePath.EndsWith(activeWorkbook.Name))
+                    {
+                        foreach (dynamic sheet in activeWorkbook.Sheets)
+                        {
+                            if (sheetName.Equals(sheet.Name))
+                            {
+                                sheet.Activate();
+                                return;
+                            }
+                        }
+                    }
+                }
+                Microsoft.Office.Interop.Excel.Workbook targetWorkbook = excel.Workbooks.Open(excelFilePath, false);
+                foreach (dynamic sheet in targetWorkbook.Sheets)
+                {
+                    if (sheetName.Equals(sheet.Name))
+                    {
+                        sheet.Activate();
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+            }
+            finally
+            {
+                if (excel != null)
+                {
+                    excel.ScreenUpdating = true;
+                    Marshal.ReleaseComObject(excel);
+                }
+            }
+        }
 
     }
 }

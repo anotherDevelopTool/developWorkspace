@@ -112,6 +112,8 @@ namespace DevelopWorkspace.Main.View
             //BusyWorkServiceの外側で処理を入れる場合、this.DataContextがうまく取得できない場合があるので要注意
             Base.Services.BusyWorkService(new Action(() =>
             {
+                Base.Services.BusyWorkIndicatorService($"initializing cs-script enviroment...");
+
                 roslynTask = CustomRoslynHost.instance().GetAwaiter();
                 InitializeComponent();
 
@@ -232,7 +234,7 @@ public class Script
                 //注意CustomRoslynHost.instance()方法里的await需要ConfigureAwait(false);否则会造成死锁...
                 host = roslynTask.GetResult();
 
-            }));
+            }),hasContinuedAction:true);
 
         }
         public bool doClearance(string bookName)
@@ -867,8 +869,11 @@ public class Script
 
         private void RoslynCodeEditor_Loaded(object sender, RoutedEventArgs e)
         {
-            documentid = ScriptContent.Initialize(host, new ClassificationHighlightColors(), Directory.GetCurrentDirectory(), String.Empty);
-
+            Base.Services.BusyWorkService(new Action(() =>
+            {
+                Base.Services.BusyWorkIndicatorService($"initializing Roslyn code editor...");
+                documentid = ScriptContent.Initialize(host, new ClassificationHighlightColors(), Directory.GetCurrentDirectory(), String.Empty);
+            }));
         }
         private async Task FormatDocument()
         {
