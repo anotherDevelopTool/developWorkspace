@@ -2435,22 +2435,16 @@
                 excel = Excel.GetLatestActiveExcelRef();
                 if (excel == null)
                 {
-                    DevelopWorkspace.Base.Services.ErrorMessage("対象のExcelのワークシートを選択して、再度実行してください");
-                    return rowDataList; 
+                    throw new Exception("can't initialize excel application correctly");
                 }
                 var targetSheet = excel.ActiveWorkbook.ActiveSheet;
-                if (targetSheet.UsedRange.Rows.Count < 2)
-                {
-                    DevelopWorkspace.Base.Services.ErrorMessage("対象のExcelのワークシートを選択して、再度実行してください");
-                    return rowDataList;
-                }
                 object[,] value2_copy = targetSheet.Range(targetSheet.Cells(1, 1),
-                                            targetSheet.Cells(targetSheet.UsedRange.Rows.Count + 1,
-                                            targetSheet.UsedRange.Columns.Count + 1)).Value2;
-                for (int iRow = 1; iRow < value2_copy.GetLength(0); iRow++)
+                                            targetSheet.Cells(targetSheet.UsedRange.Rows.Count,
+                                            targetSheet.UsedRange.Columns.Count)).Value2;
+                for (int iRow = 1; iRow <= value2_copy.GetLength(0); iRow++)
                 {
                     List<string> rowData = new List<string>();
-                    for (int iCol = 1; iCol < value2_copy.GetLength(1); iCol++)
+                    for (int iCol = 1; iCol <= value2_copy.GetLength(1); iCol++)
                     {
                         if (value2_copy[iRow, iCol] == null)
                         {
@@ -2459,7 +2453,6 @@
                         else {
                             rowData.Add(value2_copy[iRow, iCol].ToString());
                         }
-
                     }
                     rowDataList.Add(rowData);
                 }
@@ -2479,8 +2472,84 @@
                 }
             }
         }
+        public static Dictionary<string,List<List<string>>> getDataFromActiveWorkbook(params string[] skippedSheetNameList)
+        {
+            Microsoft.Office.Interop.Excel.Application excel = null;
+            Dictionary<string, List<List<string>>> mappedData = new Dictionary<string, List<List<string>>>();
+            try
+            {
+                //2019/02/27
+                excel = Excel.GetLatestActiveExcelRef();
+                if (excel == null)
+                {
+                    throw new Exception("can't initialize excel application correctly");
+                }
+                foreach (dynamic targetSheet in excel.ActiveWorkbook.Worksheets) {
+                    object[,] value2_copy = targetSheet.Range(targetSheet.Cells(1, 1),
+                                                targetSheet.Cells(targetSheet.UsedRange.Rows.Count,
+                                                targetSheet.UsedRange.Columns.Count)).Value2;
+                    if (skippedSheetNameList.FirstOrDefault(skipped => skipped.Equals(targetSheet.Name)) == null)
+                    {
+                        List<List<string>> rowDataList = new List<List<string>>();
+                        for (int iRow = 1; iRow <= value2_copy.GetLength(0); iRow++)
+                        {
+                            List<string> rowData = new List<string>();
+                            for (int iCol = 1; iCol <= value2_copy.GetLength(1); iCol++)
+                            {
+                                if (value2_copy[iRow, iCol] == null)
+                                {
+                                    rowData.Add("");
+                                }
+                                else
+                                {
+                                    rowData.Add(value2_copy[iRow, iCol].ToString());
+                                }
+                            }
+                            rowDataList.Add(rowData);
+                        }
+                        mappedData.Add("sheet:" + targetSheet.Name, rowDataList);
+                    }
+                }
+                foreach (Name namedRange in excel.ActiveWorkbook.Names)
+                {
+                    object[,] value2_copy = namedRange.RefersToRange.Value2;
+                    List<List<string>> rowDataList = new List<List<string>>();
+                    for (int iRow = 1; iRow <= value2_copy.GetLength(0); iRow++)
+                    {
+                        List<string> rowData = new List<string>();
+                        for (int iCol = 1; iCol <= value2_copy.GetLength(1); iCol++)
+                        {
+                            if (value2_copy[iRow, iCol] == null)
+                            {
+                                rowData.Add("");
+                            }
+                            else
+                            {
+                                rowData.Add(value2_copy[iRow, iCol].ToString());
+                            }
+                        }
+                        rowDataList.Add(rowData);
+                    }
+                    mappedData.Add("name:" + namedRange.NameLocal, rowDataList);
 
-        public static void bringSpecialSheetToTop(string excelFilePath,string sheetName)
+                }
+                return mappedData;
+            }
+            catch (Exception ex)
+            {
+                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                throw ex;
+            }
+            finally
+            {
+                if (excel != null)
+                {
+                    excel.ScreenUpdating = true;
+                    Marshal.ReleaseComObject(excel);
+                }
+            }
+        }
+        public static void activateNamedSheet(string excelFilePath,string sheetName)
         {
             Microsoft.Office.Interop.Excel.Application excel = null;
             try
@@ -2523,6 +2592,5 @@
                 }
             }
         }
-
     }
 }
