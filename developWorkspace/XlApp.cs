@@ -2248,28 +2248,28 @@
         }
 
         //把数据输出到excel的当前sheet中
-        public static void loadDataIntoActiveSheet(string header, List<List<string>> schemaList, List<List<string>> rowdataList) {
+        public static void loadDataIntoActiveSheet(int _startRow, int _startCol, bool _isOverwritten, bool _isFormatted, string header, List<List<string>> schemaList, List<List<string>> rowdataList) {
             List<List<string>> headerList = new List<List<string>> { new List<string> { header } };
-            loadDataIntoActiveSheet(headerList, schemaList,rowdataList);
+            loadDataIntoActiveSheet(_startRow, _startCol, _isOverwritten, _isFormatted, headerList, schemaList,rowdataList);
         }
-        public static void loadDataIntoActiveSheet(string header,List<List<string>> rowdataList)
+        public static void loadDataIntoActiveSheet(int _startRow, int _startCol, bool _isOverwritten, bool _isFormatted, string header,List<List<string>> rowdataList)
         {
             List<List<string>> headerList = new List<List<string>> { new List<string> { header } };
-            loadDataIntoActiveSheet(headerList, null, rowdataList);
+            loadDataIntoActiveSheet(_startRow, _startCol, _isOverwritten, _isFormatted, headerList, null, rowdataList);
         }
-        public static void loadDataIntoActiveSheet(List<List<string>> rowdataList)
+        public static void loadDataIntoActiveSheet(int _startRow, int _startCol, bool _isOverwritten, bool _isFormatted, List<List<string>> rowdataList)
         {
             List<List<string>> headerList = new List<List<string>> { new List<string>() };
-            loadDataIntoActiveSheet(headerList, null, rowdataList);
+            loadDataIntoActiveSheet(_startRow, _startCol, _isOverwritten,_isFormatted, headerList, null, rowdataList);
         }
-        public static void loadDataIntoActiveSheet(int headerHeight, int schemaHeight, List<List<List<string>>> allTables) {
+        public static void loadDataIntoActiveSheet(int _startRow, int _startCol, int headerHeight, int schemaHeight, bool _isOverwritten, bool _isFormatted, List<List<List<string>>> allTables) {
             List<List<string>> headerList = allTables[0].GetRange(0, headerHeight);
             List<List<string>> schemaList = allTables[0].GetRange(headerHeight, schemaHeight);
             List<List<string>> rowdataList = allTables[0].GetRange(headerHeight + schemaHeight, allTables[0].Count - headerHeight - schemaHeight);
             allTables.RemoveAt(0);
-            loadDataIntoActiveSheet(headerList, schemaList, rowdataList, allTables.ToArray());
+            loadDataIntoActiveSheet(_startRow, _startCol, _isOverwritten, _isFormatted, headerList, schemaList,rowdataList, allTables.ToArray());
         }
-        public static void loadDataIntoActiveSheet(List<List<string>> headerList, List<List<string>> schemaList,List<List<string>> rowdataList, params List<List<string>>[] otherTables)
+        public static void loadDataIntoActiveSheet(int _startRow, int _startCol,bool _isOverwritten,bool _isFormatted,List<List<string>> headerList, List<List<string>> schemaList,List<List<string>> rowdataList, params List<List<string>>[] otherTables)
         {
             dynamic excel = null;
             try
@@ -2278,21 +2278,19 @@
                 excel = Excel.GetLatestActiveExcelRef(true);
                 if (excel == null)
                 {
-                    DevelopWorkspace.Base.Services.ErrorMessage("Excelをただしく起動できないので、PC環境をご確認の上、再度実行してください");
-                    return;
+                    throw new Exception("can't initialize excel application correctly");
                 }
                 excel.Visible = true;
                 var targetSheet = excel.ActiveWorkbook.ActiveSheet;
-                if (targetSheet.UsedRange.Rows.Count > 1)
+                if (!_isOverwritten && targetSheet.UsedRange.Rows.Count > 1)
                 {
-                    //(System.Windows.Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).UnInstallExcelWatch();
                     excel.ActiveWorkbook.Worksheets.Add(System.Reflection.Missing.Value, excel.ActiveWorkbook.Worksheets[excel.ActiveWorkbook.Worksheets.Count], System.Reflection.Missing.Value, System.Reflection.Missing.Value);
                     targetSheet = excel.ActiveWorkbook.ActiveSheet;
                 }
                 excel.ScreenUpdating = false;
 
-                int startRow = 1;
-                int startCol = 1;
+                int startRow = _startRow < 1 ? 1 : _startRow;
+                int startCol = _startCol < 1 ? 1 : _startCol;
                 Range selected;
                 int headerHeight = 0;
                 int schemaHeight = 0;
@@ -2345,8 +2343,8 @@
                             targetSheet.Cells(startRow + rowdataList.Count() - 1, startCol + rowdataList[0].Count() - 1));
                             selected.NumberFormat = "@";
                             selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(rowdataList);
-                            XlApp.DrawBorder(selected);
-                            selected.EntireColumn.AutoFit();
+                            if (_isFormatted) XlApp.DrawBorder(selected);
+                            if (_isFormatted) selected.EntireColumn.AutoFit();
                             startRow += rowdataList.Count();
 
                         }
@@ -2400,8 +2398,8 @@
                             targetSheet.Cells(startRow + tempRowdataList.Count() - 1, startCol + tempRowdataList[0].Count() - 1));
                             selected.NumberFormat = "@";
                             selected.Value2 = DevelopWorkspace.Base.Utils.DataConvert.To2dArray<string>(tempRowdataList);
-                            XlApp.DrawBorder(selected);
-                            selected.EntireColumn.AutoFit();
+                            if (_isFormatted) XlApp.DrawBorder(selected);
+                            if (_isFormatted) selected.EntireColumn.AutoFit();
                             startRow += tempRowdataList.Count();
                         }
                     }
@@ -2412,7 +2410,11 @@
             }
             catch (Exception ex)
             {
-                DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                //防止UI主线程等待这个方法结束前在这个方法内又发行UI操作造成死锁
+                Task.Run(() =>
+                {
+                    DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                });
             }
             finally
             {
@@ -2472,10 +2474,11 @@
                 }
             }
         }
-        public static Dictionary<string,List<List<string>>> getDataFromActiveWorkbook(params string[] skippedSheetNameList)
+        public static (Dictionary<string, List<List<string>>> sheets, Dictionary<string, List<List<string>>> names)  getDataFromActiveWorkbook(params string[] skippedSheetNameList)
         {
             Microsoft.Office.Interop.Excel.Application excel = null;
-            Dictionary<string, List<List<string>>> mappedData = new Dictionary<string, List<List<string>>>();
+            Dictionary<string, List<List<string>>> sheetsData = new Dictionary<string, List<List<string>>>();
+            Dictionary<string, List<List<string>>> namesData = new Dictionary<string, List<List<string>>>();
             try
             {
                 //2019/02/27
@@ -2507,7 +2510,7 @@
                             }
                             rowDataList.Add(rowData);
                         }
-                        mappedData.Add("sheet:" + targetSheet.Name, rowDataList);
+                        sheetsData.Add(targetSheet.Name, rowDataList);
                     }
                 }
                 foreach (Name namedRange in excel.ActiveWorkbook.Names)
@@ -2530,10 +2533,10 @@
                         }
                         rowDataList.Add(rowData);
                     }
-                    mappedData.Add("name:" + namedRange.NameLocal, rowDataList);
+                    namesData.Add(namedRange.NameLocal, rowDataList);
 
                 }
-                return mappedData;
+                return (sheetsData, namesData);
             }
             catch (Exception ex)
             {

@@ -10,6 +10,9 @@ using DevelopWorkspace.Main;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.ValueTuple;
+//css_reference System.ValueTuple.dll
+
 public class Script
 {
 
@@ -24,6 +27,7 @@ public class Script
         WriteWorkAsync().Wait();
         XlApp.getDataFromActiveSheet().Dump();
         XlApp.getDataFromActiveSheet().To2dArray().Dump();
+        XlApp.getDataFromActiveWorkbook().Dump(); //data in all of sheets and names,return values is ValueTuple
     }
 
     static async Task WriteWorkAsync()
