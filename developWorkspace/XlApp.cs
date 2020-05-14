@@ -2072,7 +2072,7 @@
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        string[,] GetTableDataWithSchema(TableInfo tableInfo, DbCommand cmd, DataSet orgDataset = null)
+        public string[,] GetTableDataWithSchema(TableInfo tableInfo, DbCommand cmd, DataSet orgDataset = null)
         {
             List<List<string>> linked = new List<List<string>>();
             string[,] ret = null;
@@ -2289,8 +2289,9 @@
                 }
                 excel.ScreenUpdating = false;
 
-                int startRow = _startRow < 1 ? 1 : _startRow;
-                int startCol = _startCol < 1 ? 1 : _startCol;
+                var activecell = excel.ActiveCell;
+                int startRow = _startRow < 1 ? activecell.Row : _startRow;
+                int startCol = _startCol < 1 ? activecell.Column : _startCol;
                 Range selected;
                 int headerHeight = 0;
                 int schemaHeight = 0;
