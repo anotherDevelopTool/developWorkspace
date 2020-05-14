@@ -56,8 +56,6 @@
         [System.Xml.Serialization.XmlIgnore]
         public bool Loaded { get; set; }
 
-
-
         [System.Xml.Serialization.XmlIgnore]
         public string DateTimeFormatter { get; set; }
 
@@ -68,6 +66,8 @@
         public int RowCount { get; set; }
         public string LimitCondition { get; set; }
         public int ViewOrderNum { get; set; }
+        //对外提供数据连接时使用
+        public XlApp XLAppRef { get; set; }
 
         //利用正则对数据字段进行替换，但是要过滤关键词以及字段名，如果这些被'号包围则视为数据
         enum FilterType { SingleValue, MultiValue, MultiValueWithOR, CustomClause };

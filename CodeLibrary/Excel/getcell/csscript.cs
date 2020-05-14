@@ -50,4 +50,67 @@ public class Script
         }).ConfigureAwait(false);
 
     }
+	
+	
+	
+	
+	
+/*	
+using System;
+using System.Drawing;
+using System.IO;
+using System.Data.SQLite;
+using System.Data;
+using Microsoft.CSharp;
+using System.Collections.Generic;
+using DevelopWorkspace.Base;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Threading;
+using System.Threading.Tasks;
+public class Script
+{
+    public static void Main(string[] args)
+    {
+        //需要appdomain以shared方式执行
+        ContextMenuCommand selectCommand = new ContextMenuCommand("copy select sqltext to clipboard", "対象テーブルの取得SQL文をシステムのクリップボードにコピーします。", "load",
+                        (p) =>
+                        {
+                            p.Dump();
+                        },
+                        (p) => { return true; });
+        if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand))
+        {
+            "insert".Dump();
+            Services.dbsupportContextmenuCommandList.Add(selectCommand);
+        }
+    }
+}	
+*/	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

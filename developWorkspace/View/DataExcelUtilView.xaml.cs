@@ -68,6 +68,12 @@ namespace DevelopWorkspace.Main.View
         CheckBox chkDummyData;
         PaneViewModel model;
 
+        //addin可以通过追加command的方式获取数据联携
+        static ContextMenuCommand selectCommand = new ContextMenuCommand("copy select sqltext to clipboard", "対象テーブルの取得SQL文をシステムのクリップボードにコピーします。", "load",
+                        (p) => {
+                            MakeSelSql((TableInfo)p);
+                        },
+                        (p) => { return true; });
 
         //最终RestfulService公开的话，需要考虑线程安全性等等问题
         public static List<TableInfo> ALL_TABLES = null;
@@ -236,6 +242,14 @@ namespace DevelopWorkspace.Main.View
                 (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).WorksheetActiveChangeEvent += DataExcelUtilView_WorksheetActiveChangeEvent;
 
                 (this.DataContext as PaneViewModel).ThemeColorBrush = new SolidColorBrush(Color.FromArgb((byte)50, (byte)0, (byte)255, (byte)0));
+
+                //
+                if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand)) {
+                    Services.dbsupportContextmenuCommandList.Add(selectCommand);
+                }
+
+                trvFamilies.ContextMenu.ItemsSource = Services.dbsupportContextmenuCommandList;
+
 
             }));
         }
@@ -511,6 +525,7 @@ namespace DevelopWorkspace.Main.View
                             DeleteClause = whereClause == null ? "" : whereClause.DeleteClauseString,
                             ExcelTableHeaderThemeColor = themeColor,
                             ExcelSchemaHeaderThemeColor = schemaThemeColor,
+                            XLAppRef = xlApp,
                             ThemeColorBrush = brush });
 
                         //2019/08/11 当数据库为SQLite时，表的当前行数自动手动统计
@@ -941,6 +956,7 @@ namespace DevelopWorkspace.Main.View
         }
         private string getCameralPropertyString(string _functionName)
         {
+            //addin里注入的逻辑，这个做法比较Stupid，需要改善
             string mappedName = Base.Services.mappingColumnName(_functionName);
             if (string.IsNullOrWhiteSpace(mappedName))
             {
@@ -952,10 +968,8 @@ namespace DevelopWorkspace.Main.View
             }
             return $"{mappedName.First().ToString().ToUpperInvariant()}{mappedName.Substring(1)}";
         }
-        private void Schema2CodeSupport(object sender, RoutedEventArgs e)
+        private void Schema2CodeSupport(TableInfo ti)
         {
-
-            TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
             if (ti == null) return;
 
             string codeString = "TableInfo{}\n";
@@ -982,40 +996,10 @@ namespace DevelopWorkspace.Main.View
             });
             Clipboard.SetDataObject(codeString);
         }
-        private void Schema2Xml(object sender, RoutedEventArgs e)
+        private static void MakeSelSql(TableInfo ti)
         {
-            TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
             if (ti == null) return;
-            XElement root = new XElement("TableInfo");
-            root.Add(new XElement("TableName", ti.TableName));
-            root.Add(new XElement("Remark", ti.Remark));
-            root.Add(new XElement("DataSource", xlApp.ConnectionHistory.ConnectionHistoryName));
-            XElement columns = new XElement("Columns");
-            root.Add(columns);
-            ti.Columns.ToList<ColumnInfo>().ForEach(delegate (ColumnInfo ci)
-            {
-                if (ci.IsIncluded)
-                {
-                    XElement line = new XElement("Column");
-                    for (int i = 0; i < xlApp.schemaList.Count(); i++)
-                    {
-                        line.Add(new XElement(xlApp.schemaList[i], ci.Schemas[i]));
-                    }
-                    line.Add(new XElement("CameralColumnName", getCameralVariableString(ci.Schemas[1])));
-                    columns.Add(line);
-                }
-            });
-            this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("XML");
-            this.txtOutput.Text = root.ToString();
-            Clipboard.SetDataObject(this.txtOutput.Text);
-        }
-        private void MakeSelSql(object sender, RoutedEventArgs e)
-        {
-            TableInfo ti = (this.trvFamilies.SelectedItem as TableInfo);
-            if (ti == null) return;
-            this.txtOutput.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("SQL");
-            this.txtOutput.Text = ti.SelectDataSQL;
-            Clipboard.SetDataObject(this.txtOutput.Text);
+            Clipboard.SetDataObject(ti.SelectDataSQL);
         }
         private void XmlSerializer(object sender, RoutedEventArgs e)
         {

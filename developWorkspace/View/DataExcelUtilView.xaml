@@ -606,9 +606,31 @@ x:Name="dataview"
                         </ListView.ItemContainerStyle>
                         <ListView.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="select Sql" Click="MakeSelSql"></MenuItem>
-                                <MenuItem Header="convert schema into xml" Click="Schema2Xml"></MenuItem>
-                                <MenuItem Header="convert schema into CodeSupport format" Click="Schema2CodeSupport"></MenuItem>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <!--暂时找不到好的方法正确显示图标，下面的方法图标显示在内容上而不是前面的图标处-->
+                                        <!--<Setter Property="HeaderTemplate">
+                                          <Setter.Value>
+                                             <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image Width="20" Height="20" Source="{Binding image}" />
+                                                        <ContentPresenter Content="{Binding header}" />
+                                                </StackPanel>
+                                             </DataTemplate>
+                                          </Setter.Value>
+                                       </Setter>-->
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <!--暂时找不到好的方法正确显示图标，据说contextmenu不属于visualtree的缘故导致-->
+                                        <!--<Setter Property="Icon">
+                                            <Setter.Value>
+                                                <Image Width="20" Height="20" Source="{Binding image}" />
+                                            </Setter.Value>
+                                        </Setter>-->
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                        <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=SelectedItem}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
                             </ContextMenu>
                         </ListView.ContextMenu>
                         <ListView.View>

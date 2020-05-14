@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Threading;
 using System.Threading;
+using System.Collections.ObjectModel;
 
 namespace DevelopWorkspace.Base
 {
@@ -57,6 +58,8 @@ namespace DevelopWorkspace.Base
         //20190315 cancel longtimetask 
         public static Button cancelLongTimeTask = null;
         public static LongTimeTaskState longTimeTaskState = LongTimeTaskState.Continue;
+        public static ObservableCollection<ContextMenuCommand> dbsupportContextmenuCommandList = new ObservableCollection<ContextMenuCommand>();
+
         public static void CancelLongTimeTaskOn() {
             if (cancelLongTimeTask != null) {
                 cancelLongTimeTask.Dispatcher.BeginInvoke((Action)delegate () {

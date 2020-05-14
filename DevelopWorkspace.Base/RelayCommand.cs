@@ -2,11 +2,14 @@
 {
   using System;
   using System.Collections.Generic;
-  using System.Linq;
+    using System.IO;
+    using System.Linq;
   using System.Text;
-  using System.Windows.Input;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using System.Windows.Media.Imaging;
 
-  public class RelayCommand : ICommand
+    public class RelayCommand : ICommand
   {
     #region Fields
 
@@ -52,4 +55,37 @@
 
     #endregion // ICommand Members
   }
+
+    public class ContextMenuCommand : RelayCommand
+    {
+        public string header { get; set; }
+        public string tooltip { get; set; }
+        public int refcount { get; set; }
+        public Uri image { get; set; }
+        public ContextMenuCommand(string _header,string _tooltip,string _imagePath,Action<object> execute, Predicate<object> canExecute) : base(execute, canExecute)
+        {
+            header = _header;
+            tooltip = _tooltip;
+            string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", string.IsNullOrEmpty(_imagePath) ? "plugin" : _imagePath + ".png");
+            if (File.Exists(iconfile))
+            {
+                var uri = new Uri(iconfile);
+                //image = new Image { Source = new BitmapImage(uri) };
+                image = uri;
+            }
+            else
+            {
+                try
+                {
+                    var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(_imagePath) ? "plugin" : _imagePath) + ".png";
+                    //image = new Image { Source = new BitmapImage(new Uri(resourceString, UriKind.Relative)) };
+                    image = new Uri(resourceString, UriKind.Relative);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+    }
 }

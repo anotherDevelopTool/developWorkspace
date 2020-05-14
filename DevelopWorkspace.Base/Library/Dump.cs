@@ -1,4 +1,4 @@
-#region -- Copyrights --
+﻿#region -- Copyrights --
 // ***********************************************************************
 //  This file is a part of XSharper (http://xsharper.com)
 // 
@@ -388,6 +388,8 @@ namespace DevelopWorkspace.Base
 
         void process2(string name, Type t, object o, int depth)
         {
+            //如果是WPF元素则跳过
+            if (o is System.Windows.FrameworkElement) return;
 
             string typeName = GetFriendlyTypeName(t, _settings.UseFullClassNames);
 
