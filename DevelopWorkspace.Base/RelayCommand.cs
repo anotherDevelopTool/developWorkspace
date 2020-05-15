@@ -77,7 +77,7 @@
             {
                 try
                 {
-                    var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(_imagePath) ? "plugin" : _imagePath) + ".png";
+                    var resourceString = "/DevelopWorkspace;component/Images/" + (string.IsNullOrEmpty(_imagePath) ? "menuitem" : _imagePath) + ".png";
                     //image = new Image { Source = new BitmapImage(new Uri(resourceString, UriKind.Relative)) };
                     image = new Uri(resourceString, UriKind.Relative);
                 }

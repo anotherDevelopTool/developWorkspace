@@ -290,7 +290,9 @@ public class Script
                 foreach (var filename in Directory.GetFiles(KnownFolders.Downloads.Path, "*.csv"))
                 {
                     List<List<string>> currenttable = new List<List<string>> { new List<string> { Path.GetFileName(filename).Split('.')[0] } };
-                    var tests = DevelopWorkspace.Base.Utils.Files.ReadAllText(filename, Encoding.UTF8);
+                    byte[] bs = System.IO.File.ReadAllBytes(filename);
+                    var encodes = DevelopWorkspace.Base.Utils.CharCode.Detect(bs);
+                    var tests = DevelopWorkspace.Base.Utils.Files.ReadAllText(filename, encodes.Count()==0 ? Encoding.UTF8 : encodes[0]);
                     var csvStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(tests));
                     var csvReader = new DevelopWorkspace.Base.Utils.CsvReader(new StreamReader(csvStream), "|");
                     while (csvReader.Read())
