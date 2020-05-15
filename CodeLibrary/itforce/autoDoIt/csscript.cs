@@ -305,7 +305,7 @@ public class Script
                     alltables.Add(currenttable);
                 }
                 //表名所在行的高度，结构的高度，所有表的表名，结构，数据的列表的集合
-                DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet(1, 1, alltables);
+                DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet(1,1,1,1,true,true,alltables);
             }
             catch (Exception ex)
             {
