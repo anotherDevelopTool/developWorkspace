@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "processMonitor",
+  "Description": "processMonitor",
+  "Path": "C:\\xujingjiang\\developWorkspace1.1\\CodeLibrary\\itforce\\processMonitor",
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\xujingjiang\\developWorkspace1.1\\CodeLibrary\\itforce\\processMonitor\\ScriptConfig.json"
+}

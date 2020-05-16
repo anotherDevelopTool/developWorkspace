@@ -1,0 +1,22 @@
+{
+  "setting": [
+    {
+      "service_type": "rba-bo-api",
+      "process_name": "java",
+      "logfile": "C:\\Users\\{userName}\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\logs\\2019-03-09\\DefaultLogger.log",
+      "current_dir": "C:\\Users\\{userName}\\Source\\Repos\\developSupportToolls\\developWorkspace\\bin\\Debug\\logs\\2019-03-09\\DefaultLogger.log",
+      "alive": false,
+      "registed": true,
+
+	},
+    {
+      "service_type": "rba-backend-item-api",
+      "process_name": "java",
+      "logfile": "system.log",
+      "alive": false,
+      "registed": true,
+      }
+  ]
+}
+
+

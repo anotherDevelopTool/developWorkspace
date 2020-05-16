@@ -116,6 +116,7 @@
     <Compile Include="Utils\Convert.cs" />
     <Compile Include="Utils\CsvReader.cs" />
     <Compile Include="Utils\Files.cs" />
+    <Compile Include="Utils\Processes.cs" />
     <Compile Include="Utils\Script.cs" />
     <Compile Include="Utils\SqlParserWarpper.cs" />
     <Compile Include="Utils\SqlParser.cs" />

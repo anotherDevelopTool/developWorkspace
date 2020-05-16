@@ -155,6 +155,10 @@ namespace DevelopWorkspace.Base
         public static T[,] To2dArray<T>(this List<List<T>> list) {
             return DevelopWorkspace.Base.Utils.DataConvert.To2dArray<T>(list);
         }
+        public static List<List<T>> ToNestedList<T>(this T[,] value2_copy) 
+        {
+            return value2_copy.ToListWithList();
+        }
         public static List<List<T>>  ToListWithList<T>(this T[,] value2_copy)
         {
             List<List<T>> table = new List<List<T>>();

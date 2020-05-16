@@ -1,0 +1,101 @@
+<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonEdit="http://icsharpcodex.net/sharpdevelop/avalonedit"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:heid="http://schemas.heidesoft.com/components"
+             xmlns:local="clr-namespace:DevelopWorkspace.Main.View"
+             xmlns:extoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+             mc:Ignorable="d">
+
+             <StackPanel>
+		        <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" BorderThickness="1" ToolTip="通过修改addins路径下的文件processMonitor.setting的内容定制用户关联信息">
+
+					<ListView.ItemContainerStyle>
+		                <Style TargetType="ListViewItem">
+		                    <Style.Triggers>
+						        <DataTrigger Binding="{Binding alive}" Value="false">
+						          <Setter Property="Foreground" Value="Gray" />
+						        </DataTrigger>
+						    </Style.Triggers>
+                   
+		                </Style>
+		            </ListView.ItemContainerStyle>
+		            <ListView.View>
+		                <GridView>
+		                    <!-- ITFORCE -->
+		                    <GridView.ColumnHeaderContainerStyle>
+		                        <Style TargetType="{x:Type GridViewColumnHeader}">
+		                            <Setter Property="Background" Value="{Binding ThemeColorBrush}" />
+		                            <Setter Property="Foreground" Value="Black" />
+		                            <Setter Property="FontWeight" Value="Bold" />
+		                        </Style>
+		                    </GridView.ColumnHeaderContainerStyle>
+		                    <GridViewColumn>
+		                        <GridViewColumn.Header>
+		                            <StackPanel HorizontalAlignment="Left">
+		                                <TextBlock HorizontalAlignment="Left">service_type</TextBlock>
+		                            </StackPanel>
+		                        </GridViewColumn.Header>
+		                        <GridViewColumn.CellTemplate>
+		                            <DataTemplate>
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding service_type}" TextTrimming="WordEllipsis" />
+		                            </DataTemplate>
+		                        </GridViewColumn.CellTemplate>
+		                    </GridViewColumn>
+		                    <GridViewColumn>
+		                        <GridViewColumn.Header>
+		                            <StackPanel HorizontalAlignment="Left">
+		                                <TextBlock HorizontalAlignment="Left">process_name</TextBlock>
+		                            </StackPanel>
+		                        </GridViewColumn.Header>
+		                        <GridViewColumn.CellTemplate>
+		                            <DataTemplate>
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding process_name}" TextTrimming="WordEllipsis" />
+		                            </DataTemplate>
+		                        </GridViewColumn.CellTemplate>
+		                    </GridViewColumn>
+		                    <GridViewColumn>
+		                        <GridViewColumn.Header>
+		                            <StackPanel HorizontalAlignment="Left">
+		                                <TextBlock HorizontalAlignment="Left">logfile</TextBlock>
+		                            </StackPanel>
+		                        </GridViewColumn.Header>
+		                        <GridViewColumn.CellTemplate>
+		                            <DataTemplate>
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding logfile}" TextTrimming="WordEllipsis" />
+		                            </DataTemplate>
+		                        </GridViewColumn.CellTemplate>
+		                    </GridViewColumn>
+		                    <GridViewColumn>
+		                        <GridViewColumn.Header>
+		                            <StackPanel HorizontalAlignment="Left">
+		                                <TextBlock HorizontalAlignment="Left">current_dir</TextBlock>
+		                            </StackPanel>
+		                        </GridViewColumn.Header>
+		                        <GridViewColumn.CellTemplate>
+		                            <DataTemplate>
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding current_dir}" TextTrimming="WordEllipsis" />
+		                            </DataTemplate>
+		                        </GridViewColumn.CellTemplate>
+		                    </GridViewColumn>
+		                    <GridViewColumn>
+		                        <GridViewColumn.Header>
+		                            <StackPanel HorizontalAlignment="Left">
+		                                <TextBlock HorizontalAlignment="Left">alive</TextBlock>
+		                            </StackPanel>
+		                        </GridViewColumn.Header>
+		                        <GridViewColumn.CellTemplate>
+		                            <DataTemplate>
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding alive}" TextTrimming="WordEllipsis" />
+		                            </DataTemplate>
+		                        </GridViewColumn.CellTemplate>
+		                    </GridViewColumn>
+		                </GridView>
+		            </ListView.View>
+		        </ListView>
+			</StackPanel>
+    
+</UserControl>
