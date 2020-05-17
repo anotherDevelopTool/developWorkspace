@@ -122,7 +122,7 @@ public class ProcessMonitorSetting
 public class Script
 {
     //TODO 面向Addin基类化
-    [AddinMeta(Name = "processMonitor", Date = "2009-07-20", Description = "autoDoIt utility", LargeIcon = "processMonitor", Red = 128, Green = 145, Blue = 213)]
+    [AddinMeta(Name = "processMonitor", Date = "2009-07-20", Description = "monitor utility", LargeIcon = "monitor", Red = 128, Green = 145, Blue = 213)]
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
         System.Windows.Controls.ListView listView;
@@ -133,7 +133,7 @@ public class Script
         ObservableCollection<ProcessMonitorInfo> processMonitorInfoList = new ObservableCollection<ProcessMonitorInfo>();
 
 
-        [MethodMeta(Name = "最新log取得", Date = "2009-07-20", Description = "", LargeIcon = "Logger")]
+        [MethodMeta(Name = "最新log取得", Date = "2009-07-20", Description = "", LargeIcon = "logger")]
         public void EventHandler1(object sender, RoutedEventArgs e)
         {
             try
@@ -149,7 +149,7 @@ public class Script
                     return;
                 }
                 bool bMore = false;
-                Logger.WriteLine(ReadLastLines(logfile, 0, 100, out bMore).Aggregate((a, b) => a + "\n" + b));
+                Logger.WriteLine(ReadLastLines(logfile, 0, 150, out bMore).Aggregate((a, b) => a + "\n" + b));
             }
             catch (Exception ex)
             {
@@ -157,13 +157,13 @@ public class Script
             }
 
         }
-        [MethodMeta(Name = "最新status取得", Date = "2009-07-20", Description = "", LargeIcon = "status")]
+        [MethodMeta(Name = "最新status取得", Date = "2009-07-20", Description = "", LargeIcon = "monitor")]
         public void EventHandler2(object sender, RoutedEventArgs e)
         {
             try
             {
                 Process[] processes = Process.GetProcessesByName("chrome");
-
+                List<ProcessMonitorInfo> removedList = new List<ProcessMonitorInfo>();
                 foreach (var processMonitorInfo in processMonitorInfoList)
                 {
                     var process = processes.FirstOrDefault(p => p.ProcessName.Equals(processMonitorInfo.process_name) && p.GetCurrentDirectory().Equals(processMonitorInfo.current_dir));
@@ -171,7 +171,19 @@ public class Script
                     {
                         processMonitorInfo.alive = true;
                     }
+                    else
+                    {
+                        if (processMonitorInfo.registed)
+                        {
+                            processMonitorInfo.alive = false;
+                        }
+                        else
+                        {
+                            removedList.Add(processMonitorInfo);
+                        }
+                    }
                 }
+                removedList.ForEach(p => processMonitorInfoList.Remove(p));
                 foreach (var process in processes)
                 {
                     var selected = processMonitorInfoList.FirstOrDefault(p => p.process_name.Equals(process.ProcessName) && process.GetCurrentDirectory().Equals(p.current_dir));
