@@ -492,6 +492,9 @@ namespace Heidesoft.Components.BackgroundRendering
             //新创建的UI线程，BusyIndicator的UIElement都在这个线程内创建，那么访问它需要使用属于本线程的Dispatcher.CurrentDispatcher
             private void CreateAndRun()
             {
+                SynchronizationContext.SetSynchronizationContext(
+                    new DispatcherSynchronizationContext(
+                    Dispatcher.CurrentDispatcher));
                 backgroundDispatcher = Dispatcher.CurrentDispatcher;
                 var source = new VisualTargetPresentationSource(child);
                 root = new Canvas();
