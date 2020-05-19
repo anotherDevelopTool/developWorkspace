@@ -22,10 +22,7 @@ public class Script
                             DevelopWorkspace.Main.TableInfo tableinfo = p as DevelopWorkspace.Main.TableInfo;
                             if (tableinfo != null)
                             {
-                                tableinfo.XLAppRef.DbConnection.Open();
-                                tableinfo.XLAppRef.DbConnection.CreateCommand();
-                                tableinfo.XLAppRef.GetTableDataWithSchema(tableinfo, tableinfo.XLAppRef.DbConnection.CreateCommand()).ToListWithList().exportToActiveSheetOfExcel(0,5,0,0,true);
-                                tableinfo.XLAppRef.DbConnection.Close();
+                                tableinfo.exportToActiveSheet();
 
                             }
                         },
@@ -35,6 +32,39 @@ public class Script
             "insert".Dump();
             Services.dbsupportContextmenuCommandList.Add(selectCommand);
         }
+
+
+        ContextMenuCommand junitCommand = new ContextMenuCommand("export junit formatted data to activesheet", "対象テーブルのデータをJNITフォーマットでアクティブシートにエクスポートします。", "junit",
+                        (p) =>
+                        {
+                            DevelopWorkspace.Main.TableInfo tableinfo = p as DevelopWorkspace.Main.TableInfo;
+                            if (tableinfo != null)
+                            {
+                                string[,] data = tableinfo.getTableDataWithSchema();
+                                if (data != null)
+                                {
+                                    List<List<string>> rowList = data.ToNestedList();
+                                    rowList.RemoveAt(4);
+                                    rowList.RemoveAt(3);
+                                    rowList.RemoveAt(2);
+                                    rowList.RemoveAt(0);
+                                    if(rowList.Count > 4)
+                                    {
+                                        rowList.RemoveRange(4,rowList.Count -4 );
+                                    }
+                                    //rowList.Insert(0, new List<string> { tableinfo.TableName });
+                                    rowList.exportToActiveSheetOfExcel(headerHeight: 1, schemaHeight: 0, _startRow: 0, _startCol: 0, _isOverwritten: false);
+                                }
+                            }
+                        },
+                        (p) => { return true; });
+        if (!Services.dbsupportContextmenuCommandList.Contains(junitCommand))
+        {
+            "insert".Dump();
+            Services.dbsupportContextmenuCommandList.Add(junitCommand);
+        }
+
+
     }
 }
 
