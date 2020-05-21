@@ -14,6 +14,7 @@ x:Name="dataview"
     <UserControl.Resources>
 
         <ResourceDictionary>
+
             <SolidColorBrush x:Key="EditorSelectionBrush"  Color="Red"/>
             <main:DbProviderImageConverter x:Key="DbProviderImageConverter"/>
             <main:ElementWidhtConverter x:Key="ElementWidhtConverter"/>
@@ -248,7 +249,10 @@ x:Name="dataview"
                     </Fluent:DropDownButton>
 
                 </Fluent:RibbonGroupBox>
-
+                <Fluent:RibbonGroupBox Header="スナップショット">
+                    <Fluent:InRibbonGallery x:Name="gallerySampleInRibbonGallery" MinItemsInRow="5" MaxItemsInRow="5" Width="500" Icon="Images\Gray.png" Header="Grouped" ItemTemplate="{DynamicResource middleDataItemTemplate}" GroupBy="Group" ResizeMode="Both">
+                    </Fluent:InRibbonGallery>
+                </Fluent:RibbonGroupBox>    
             </Fluent:RibbonTabItem>
             <Fluent:RibbonTabItem x:Key="SqlTabTool" Header="SQL commands"  ReduceOrder="(P),(P),(P),(P),(P)">
                 <Fluent:RibbonGroupBox Header="SQL commands">

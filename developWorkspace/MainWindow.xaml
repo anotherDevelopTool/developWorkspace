@@ -8,6 +8,7 @@
     xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+    xmlns:main="clr-namespace:DevelopWorkspace.Main"
     xmlns:extoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase"
     xmlns:heid="http://schemas.heidesoft.com/components"
@@ -456,6 +457,27 @@
 
     </Fluent:RibbonWindow.Resources>
     <Canvas>
+        <FrameworkElement.Resources>
+            <ResourceDictionary>
+                <DataTemplate x:Key="middleDataItemTemplate" DataType="{x:Type  main:Snapshot }">
+                    <Border>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Border 
+                                BorderBrush="#FF000000" 
+                                BorderThickness="1" 
+                                Padding="5" 
+                                CornerRadius="5" >
+                                <TextBlock FontSize="10" VerticalAlignment="Center" Text="{Binding Path=SnapshotName, Mode=OneWay}" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+                <DataTemplate x:Key="largeDataItemTemplate" DataType="{x:Type  main:Snapshot }">
+                    <Border ToolTip="{Binding SnapshotName}">
+                    </Border>
+                </DataTemplate>
+            </ResourceDictionary>
+        </FrameworkElement.Resources>
         <Button x:Name="cancelLongTimeTask"  Click="cancelLongTimeTask_Click" Style="{StaticResource RoundedButtonStyle}" Visibility="Hidden" Background="Transparent" Content="cancel" Width="220" Height="30" Canvas.Left="{Binding Mode=OneWay, Converter={StaticResource CancelButtonPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Width}" Canvas.Top="{Binding Mode=OneWay, Converter={StaticResource CancelButtonTopPosConverter},RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window},AncestorLevel=1},Path=Height}" Panel.ZIndex="12345">
         </Button>
         <heid:BusyDecorator x:Name="busy" IsEnabledWhenBusy="False" BusyStyle="{StaticResource busyStyle}">

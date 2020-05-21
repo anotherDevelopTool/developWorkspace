@@ -85,6 +85,7 @@
         public virtual DbSet<ProjectKeyword> ProjectKeywords { get; set; }
         public virtual DbSet<DataTypeCondition> DataTypeConditiones { get; set; }
         public virtual DbSet<ConnectionHistory> ConnectionHistories { get; set; }
+        public virtual DbSet<Snapshot> Snapshots { get; set; }
         public virtual DbSet<ThirdPartyTool> ThirdPartyTools { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
 
@@ -126,6 +127,21 @@
 
     }
 
+    [Table("Snapshots")]
+    public class Snapshot
+    {
+        [Key, Column(Order = 0)]
+        public int SnapshotID { get; set; }
+        public int ConnectionHistoryID { get; set; }
+        public string SnapshotName { get; set; }
+
+        [Column("GroupName")] 
+        public string Group { get; set; }
+        public string TableName { get; set; }
+        public string WhereClause { get; set; }
+        public string DeleteClause { get; set; }
+
+    }
 
     [Table("ProjectKeywords")]
     public class ProjectKeyword

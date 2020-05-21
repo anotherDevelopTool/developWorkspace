@@ -107,6 +107,8 @@ namespace DevelopWorkspace.Main
             [Category(@"database apply...")]
             public bool sqlOnly { get; set; }
             [Category(@"database apply...")]
+            public bool snapshotMode { get; set; }
+            [Category(@"database apply...")]
             public int sqlRoundupSize { get; set; }
             [Category(@"database apply...")]
             public bool batchUpdate { get; set; }

@@ -63,6 +63,7 @@ namespace DevelopWorkspace.Main.View
         Fluent.Button btnPreviousQuery;
         Fluent.Button btnNextQuery;
         Fluent.Button btnExportDataToExcel;
+        Fluent.InRibbonGallery gallerySampleInRibbonGallery;
         PropertyGrid propertygrid1;
         DatabaseConfig databaseConfig;
         CheckBox chkDummyData;
@@ -217,7 +218,8 @@ namespace DevelopWorkspace.Main.View
                 chkDummyData = Base.Utils.WPF.FindLogicaChild<CheckBox>(sqlTabTool, "chkDummyData");
 
                 propertygrid1 = Base.Utils.WPF.FindLogicaChild<PropertyGrid>(ribbonTabTool, "propertygrid1");
-
+                gallerySampleInRibbonGallery = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<Fluent.InRibbonGallery>(ribbonTabTool, "gallerySampleInRibbonGallery");
+                gallerySampleInRibbonGallery.SelectionChanged += GallerySampleInRibbonGallery_SelectionChanged;
 
                 //针对setting...的sqlite的路径需要根据startup.homedir改写.
                 var connectionHistory = (from history in DbSettingEngine.GetEngine().ConnectionHistories
@@ -252,6 +254,26 @@ namespace DevelopWorkspace.Main.View
 
 
             }));
+        }
+
+        private void GallerySampleInRibbonGallery_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0) {
+                Snapshot selectedSnapshot = e.AddedItems[0] as Snapshot;
+                var snapshots = DbSettingEngine.GetEngine().Snapshots.Where(snapshot => snapshot.ConnectionHistoryID.Equals(selectedSnapshot.ConnectionHistoryID) && snapshot.SnapshotName.Equals(selectedSnapshot.SnapshotName));
+                tableList.ForEach(ti => ti.Selected = false);
+                foreach (var snapshot in snapshots)
+                {
+                    var tableinfo = tableList.FirstOrDefault(ti => ti.TableName.Equals(snapshot.TableName));
+                    if (tableinfo != null) {
+                        tableinfo.WhereClause = snapshot.WhereClause;
+                        tableinfo.DeleteClause = snapshot.DeleteClause;
+                        tableinfo.Selected = true;
+                    }
+                }
+                tableCheckedFilter.IsChecked = false;
+                tableCheckedFilter.IsChecked = true;
+            }
         }
 
         private void DataExcelUtilView_WorksheetActiveChangeEvent(object sender, WorksheetActiveChangeEventArgs e)
@@ -705,6 +727,15 @@ namespace DevelopWorkspace.Main.View
 
                 tabControl1.ToolTip = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.resultview.usage") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.resultview.usage"].ToString() : "";
                 trvFamilies.ToolTip = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.resultview.usage") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.resultview.usage"].ToString() : "";
+
+
+                var snapshots = DbSettingEngine.GetEngine().Snapshots.Where(snapshot => snapshot.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID).GroupBy(snapshot => snapshot.SnapshotName);
+                ObservableCollection<Snapshot> snapshotList = new ObservableCollection<Snapshot>();
+                foreach (var group in snapshots)
+                {
+                    snapshotList.Add(group.FirstOrDefault());
+                }
+                gallerySampleInRibbonGallery.ItemsSource = snapshotList;
 
             }
             catch (Exception ex) {
