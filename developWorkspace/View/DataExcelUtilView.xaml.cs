@@ -64,6 +64,7 @@ namespace DevelopWorkspace.Main.View
         Fluent.Button btnNextQuery;
         Fluent.Button btnExportDataToExcel;
         Fluent.InRibbonGallery gallerySampleInRibbonGallery;
+        Fluent.RibbonGroupBox snapshotGroupBox;
         PropertyGrid propertygrid1;
         DatabaseConfig databaseConfig;
         CheckBox chkDummyData;
@@ -218,8 +219,6 @@ namespace DevelopWorkspace.Main.View
                 chkDummyData = Base.Utils.WPF.FindLogicaChild<CheckBox>(sqlTabTool, "chkDummyData");
 
                 propertygrid1 = Base.Utils.WPF.FindLogicaChild<PropertyGrid>(ribbonTabTool, "propertygrid1");
-                gallerySampleInRibbonGallery = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<Fluent.InRibbonGallery>(ribbonTabTool, "gallerySampleInRibbonGallery");
-                gallerySampleInRibbonGallery.SelectionChanged += GallerySampleInRibbonGallery_SelectionChanged;
 
                 //针对setting...的sqlite的路径需要根据startup.homedir改写.
                 var connectionHistory = (from history in DbSettingEngine.GetEngine().ConnectionHistories
@@ -234,6 +233,13 @@ namespace DevelopWorkspace.Main.View
 
                 databaseConfig = JsonConfig<DatabaseConfig>.load(StartupSetting.instance.homeDir);
                 propertygrid1.SelectedObject = databaseConfig;
+
+                if (AppConfig.DatabaseConfig.This.snapshotMode)
+                {
+                    gallerySampleInRibbonGallery = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<Fluent.InRibbonGallery>(ribbonTabTool, "gallerySampleInRibbonGallery");
+                    snapshotGroupBox = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<Fluent.RibbonGroupBox>(ribbonTabTool, "snapshotGroupBox");
+                    gallerySampleInRibbonGallery.SelectionChanged += GallerySampleInRibbonGallery_SelectionChanged;
+                }
 
                 //这里面的代码MainWindow和插件之间互相参照，代码需要整理.尤其ribbon的状态管理等目前依然有为解决BUG
                 (Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).ribbonSelectionChangeEvent += new RibbonSelectionChangeEventHandler(RibbonSelectionChangeEventFunc);
@@ -728,14 +734,25 @@ namespace DevelopWorkspace.Main.View
                 tabControl1.ToolTip = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.resultview.usage") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.resultview.usage"].ToString() : "";
                 trvFamilies.ToolTip = Application.Current.Resources.Contains("dbsupport.lang.tools.dbsupport.hint.resultview.usage") ? Application.Current.Resources["dbsupport.lang.tools.dbsupport.hint.resultview.usage"].ToString() : "";
 
-
-                var snapshots = DbSettingEngine.GetEngine().Snapshots.Where(snapshot => snapshot.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID).GroupBy(snapshot => snapshot.SnapshotName);
-                ObservableCollection<Snapshot> snapshotList = new ObservableCollection<Snapshot>();
-                foreach (var group in snapshots)
+                //スナップショット
+                if (AppConfig.DatabaseConfig.This.snapshotMode)
                 {
-                    snapshotList.Add(group.FirstOrDefault());
+                    var snapshots = DbSettingEngine.GetEngine().Snapshots.Where(snapshot => snapshot.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID).GroupBy(snapshot => snapshot.SnapshotName);
+                    ObservableCollection<Snapshot> snapshotList = new ObservableCollection<Snapshot>();
+                    foreach (var group in snapshots)
+                    {
+                        snapshotList.Add(group.FirstOrDefault());
+                    }
+                    if (snapshotList.Count > 0)
+                    {
+                        gallerySampleInRibbonGallery.ItemsSource = snapshotList;
+                        snapshotGroupBox.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        snapshotGroupBox.Visibility = Visibility.Hidden;
+                    }
                 }
-                gallerySampleInRibbonGallery.ItemsSource = snapshotList;
 
             }
             catch (Exception ex) {

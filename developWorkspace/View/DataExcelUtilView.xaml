@@ -249,7 +249,7 @@ x:Name="dataview"
                     </Fluent:DropDownButton>
 
                 </Fluent:RibbonGroupBox>
-                <Fluent:RibbonGroupBox Header="スナップショット">
+                <Fluent:RibbonGroupBox  x:Name="snapshotGroupBox" Visibility="Hidden" Header="スナップショット">
                     <Fluent:InRibbonGallery x:Name="gallerySampleInRibbonGallery" MinItemsInRow="5" MaxItemsInRow="5" Width="500" Icon="Images\Gray.png" Header="Grouped" ItemTemplate="{DynamicResource middleDataItemTemplate}" GroupBy="Group" ResizeMode="Both">
                     </Fluent:InRibbonGallery>
                 </Fluent:RibbonGroupBox>    
