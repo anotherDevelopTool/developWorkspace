@@ -748,13 +748,13 @@
                 excel = Excel.GetLatestActiveExcelRef();
                 if (excel == null)
                 {
-                    DevelopWorkspace.Base.Services.ErrorMessage("エクスポートされたシートと同様なフォーマットのシートを選択して、再度実行してください");
+                    DevelopWorkspace.Base.Logger.WriteLine("open workbook which own a active sheet with same format as exported one,then try again",Level.WARNING);
                     return orgDataSet;
                 }
                 var targetSheet = excel.ActiveWorkbook.ActiveSheet;
                 if (targetSheet.UsedRange.Rows.Count < 7)
                 {
-                    DevelopWorkspace.Base.Services.ErrorMessage("エクスポートされたシートと同様なフォーマットのシートを選択して、再度実行してください");
+                    DevelopWorkspace.Base.Logger.WriteLine("open workbook which own a active sheet with same format as exported one,then try again", Level.WARNING);
                     return new DataSet();
                 }
 
@@ -1682,17 +1682,14 @@
                 excel = Excel.GetLatestActiveExcelRef(true);
                 if (excel == null)
                 {
-                    DevelopWorkspace.Base.Services.ErrorMessage("Excelをただしく起動できないので、PC環境をご確認の上、再度実行してください");
-                    //DevelopWorkspace.Base.Services.ErrorMessage("Can't start Excel application correctly,please comfirm your PC enviroment");
+                    DevelopWorkspace.Base.Logger.WriteLine("Can't start Excel application correctly,please comfirm your PC enviroment");
                     return;
                 }
                 excel.Visible = true;
                 var targetSheet = excel.ActiveWorkbook.ActiveSheet;
                 if (targetSheet.UsedRange.Rows.Count > 1)
                 {
-                    //DevelopWorkspace.Base.Services.ErrorMessage("現在のシートにデータがあるため、エクスポート先として指定できない、新しいシートを選択して、再度実行してください");
                     DevelopWorkspace.Base.Logger.WriteLine("Somewhat has already existed in active worksheet,create a new worksheet", Level.WARNING);
-
 
                     //todo
                     (System.Windows.Application.Current.MainWindow as DevelopWorkspace.Main.MainWindow).UnInstallExcelWatch();

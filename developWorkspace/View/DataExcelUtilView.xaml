@@ -249,8 +249,8 @@ x:Name="dataview"
                     </Fluent:DropDownButton>
 
                 </Fluent:RibbonGroupBox>
-                <Fluent:RibbonGroupBox  x:Name="snapshotGroupBox" Visibility="Hidden" Header="スナップショット">
-                    <Fluent:InRibbonGallery x:Name="gallerySampleInRibbonGallery" MinItemsInRow="5" MaxItemsInRow="5" Width="500" Icon="Images\Gray.png" Header="Grouped" ItemTemplate="{DynamicResource middleDataItemTemplate}" GroupBy="Group" ResizeMode="Both">
+                <Fluent:RibbonGroupBox  x:Name="snapshotGroupBox" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.snapshot}">
+                    <Fluent:InRibbonGallery x:Name="gallerySampleInRibbonGallery"   ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.snapshot}" MinItemsInRow="5" MaxItemsInRow="5" Width="500" Icon="Images\Gray.png" Header="Grouped" ItemTemplate="{DynamicResource middleDataItemTemplate}" GroupBy="Group" ResizeMode="Both">
                     </Fluent:InRibbonGallery>
                 </Fluent:RibbonGroupBox>    
             </Fluent:RibbonTabItem>

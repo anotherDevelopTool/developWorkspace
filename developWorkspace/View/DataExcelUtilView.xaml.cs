@@ -33,6 +33,7 @@ using DevelopWorkspace.Main.Model;
 using System.Runtime.InteropServices;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -69,6 +70,9 @@ namespace DevelopWorkspace.Main.View
         DatabaseConfig databaseConfig;
         CheckBox chkDummyData;
         PaneViewModel model;
+
+        //为了提高schema的装载体验，表和column的schema分别进行装载
+        Task getColumnSchemaTask;
 
         //addin可以通过追加command的方式获取数据联携
         static ContextMenuCommand selectCommand = new ContextMenuCommand("copy select sqltext to clipboard", "対象テーブルの取得SQL文をシステムのクリップボードにコピーします。", "load",
@@ -599,112 +603,133 @@ namespace DevelopWorkspace.Main.View
                 //DevelopWorkspace.Base.Logger.WriteLine("table columninfo....start", Base.Level.DEBUG);
                 //2019/03/09
                 //针对mysql不能通过getschematable取得正确的类型信息，这里通过数据库字典的方式取得列属性信息取得
-                if (tableList.Count != 0 && !string.IsNullOrEmpty(iProvider.SelectColumnListSql))
-                {
-                    Base.Services.BusyWorkIndicatorService($"aquiring column infomation");
-                    string tableNameList = "";
-                    for (int idx = 0; idx < tableList.Count; idx++)
-                    {
-                        tableNameList += "'" + tableList[idx].TableName + "'";
-                        if (idx != tableList.Count - 1)
+                getColumnSchemaTask = new Task(() => {
+                    System.Reflection.ConstructorInfo constructorInfo = xlApp.DbConnection.GetType().GetConstructor(Type.EmptyTypes);
+                    System.Data.Common.DbConnection nestedConn = constructorInfo.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
+                    nestedConn.ConnectionString = xlApp.ConnectionString;
+                    try {
+                        nestedConn.Open();
+                        DbCommand getColumnCommand = nestedConn.CreateCommand();
+                        if (tableList.Count != 0 && !string.IsNullOrEmpty(iProvider.SelectColumnListSql))
                         {
-                            tableNameList += ",";
-                        }
-                    }
-                    dbCommand.CommandText = iProvider.SelectColumnListSql.FormatWith(new { Schema = selectedSchema, TableNameList = tableNameList });
-                    DevelopWorkspace.Base.Logger.WriteLine(dbCommand.CommandText, Base.Level.DEBUG);
-
-                    List<ColumnInfo> columns = new List<ColumnInfo>();
-                    string previousTableName = "";
-                    string tableName = "";
-                    TableInfo currenttable = new TableInfo();
-                    string tableNameKey = "TableName";
-                    string columnNameKey = "ColumnName";
-                    string dataTypeNameKey = "DataTypeName";
-                    string iskeyKey = "Iskey";
-                    string remarkKey = "Remark";
-                    string dataLengthKey = "DataLength";
-
-                    using (DbDataReader rdr = dbCommand.ExecuteReader())
-                    {
-                        while (rdr.Read())
-                        {
-                            tableName = rdr[tableNameKey].ToString();
-
-                            if(!tableName.Equals(currenttable.TableName)) currenttable = tableList.First(t => t.TableName == tableName);
-
-                            if (previousTableName == "") previousTableName = tableName;
-                            if (tableName != previousTableName)
+                            string tableNameList = "";
+                            for (int idx = 0; idx < tableList.Count; idx++)
                             {
-                                TableInfo tableInfo = tableList.First(t => t.TableName == previousTableName);
-                                //2019/03/12 如果provider的selectTableList和selectColumnList的SQL缺少整合性会导致一览的表名在列里面不存在导致BUG，这个时候会提醒这个问题及时去修改
-                                if (tableInfo != null)
+                                tableNameList += "'" + tableList[idx].TableName + "'";
+                                if (idx != tableList.Count - 1)
                                 {
-                                    tableInfo.Loaded = true;
-                                    tableInfo.Columns = columns;
-                                    columns = new List<ColumnInfo>();
+                                    tableNameList += ",";
                                 }
-                                else {
-                                    DevelopWorkspace.Base.Logger.WriteLine($"{tableName} don't exist in tablelist,please confirm your provider setting", Base.Level.WARNING);
-                                }
-
-                                previousTableName = tableName;
                             }
-                            ColumnInfo columnInfo = new ColumnInfo() { ColumnName = rdr[columnNameKey].ToString(),
-                                ColumnType = rdr[dataTypeNameKey].ToString().ToLower(),
-                                //2019/08/31
-                                parent = currenttable,
-                                Schemas = new List<string>() {
+                            getColumnCommand.CommandText = iProvider.SelectColumnListSql.FormatWith(new { Schema = selectedSchema, TableNameList = tableNameList });
+                            DevelopWorkspace.Base.Logger.WriteLine(getColumnCommand.CommandText, Base.Level.DEBUG);
+                            List<ColumnInfo> columns = new List<ColumnInfo>();
+                            string previousTableName = "";
+                            string tableName = "";
+                            TableInfo currenttable = new TableInfo();
+                            string tableNameKey = "TableName";
+                            string columnNameKey = "ColumnName";
+                            string dataTypeNameKey = "DataTypeName";
+                            string iskeyKey = "Iskey";
+                            string remarkKey = "Remark";
+                            string dataLengthKey = "DataLength";
+
+                            using (DbDataReader rdr = getColumnCommand.ExecuteReader())
+                            {
+                                while (rdr.Read())
+                                {
+                                    tableName = rdr[tableNameKey].ToString();
+
+                                    if (!tableName.Equals(currenttable.TableName)) currenttable = tableList.First(t => t.TableName == tableName);
+
+                                    if (previousTableName == "") previousTableName = tableName;
+                                    if (tableName != previousTableName)
+                                    {
+                                        TableInfo tableInfo = tableList.First(t => t.TableName == previousTableName);
+                                        //2019/03/12 如果provider的selectTableList和selectColumnList的SQL缺少整合性会导致一览的表名在列里面不存在导致BUG，这个时候会提醒这个问题及时去修改
+                                        if (tableInfo != null)
+                                        {
+                                            tableInfo.Loaded = true;
+                                            tableInfo.Columns = columns;
+                                            columns = new List<ColumnInfo>();
+                                        }
+                                        else
+                                        {
+                                            DevelopWorkspace.Base.Logger.WriteLine($"{tableName} don't exist in tablelist,please confirm your provider setting", Base.Level.WARNING);
+                                        }
+
+                                        previousTableName = tableName;
+                                    }
+                                    ColumnInfo columnInfo = new ColumnInfo()
+                                    {
+                                        ColumnName = rdr[columnNameKey].ToString(),
+                                        ColumnType = rdr[dataTypeNameKey].ToString().ToLower(),
+                                        //2019/08/31
+                                        parent = currenttable,
+                                        Schemas = new List<string>() {
                                                                             string.IsNullOrEmpty(rdr[iskeyKey].ToString())?"":"*",
                                                                             rdr[columnNameKey].ToString(),
                                                                             rdr[remarkKey].ToString(),
                                                                             rdr[dataTypeNameKey].ToString().ToLower(),
                                                                             rdr[dataLengthKey].ToString()
-                                                                       } };
-                            columnInfo.dataTypeCondtion = xlApp.GetDataTypeCondition(rdr[dataTypeNameKey].ToString().ToLower());
-                            columns.Add(columnInfo);
+                                                                       }
+                                    };
+                                    columnInfo.dataTypeCondtion = xlApp.GetDataTypeCondition(rdr[dataTypeNameKey].ToString().ToLower());
+                                    columns.Add(columnInfo);
 
+                                }
+                                //last one
+                                TableInfo ti = tableList.First(t => t.TableName == tableName);
+                                ti.Loaded = true;
+                                ti.Columns = columns;
+
+                            }
+                            //如果有没有load的表信息，则说明provider里的设定不整合
+                            if (tableList.Find((TableInfo tableinfo) => tableinfo.Loaded == false) != null)
+                            {
+                                DevelopWorkspace.Base.Logger.WriteLine($"{tableName} don't exist in tablelist,please confirm your provider setting", Base.Level.WARNING);
+                            }
                         }
-                        //last one
-                        TableInfo ti = tableList.First(t => t.TableName == tableName);
-                        ti.Loaded = true;
-                        ti.Columns = columns;
+                        //目前下面这个处理之前针对所有DB，之后不能正确取得datatypeName的原因，现在这个处理只有SQLite在使用
+                        xlApp.schemaList = (from tableSchema in iProvider.TableSchemas select tableSchema.SchemaName).ToArray();
+                        foreach (TableInfo ti in tableList)
+                        {
+                            //只有在需要时才去载入Schema信息
+                            ti.LazyLoadSchemaAction = () =>
+                            {
+                                return LazyLoadSchema(xlApp.DbConnection, xlApp.
+                                                        ConnectionString,
+                                                        ti.SchemaName,
+                                                        ti.TableName,
+                                                        xlApp.schemaList, ti);
+                            };
+                        }
 
+                        //2019/3/13
+                        //利用左结合的方式优化检索速度-作为技巧留下痕迹实际没有用到
+                        if (DatabaseConfig.This.withRemark)
+                        {
+                            List<ProjectKeyword> projectKeywordsList = DbRemarkHelper.projectKeywordsList;
+                            List<ColumnInfo> allColumns = new List<ColumnInfo>();
+                            foreach (var tableinfo in tableList) allColumns.AddRange(tableinfo.Columns);
+                            //var remarks = from tableinfo in tableList join projectKeyword in projectKeywordsList on tableinfo.TableName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() into tm from defualt in tm.DefaultIfEmpty(new ProjectKeyword()) where string.IsNullOrEmpty(tableinfo.Remark) select new { tableinfo.TableName, defualt.ProjectKeywordRemark };
+                            var remarkList = from columnInfo in allColumns join projectKeyword in projectKeywordsList on columnInfo.ColumnName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { columnInfo, projectKeyword.ProjectKeywordRemark };
+                            foreach (var remark in remarkList)
+                            {
+                                remark.columnInfo.Schemas[2] = remark.ProjectKeywordRemark;
+                            }
+                        }
                     }
-                    //如果有没有load的表信息，则说明provider里的设定不整合
-                    if (tableList.Find((TableInfo tableinfo) => tableinfo.Loaded == false) != null) {
-                        DevelopWorkspace.Base.Logger.WriteLine($"{tableName} don't exist in tablelist,please confirm your provider setting", Base.Level.WARNING);
-                    }
-                }
-                //目前下面这个处理之前针对所有DB，之后不能正确取得datatypeName的原因，现在这个处理只有SQLite在使用
-                xlApp.schemaList = (from tableSchema in iProvider.TableSchemas select tableSchema.SchemaName).ToArray();
-                foreach (TableInfo ti in tableList)
-                {
-                    //只有在需要时才去载入Schema信息
-                    ti.LazyLoadSchemaAction = () =>
+                    catch (Exception ex)
                     {
-                        return LazyLoadSchema(xlApp.DbConnection, xlApp.
-                                                ConnectionString,
-                                                ti.SchemaName,
-                                                ti.TableName,
-                                                xlApp.schemaList,ti);
-                    };
-                }
-
-                //2019/3/13
-                //利用左结合的方式优化检索速度-作为技巧留下痕迹实际没有用到
-                if (DatabaseConfig.This.withRemark)
-                {
-                    List<ProjectKeyword> projectKeywordsList = DbRemarkHelper.projectKeywordsList;
-                    List<ColumnInfo> allColumns = new List<ColumnInfo>();
-                    foreach (var tableinfo in tableList) allColumns.AddRange(tableinfo.Columns);
-                    //var remarks = from tableinfo in tableList join projectKeyword in projectKeywordsList on tableinfo.TableName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() into tm from defualt in tm.DefaultIfEmpty(new ProjectKeyword()) where string.IsNullOrEmpty(tableinfo.Remark) select new { tableinfo.TableName, defualt.ProjectKeywordRemark };
-                    var remarkList = from columnInfo in allColumns join projectKeyword in projectKeywordsList on columnInfo.ColumnName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { columnInfo, projectKeyword.ProjectKeywordRemark };
-                    foreach (var remark in remarkList)
-                    {
-                        remark.columnInfo.Schemas[2] = remark.ProjectKeywordRemark;
+                        DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
                     }
-                }
+                    finally
+                    {
+                        nestedConn.Close();
+                    }
+                });
+                getColumnSchemaTask.Start();
                 //DevelopWorkspace.Base.Logger.WriteLine("table reorder....start", Base.Level.DEBUG);
 
                 //针对ViewOrderNum字段进行降序排序确保常用表考前显示
@@ -776,7 +801,14 @@ namespace DevelopWorkspace.Main.View
         /// <returns></returns>
         public List<ColumnInfo> LazyLoadSchema(System.Data.Common.DbConnection conn, string connectionString, string schemaName, string tableName, string[] schemaList,TableInfo parent)
         {
-            DevelopWorkspace.Base.Logger.WriteLine("get columninfo....start", Base.Level.DEBUG);
+            //原来只是为sqlite准备的方法，现在其他provider使用了非同期的取得方法，这里为了安全起见等待非同期结束
+            while (!getColumnSchemaTask.Wait(100))
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+
+            }
+            if (parent.Loaded) return parent.Columns;
+
             //2019/03/11 postgressql/mysql等都切换到数据字典的方式，这个方法留作数据字典无法对应的数据库
             List<ColumnInfo> columns = new List<ColumnInfo>();
 

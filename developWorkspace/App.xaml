@@ -38,6 +38,8 @@
             <system:String x:Key="dbsupport.lang.tools.dbsupport.sync">反映</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.diff">最新DBとの差分を作成する</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.diff">差分作成</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.snapshot">良く利用する場面、またはテストケースに紐づく対象テーブル、抽出条件、削除条件をスナップショットとして保持する機能を提供する、後日の現場を素早く戻すにも役立つ</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.snapshot">スナップショット</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.setting">設定</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.executesql">SQL文を実行して結果をOutputViewに出力する</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.formatsql">SQL文をフォーマットする</system:String>
