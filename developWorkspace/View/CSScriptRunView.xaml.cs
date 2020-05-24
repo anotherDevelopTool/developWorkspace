@@ -78,7 +78,7 @@ namespace DevelopWorkspace.Main.View
                 compiled = CSScript.LoadCode(script, null, true, new string[] { "WindowsBase", "PresentationCore", "PresentationFramework", "System.Xaml", "PresentationFramework" });
             }
             AsmHelper scriptAsm = new AsmHelper(compiled);
-            scriptAsm.Invoke("Script.Main", view);
+            scriptAsm.Invoke("*.Main", view);
             if (!assemblyCache.ContainsKey(script.GetHashCode()))
             {
                 assemblyCache.Add(script.GetHashCode(), compiled);

@@ -45,7 +45,8 @@ namespace DevelopWorkspace.Main
             public string Description { get; set; }
             [Category(@"a..Script")]
             public string Path { get; set; }
-
+            //是否随主程序一起启动，主要目的是增强dbsupport等工具
+            public bool StartUp { get; set; }
             public ScriptConfig()
             {
             }

@@ -32,6 +32,7 @@ using RoslynPad.Roslyn;
 using System.Reflection;
 using Workspace = DevelopWorkspace.Main.Model.Workspace;
 using System.Threading.Tasks;
+using static DevelopWorkspace.Main.AppConfig;
 
 namespace DevelopWorkspace.Main
 {
@@ -371,7 +372,7 @@ namespace DevelopWorkspace.Main
             {
                 language = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
             }
-
+            //多国语设置
             var messages = (from message in DbSettingEngine.GetEngine(true).Messages
                             where message.Language.Equals(language)
                             select message).ToArray<Message>();
@@ -419,18 +420,6 @@ namespace DevelopWorkspace.Main
 
             //2019/03/15
             Base.Services.cancelLongTimeTask = this.cancelLongTimeTask;
-
-            BackgroundWorker backgroundWorker = new BackgroundWorker(); ;
-            backgroundWorker.DoWork += new DoWorkEventHandler((s, e) =>
-            {
-                //设定DB的初始化比较花时间，把这个移到主画面以至于后面的子画面的打开事件会比较快
-                //将来可以把这个动作做得更用户友善比如load中等...
-                var items = (from history in DbSettingEngine.GetEngine(true).ConnectionHistories
-                             select history).ToArray<ConnectionHistory>();
-
-            });
-
-            backgroundWorker.RunWorkerAsync();
 
             ////todo trial version
             //string passFile = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DevelopWorkspace.exe.password");
@@ -786,9 +775,35 @@ namespace DevelopWorkspace.Main
 
         private void dockManager_Loaded(object sender, RoutedEventArgs e)
         {
-            var userview = FindChild<View.CSScriptRunView>(dockManager, "tabview_usercontrol");
-            Debug.Print(string.Format("debug ---{0}", "dockManager_LayoutChanged"));
+            BackgroundWorker backgroundWorker = new BackgroundWorker();
+            backgroundWorker.DoWork += new DoWorkEventHandler((s, ev) =>
+            {
+                //设定DB的初始化比较花时间，把这个移到主画面以至于后面的子画面的打开事件会比较快
+                //将来可以把这个动作做得更用户友善比如load中等...
+                var items = (from history in DbSettingEngine.GetEngine(true).ConnectionHistories
+                             select history).ToArray<ConnectionHistory>();
 
+
+                DevelopWorkspace.Main.View.ScriptExecutor executor = new DevelopWorkspace.Main.View.ScriptExecutor();
+                try
+                {
+                    DirectoryInfo codeLibrary = new DirectoryInfo(System.IO.Path.Combine(StartupSetting.instance.homeDir, "CodeLibrary"));
+                    if (codeLibrary.Exists)
+                    {
+                        loadStartupScripts(codeLibrary, executor);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Level.ERROR);
+                    //2019/3/16 InnerException perhaps is null
+                    if (ex.InnerException != null) DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message, Level.ERROR);
+                    if (ex.StackTrace != null) DevelopWorkspace.Base.Logger.WriteLine(ex.StackTrace, Level.ERROR);
+                }
+
+            });
+
+            backgroundWorker.RunWorkerAsync();
         }
 
         private void dockManager_Initialized(object sender, EventArgs e)
@@ -862,6 +877,31 @@ namespace DevelopWorkspace.Main
                 ICSharpCodeX.AvalonEdit.Edi.HighlightingExtension.RegisterCustomHighlightingPatterns(StartupSetting.instance.homeDir);
             }).ConfigureAwait(false);
         }
+        private void loadStartupScripts(System.IO.DirectoryInfo root, View.ScriptExecutor executor)
+        {
+            System.IO.FileInfo[]  files = root.GetFiles("ScriptConfig.json");
+            foreach (System.IO.FileInfo fi in files)
+            {
+                ScriptConfig config = JsonConfig<ScriptConfig>.load(System.IO.Path.GetDirectoryName(fi.FullName));
+                if (config.StartUp) {
+                    string[] inputs = new string[] { };
+                    var csharpScript = System.IO.File.ReadAllText(System.IO.Path.Combine(fi.DirectoryName, "csscript.cs"));
+                    executor.executeScript(csharpScript, inputs);
+                }
+            }
+
+            // Now find all the subdirectories under this directory.
+            System.IO.DirectoryInfo[]  subDirs = root.GetDirectories();
+
+            foreach (System.IO.DirectoryInfo dirInfo in subDirs)
+            {
+                // Resursive call for each subdirectory.
+                loadStartupScripts(dirInfo, executor);
+            }
+            //}));
+        }
+
+
     }
 
     public class DebugBindingConverter : IValueConverter
