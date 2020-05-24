@@ -600,6 +600,17 @@ namespace DevelopWorkspace.Main.View
                         remark.tableinfo.Remark = remark.ProjectKeywordRemark;
                     }
                 }
+                //针对ViewOrderNum字段进行降序排序确保常用表考前显示
+                var tableList4ViewOrderNum = tableList.Select(table =>
+                {
+                    var whereClause = xlApp.ConnectionHistory.WhereClauseHistories.FirstOrDefault(y => y.TableName == table.TableName);
+                    table.ViewOrderNum = (whereClause != null) ? whereClause.ViewOrderNum : 0;
+                    return table;
+                });
+
+                tableList = (from table in tableList4ViewOrderNum orderby table.ViewOrderNum descending select table).ToList();
+
+
                 //DevelopWorkspace.Base.Logger.WriteLine("table columninfo....start", Base.Level.DEBUG);
                 //2019/03/09
                 //针对mysql不能通过getschematable取得正确的类型信息，这里通过数据库字典的方式取得列属性信息取得
@@ -607,7 +618,8 @@ namespace DevelopWorkspace.Main.View
                     System.Reflection.ConstructorInfo constructorInfo = xlApp.DbConnection.GetType().GetConstructor(Type.EmptyTypes);
                     System.Data.Common.DbConnection nestedConn = constructorInfo.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
                     nestedConn.ConnectionString = xlApp.ConnectionString;
-                    try {
+                    try
+                    {
                         nestedConn.Open();
                         DbCommand getColumnCommand = nestedConn.CreateCommand();
                         if (tableList.Count != 0 && !string.IsNullOrEmpty(iProvider.SelectColumnListSql))
@@ -685,9 +697,30 @@ namespace DevelopWorkspace.Main.View
 
                             }
                             //如果有没有load的表信息，则说明provider里的设定不整合
-                            if (tableList.Find((TableInfo tableinfo) => tableinfo.Loaded == false) != null)
+                            if (tableList.Where(ti => ti.Loaded == false).Count() > 0)
                             {
-                                DevelopWorkspace.Base.Logger.WriteLine($"{tableName} don't exist in tablelist,please confirm your provider setting", Base.Level.WARNING);
+                                var notLoadedTableListString = tableList.Where(ti => ti.Loaded == false).Select(ti => ti.TableName).Aggregate((a, b) => a + "," + b);
+                                DevelopWorkspace.Base.Logger.WriteLine($"{notLoadedTableListString} don't exist in tablelist,please confirm your provider setting", Base.Level.WARNING);
+                            }
+                            //2019/3/13
+                            //利用左结合的方式优化检索速度-作为技巧留下痕迹实际没有用到
+                            if (DatabaseConfig.This.withRemark)
+                            {
+                                List<ProjectKeyword> projectKeywordsList = DbRemarkHelper.projectKeywordsList;
+                                List<ColumnInfo> allColumns = new List<ColumnInfo>();
+                                foreach (var tableinfo in tableList)
+                                {
+                                    if (tableinfo.Columns != null)
+                                    {
+                                        allColumns.AddRange(tableinfo.Columns);
+                                    }
+                                }
+                                //var remarks = from tableinfo in tableList join projectKeyword in projectKeywordsList on tableinfo.TableName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() into tm from defualt in tm.DefaultIfEmpty(new ProjectKeyword()) where string.IsNullOrEmpty(tableinfo.Remark) select new { tableinfo.TableName, defualt.ProjectKeywordRemark };
+                                var remarkList = from columnInfo in allColumns join projectKeyword in projectKeywordsList on columnInfo.ColumnName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { columnInfo, projectKeyword.ProjectKeywordRemark };
+                                foreach (var remark in remarkList)
+                                {
+                                    remark.columnInfo.Schemas[2] = remark.ProjectKeywordRemark;
+                                }
                             }
                         }
                         //目前下面这个处理之前针对所有DB，之后不能正确取得datatypeName的原因，现在这个处理只有SQLite在使用
@@ -704,21 +737,6 @@ namespace DevelopWorkspace.Main.View
                                                         xlApp.schemaList, ti);
                             };
                         }
-
-                        //2019/3/13
-                        //利用左结合的方式优化检索速度-作为技巧留下痕迹实际没有用到
-                        if (DatabaseConfig.This.withRemark)
-                        {
-                            List<ProjectKeyword> projectKeywordsList = DbRemarkHelper.projectKeywordsList;
-                            List<ColumnInfo> allColumns = new List<ColumnInfo>();
-                            foreach (var tableinfo in tableList) allColumns.AddRange(tableinfo.Columns);
-                            //var remarks = from tableinfo in tableList join projectKeyword in projectKeywordsList on tableinfo.TableName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() into tm from defualt in tm.DefaultIfEmpty(new ProjectKeyword()) where string.IsNullOrEmpty(tableinfo.Remark) select new { tableinfo.TableName, defualt.ProjectKeywordRemark };
-                            var remarkList = from columnInfo in allColumns join projectKeyword in projectKeywordsList on columnInfo.ColumnName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { columnInfo, projectKeyword.ProjectKeywordRemark };
-                            foreach (var remark in remarkList)
-                            {
-                                remark.columnInfo.Schemas[2] = remark.ProjectKeywordRemark;
-                            }
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -732,15 +750,6 @@ namespace DevelopWorkspace.Main.View
                 getColumnSchemaTask.Start();
                 //DevelopWorkspace.Base.Logger.WriteLine("table reorder....start", Base.Level.DEBUG);
 
-                //针对ViewOrderNum字段进行降序排序确保常用表考前显示
-                var tableList4ViewOrderNum = tableList.Select(table =>
-                {
-                    var whereClause = xlApp.ConnectionHistory.WhereClauseHistories.FirstOrDefault(y => y.TableName == table.TableName);
-                    table.ViewOrderNum = (whereClause != null) ? whereClause.ViewOrderNum : 0;
-                    return table;
-                });
-
-                tableList = (from table in tableList4ViewOrderNum orderby table.ViewOrderNum descending select table).ToList();
 
                 //DevelopWorkspace.Base.Logger.WriteLine("table bind....start", Base.Level.DEBUG);
                 view.Filter -= new FilterEventHandler(view_Filter);
@@ -892,6 +901,15 @@ namespace DevelopWorkspace.Main.View
             }
             finally {
                 nestedConn.Close();
+            }
+            if (DatabaseConfig.This.withRemark)
+            {
+                List<ProjectKeyword> projectKeywordsList = DbRemarkHelper.projectKeywordsList;
+                var remarkList = from columnInfo in columns join projectKeyword in projectKeywordsList on columnInfo.ColumnName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { columnInfo, projectKeyword.ProjectKeywordRemark };
+                foreach (var remark in remarkList)
+                {
+                    remark.columnInfo.Schemas[2] = remark.ProjectKeywordRemark;
+                }
             }
             return columns;
         }
