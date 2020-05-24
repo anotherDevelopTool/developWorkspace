@@ -1,20 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ICSharpCodeX.AvalonEdit;
-using ICSharpCodeX.AvalonEdit.Rendering;
-using ICSharpCodeX.AvalonEdit.Search;
 using System.Windows.Threading;
 using System.Threading;
 using DevelopWorkspace.Base;
@@ -90,7 +76,7 @@ namespace DevelopWorkspace.Main.View
                 remoteLogger.level = AppConfig.SysConfig.This.logLevel;
                 remoteLogger.output = (logtext) =>
                 {
-                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
+                    //Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
                     //this.LogViewTextEditor.AppendText(logtext + "\n");
                     //this.LogViewTextEditor.ScrollToEnd();
                     //2019/03/04 后台线程调用时对应 
@@ -98,9 +84,7 @@ namespace DevelopWorkspace.Main.View
                     {
                         this.LogViewTextEditor.AppendText(logtext + "\n");
                         this.LogViewTextEditor.ScrollToEnd();
-
                     });
-
                 };
             }));
         }

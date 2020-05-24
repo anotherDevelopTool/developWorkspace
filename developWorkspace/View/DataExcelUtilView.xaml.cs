@@ -257,7 +257,7 @@ namespace DevelopWorkspace.Main.View
 
                 //
                 if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand)) {
-                    Services.dbsupportContextmenuCommandList.Add(selectCommand);
+                    Services.dbsupportContextmenuCommandList.Insert(0,selectCommand);
                 }
 
                 trvFamilies.ContextMenu.ItemsSource = Services.dbsupportContextmenuCommandList;
@@ -337,6 +337,8 @@ namespace DevelopWorkspace.Main.View
                     catch (Exception ex)
                     {
                         DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                        if (ex.InnerException != null) DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message, Level.TRACE);
+                        if (ex.StackTrace != null) DevelopWorkspace.Base.Logger.WriteLine(ex.StackTrace, Level.TRACE);
                     }
                     //busy.IsBusyIndicatorShowing = false;
                     //busy.ClearValue(BusyDecorator.FadeTimeProperty);
@@ -344,7 +346,6 @@ namespace DevelopWorkspace.Main.View
             }
             catch (Exception ex)
             {
-                DevelopWorkspace.Base.Services.ErrorMessage(ex.Message);
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
             }
         }
@@ -615,6 +616,7 @@ namespace DevelopWorkspace.Main.View
                 //2019/03/09
                 //针对mysql不能通过getschematable取得正确的类型信息，这里通过数据库字典的方式取得列属性信息取得
                 getColumnSchemaTask = new Task(() => {
+                    DevelopWorkspace.Base.Logger.WriteLine($"getColumnSchemaTask begin...", Level.DEBUG);
                     System.Reflection.ConstructorInfo constructorInfo = xlApp.DbConnection.GetType().GetConstructor(Type.EmptyTypes);
                     System.Data.Common.DbConnection nestedConn = constructorInfo.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
                     nestedConn.ConnectionString = xlApp.ConnectionString;
@@ -737,10 +739,12 @@ namespace DevelopWorkspace.Main.View
                                                         xlApp.schemaList, ti);
                             };
                         }
+                        DevelopWorkspace.Base.Logger.WriteLine($"getColumnSchemaTask end normally...", Level.DEBUG);
                     }
                     catch (Exception ex)
                     {
                         DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
+                        DevelopWorkspace.Base.Logger.WriteLine($"getColumnSchemaTask end with excetpion...", Level.DEBUG);
                     }
                     finally
                     {
@@ -896,7 +900,6 @@ namespace DevelopWorkspace.Main.View
             catch (Exception ex)
             {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
-                System.Diagnostics.Debug.WriteLine($"can't aquire schema infomation from {tableName}", Base.Level.ERROR);
                 throw new Exception($"can't aquire schema infomation from {tableName}");
             }
             finally {

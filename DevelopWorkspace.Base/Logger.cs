@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DevelopWorkspace.Base
@@ -34,7 +35,7 @@ namespace DevelopWorkspace.Base
                     //        output($"{Enum.GetName(typeof(Level), _level)}...{DateTime.Now.ToString()}>[{sf.GetMethod().Name}]:{line}");
                     //    }
                     //}
-                    output($"{Enum.GetName(typeof(Level), _level)}...{DateTime.Now.ToString()}>[{sf.GetMethod().Name}]:{logText}");
+                    output($"{Enum.GetName(typeof(Level), _level)}...{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}[{string.Format("{0,5}",Thread.CurrentThread.ManagedThreadId)}]>[{sf.GetMethod().Name}]:{logText}");
                 }
                 else
                 {

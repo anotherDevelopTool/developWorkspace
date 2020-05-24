@@ -10,29 +10,22 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Diagnostics;
 using System.Threading;
-using Xceed.Wpf.AvalonDock.Layout;
 using System.Windows.Media;
 using DevelopWorkspace.Base;
 using Fluent;
 
 using Button = Fluent.Button;
-using System.Linq.Expressions;
 using System.IO;
 using System.Windows.Media.Imaging;
 using DevelopWorkspace.Base.Model;
 using System.Collections.Generic;
-using DevelopWorkspace.Main.Model;
 using System.Windows.Controls.Primitives;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Scripting;
-using RoslynPad.Editor;
 using RoslynPad.Roslyn;
-using System.Reflection;
 using Workspace = DevelopWorkspace.Main.Model.Workspace;
 using System.Threading.Tasks;
 using static DevelopWorkspace.Main.AppConfig;
+using System.Text;
 
 namespace DevelopWorkspace.Main
 {
@@ -778,11 +771,12 @@ namespace DevelopWorkspace.Main
             BackgroundWorker backgroundWorker = new BackgroundWorker();
             backgroundWorker.DoWork += new DoWorkEventHandler((s, ev) =>
             {
+                //给lOutputToolView完全初始化结束一个机会，否则这里的后续处理的logger日志可能无法出力到lOutputToolView里面
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate { }));
                 //设定DB的初始化比较花时间，把这个移到主画面以至于后面的子画面的打开事件会比较快
                 //将来可以把这个动作做得更用户友善比如load中等...
                 var items = (from history in DbSettingEngine.GetEngine(true).ConnectionHistories
                              select history).ToArray<ConnectionHistory>();
-
 
                 DevelopWorkspace.Main.View.ScriptExecutor executor = new DevelopWorkspace.Main.View.ScriptExecutor();
                 try
@@ -797,8 +791,8 @@ namespace DevelopWorkspace.Main
                 {
                     DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Level.ERROR);
                     //2019/3/16 InnerException perhaps is null
-                    if (ex.InnerException != null) DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message, Level.ERROR);
-                    if (ex.StackTrace != null) DevelopWorkspace.Base.Logger.WriteLine(ex.StackTrace, Level.ERROR);
+                    if (ex.InnerException != null) DevelopWorkspace.Base.Logger.WriteLine(ex.InnerException.Message, Level.DEBUG);
+                    if (ex.StackTrace != null) DevelopWorkspace.Base.Logger.WriteLine(ex.StackTrace, Level.DEBUG);
                 }
 
             });
@@ -884,8 +878,9 @@ namespace DevelopWorkspace.Main
             {
                 ScriptConfig config = JsonConfig<ScriptConfig>.load(System.IO.Path.GetDirectoryName(fi.FullName));
                 if (config.StartUp) {
+                    DevelopWorkspace.Base.Logger.WriteLine($"loading {System.IO.Path.Combine(fi.DirectoryName, "csscript.cs")}...", Level.DEBUG);
                     string[] inputs = new string[] { };
-                    var csharpScript = System.IO.File.ReadAllText(System.IO.Path.Combine(fi.DirectoryName, "csscript.cs"));
+                    var csharpScript = DevelopWorkspace.Base.Utils.Files.ReadAllText(System.IO.Path.Combine(fi.DirectoryName, "csscript.cs"), Encoding.UTF8);
                     executor.executeScript(csharpScript, inputs);
                 }
             }
