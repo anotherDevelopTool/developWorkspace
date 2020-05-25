@@ -103,7 +103,7 @@
                                 KeyboardNavigation.TabIndex="2" 
                                 KeyboardNavigation.TabNavigation="Cycle">
                             <Border.Background>
-                                <ImageBrush ImageSource="/Xceed.Wpf.AvalonDock;component/Themes/Generic/Images/transparent-new-york-city.png" Opacity="0.2"/>
+                                <ImageBrush ImageSource="/Xceed.Wpf.AvalonDock;component/Themes/Generic/Images/transparent-new-york-city.png" />
                             </Border.Background>
                             <ContentPresenter x:Name="PART_SelectedContentHost" 
                                               ContentSource="SelectedContent" 
