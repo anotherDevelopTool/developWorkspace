@@ -1183,6 +1183,12 @@
                     //    DevelopWorkspace.Base.Logger.WriteLine(string.Format("do nothing with table:{0} where primarykey does not exist", tableKEY),Level.WARNING);
                     //    continue;
                     //}
+                    //如果不设定下面这个模式会导致即使字段过长会自动截断而不抛出错误
+                    if (provider.ProviderName.Equals("MySQL"))
+                    {
+                        cmd.CommandText = "SET SESSION sql_mode = 'STRICT_TRANS_TABLES'";
+                        cmd.ExecuteNonQuery();
+                    }
 
                     if (!string.IsNullOrEmpty(workArea[tableKEY].DeleteSql))
                     {
