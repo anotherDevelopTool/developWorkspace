@@ -256,11 +256,14 @@ namespace DevelopWorkspace.Main.View
                 (this.DataContext as PaneViewModel).ThemeColorBrush = new SolidColorBrush(Color.FromArgb((byte)50, (byte)0, (byte)255, (byte)0));
 
                 //
-                if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand)) {
-                    Services.dbsupportContextmenuCommandList.Insert(0,selectCommand);
-                }
+                lock (Services.dbsupportContextmenuCommandList)
+                {
+                    if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand)) {
 
-                trvFamilies.ContextMenu.ItemsSource = Services.dbsupportContextmenuCommandList;
+                        Services.dbsupportContextmenuCommandList.Insert(0, selectCommand);
+                    }
+                    trvFamilies.ContextMenu.ItemsSource = Services.dbsupportContextmenuCommandList;
+                }
 
 
             }));

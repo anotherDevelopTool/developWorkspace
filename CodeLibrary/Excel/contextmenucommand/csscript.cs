@@ -30,7 +30,10 @@ public class Script
         if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand))
         {
             "insert".Dump();
-            Services.dbsupportContextmenuCommandList.Add(selectCommand);
+			lock (Services.dbsupportContextmenuCommandList)
+			{
+				Services.dbsupportContextmenuCommandList.Add(selectCommand);
+			}
         }
 
 
@@ -61,7 +64,10 @@ public class Script
         if (!Services.dbsupportContextmenuCommandList.Contains(junitCommand))
         {
             "insert".Dump();
-            Services.dbsupportContextmenuCommandList.Add(junitCommand);
+			lock (Services.dbsupportContextmenuCommandList)
+			{
+				Services.dbsupportContextmenuCommandList.Add(junitCommand);
+			}
         }
 
 
