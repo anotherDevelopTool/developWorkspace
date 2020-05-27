@@ -1,0 +1,17 @@
+﻿@{
+	var whereColumns = (Model.SelectColumns as IEnumerable<dynamic>).Where(item => ((IDictionary<string,object>)item)["IsUpdateKey"].ToString().Equals("*"));
+	var updateColumns = (Model.SelectColumns as IEnumerable<dynamic>).Where(item => ((IDictionary<string,object>)item)["IsUpdateColumn"].ToString().Equals("*"));
+}
+
+UPDATE   
+  @Model.TableInfo.TableName
+SET  
+@foreach (dynamic column in updateColumns)
+{
+@:  @column.ColumnName = /* @column.CameralVariable */ @column.SampleData
+}
+WHERE
+@foreach (dynamic column in whereColumns)
+{
+@:  @column.ColumnName = /* @column.CameralVariable */ @column.SampleData
+}

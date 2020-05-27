@@ -1,0 +1,15 @@
+﻿@{
+	var whereColumns = (Model.SelectColumns as IEnumerable<dynamic>).Where(item => ((IDictionary<string,object>)item)["IsInsertKey"].ToString().Equals("*"));
+	var selectString = (Model.SelectColumns as IEnumerable<dynamic>).Select(item => ((IDictionary<string,object>)item)["ColumnName"].ToString()).Aggregate((c1, c2) => c1 + "\n  ," + c2);
+}
+INSERT INTO @Model.TableInfo.TableName
+(  
+  @selectString
+)
+VALUES
+(
+@foreach (dynamic column in whereColumns)
+{
+@:  @column.ColumnName = /* @column.CameralVariable */ @column.SampleData
+}
+)

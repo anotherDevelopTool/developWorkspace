@@ -19,7 +19,7 @@ x:Name="dataview"
             <main:DbProviderImageConverter x:Key="DbProviderImageConverter"/>
             <main:ElementWidhtConverter x:Key="ElementWidhtConverter"/>
             <main:BackgroundBrushConverter x:Key="BackgroundBrushConverter"/>
-
+            <main:SqlCommnadContextMenuConvert x:Key="SqlCommnadContextMenuConvert"/>
 
             <Fluent:RibbonTabItem x:Key="RibbonTabTool" Header="DB commands" ReduceOrder="(P),(P),(P),(P),(P)">
 
@@ -570,7 +570,7 @@ x:Name="dataview"
             </TabControl.Resources>
             <TabItem Name="tabItem1" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.schema}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.schema}">
                 <Grid>
-                    <ListView Name="trvFamilies"  ItemsSource="{Binding}" KeyDown="trvFamilies_KeyDown" BorderThickness="0" SelectionMode="Single" SelectionChanged="trvFamilies_SelectionChanged">
+                    <ListView x:Name="trvFamilies"  ItemsSource="{Binding}" KeyDown="trvFamilies_KeyDown" BorderThickness="0" SelectionMode="Single" SelectionChanged="trvFamilies_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <EventSetter Event="KeyUp" Handler="trvFamilies_KeyDown"/>
@@ -742,7 +742,7 @@ x:Name="dataview"
             </TabItem>
             <TabItem Name="tabItem2" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.sql}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.sql}">
                 <Grid>
-                    <avalonEdit:EdiTextEditor Grid.Row="1" Name="txtOutput" 
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtOutput" 
                                    TextChanged="txtOutput_TextChanged"
                                    IsReadOnly="False" 
                                    ShowLineNumbers="True"
@@ -752,8 +752,27 @@ x:Name="dataview"
                                    VerticalScrollBarVisibility="Auto"  >
                         <avalonEdit:EdiTextEditor.ContextMenu>
                             <ContextMenu>
-                                <Separator/>
-                                <MenuItem Header="convert schema into CodeSupport format" Click="sql2CodeSupport"></MenuItem>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
                             </ContextMenu>
                         </avalonEdit:EdiTextEditor.ContextMenu>
                     </avalonEdit:EdiTextEditor>

@@ -1,0 +1,37 @@
+﻿package .db.@(Model.TableInfo.DbKind).entity;
+
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * @(Model.TableInfo.ClassName)一件に該当するエンティティクラス
+ *
+ */
+@@NoArgsConstructor
+@@AllArgsConstructor
+@@Entity
+@@Data
+@{
+@:@@IdClass(@(Model.TableInfo.ClassName)EntityId.class)
+}
+public class @(Model.TableInfo.ClassName)Entity { 
+@foreach (dynamic column in Model.SelectColumns)
+{
+@:  // @column.Remark
+  if(@column.isKey.ToString().Equals("*")){
+@:  @@Id
+  }
+@:  @@Column(name = "@column.ColumnName") 
+@:  private @column.JavaType @column.CameralVariable;  
+
+}
+}
+

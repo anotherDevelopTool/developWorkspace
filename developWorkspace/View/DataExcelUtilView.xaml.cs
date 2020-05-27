@@ -75,7 +75,7 @@ namespace DevelopWorkspace.Main.View
         Task getColumnSchemaTask;
 
         //addin可以通过追加command的方式获取数据联携
-        static ContextMenuCommand selectCommand = new ContextMenuCommand("copy select sqltext to clipboard", "対象テーブルの取得SQL文をシステムのクリップボードにコピーします。", "load",
+        static ContextMenuCommand selectCommand = new ContextMenuCommand("copy select sqltext to clipboard", "対象テーブルの取得SQL文をシステムのクリップボードにコピーします。", "sql_contextmenu",
                         (p) => {
                             MakeSelSql((TableInfo)p);
                         },
@@ -256,16 +256,13 @@ namespace DevelopWorkspace.Main.View
                 (this.DataContext as PaneViewModel).ThemeColorBrush = new SolidColorBrush(Color.FromArgb((byte)50, (byte)0, (byte)255, (byte)0));
 
                 //
-                lock (Services.dbsupportContextmenuCommandList)
-                {
-                    if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand)) {
+                if (!Services.dbsupportContextmenuCommandList.Contains(selectCommand)) {
 
-                        Services.dbsupportContextmenuCommandList.Insert(0, selectCommand);
-                    }
-                    trvFamilies.ContextMenu.ItemsSource = Services.dbsupportContextmenuCommandList;
+                    Services.dbsupportContextmenuCommandList.Insert(0, selectCommand);
                 }
+                trvFamilies.ContextMenu.ItemsSource = Services.dbsupportContextmenuCommandList;
 
-
+                txtOutput.ContextMenu.ItemsSource = Services.dbsupportSqlContextmenuCommandList;
             }));
         }
 
@@ -613,7 +610,7 @@ namespace DevelopWorkspace.Main.View
                 });
 
                 tableList = (from table in tableList4ViewOrderNum orderby table.ViewOrderNum descending select table).ToList();
-
+                tabControl1.Tag = tableList;
 
                 //DevelopWorkspace.Base.Logger.WriteLine("table columninfo....start", Base.Level.DEBUG);
                 //2019/03/09
@@ -1656,110 +1653,6 @@ namespace DevelopWorkspace.Main.View
         private void toggleSelectFilter_Unchecked(object sender, RoutedEventArgs e)
         {
             if (view.View != null) view.View.Refresh();
-
-        }
-
-        private void sql2CodeSupport(object sender, RoutedEventArgs e)
-        {
-            SetViewActionState(ViewActionState.do_start);
-            Base.Services.BusyWorkService(new Action(() =>
-            {
-                try
-                {
-                    SqlParserWrapper wrapper = new SqlParserWrapper();
-                    wrapper.Parse(this.txtOutput.Text);
-
-                    var SelectColumnList = wrapper.SelectColumnList();
-                    if (SelectColumnList.Count() == 0)
-                    {
-                        Base.Logger.WriteLine($"can't parse correctly,please confirm your SQL", Base.Level.WARNING);
-                        return;
-                    }
-                    string guessedTableName = SelectColumnList.Select(selectColumn => selectColumn.TableName).FirstOrDefault(tablename => !string.IsNullOrEmpty(tablename));
-                    TableInfo gussedTableInfo = tableList.FirstOrDefault(tableinfo => tableinfo.TableName.Equals(guessedTableName));
-                    if (gussedTableInfo == null)
-                    {
-                        Base.Logger.WriteLine($"can't find corresponding table:{guessedTableName},please confirm your SQL", Base.Level.WARNING);
-                        return;
-                    }
-                    string codeString = "TableInfo{}\n";
-                    codeString += "\t" + "TableName" + "\t" + gussedTableInfo.TableName + "\n";
-                    codeString += "\t" + "ClassName" + "\t" + getCameralPropertyString(gussedTableInfo.TableName) + "\n";
-                    codeString += "\t" + "Remark" + "\t" + gussedTableInfo.Remark + "\n";
-                    codeString += "\t" + "DataSource" + "\t" + xlApp.ConnectionHistory.ConnectionHistoryName + "\n";
-                    codeString += "\t" + "SQL file create" + "\t" + "no" + "\n";
-                    codeString += "\t" + "Columns[]" + "\t" + xlApp.schemaList.ToList().GetRange(1, xlApp.schemaList.Count() - 1).Aggregate((x, y) => x + "\t" + y);
-                    codeString += "\t" + "CameralVariable" + "\t" + "CameralProperty";
-                    codeString += "\t" + "isK" + "\t" + "isS" + "\t" + "isW" + "\n";
-
-                    //类型，别名统一适配
-                    SelectColumnList.ForEach(column =>
-                    {
-                        string isKey = "";
-                        string isSelect = "";
-                        string isWhere = "";
-                        string columnName = column.FieldName;
-                        string remark = "";
-                        string dataTypeName = column.DataType;
-                        string columnSize = "";
-                        if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.SELECT_ONLY)
-                        {
-                            isSelect = "○";
-                        }
-                        else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.WHERE_ONLY)
-                        {
-                            isWhere = "○";
-                        }
-                        else if (column.SelectOrWhereClause == SqlParser.SelectOrWhereClauseEnum.ALL)
-                        {
-                            isSelect = "○";
-                            isWhere = "○";
-                        }
-
-                        if (!string.IsNullOrEmpty(column.TableName) && !string.IsNullOrEmpty(column.FieldName))
-                        {
-                            var tableInfo = tableList.FirstOrDefault(tableinfo => tableinfo.TableName.Equals(column.TableName));
-                            if (tableInfo != null)
-                            {
-                                var columnInfo = tableInfo.Columns.FirstOrDefault(columninfo => columninfo.ColumnName.Equals(column.FieldName));
-                                if (columnInfo != null)
-                                {
-                                    isKey = "*" == columnInfo.Schemas[0]?"○":"";
-                                    remark = columnInfo.Schemas[2];
-                                    dataTypeName = columnInfo.Schemas[3];
-                                    columnSize = columnInfo.Schemas[4];
-                                }
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(column.AliasName))
-                        {
-                            columnName = column.AliasName;
-                        }
-                        if (string.IsNullOrEmpty(dataTypeName))
-                        {
-                            //推测 datatype为默认string类型
-                            dataTypeName = "varchar";
-                        }
-
-                        List<string> schema = new List<string>() { columnName, remark, dataTypeName, columnSize };
-                        codeString += "\t" + "\t" + schema.Aggregate((x, y) => x + "\t" + y);
-                        codeString += "\t" + getCameralVariableString(columnName) + "\t" + getCameralPropertyString(columnName);
-                        codeString += "\t" + isKey + "\t" + isSelect + "\t" + isWhere + "\n";
-
-                    });
-                    Clipboard.SetDataObject(codeString);
-
-                }
-                catch (Exception ex)
-                {
-                    Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
-                }
-                finally
-                {
-                    SetViewActionState(ViewActionState.do_end);
-                }
-            }));
 
         }
 

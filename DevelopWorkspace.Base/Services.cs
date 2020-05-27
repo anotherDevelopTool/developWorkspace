@@ -59,7 +59,8 @@ namespace DevelopWorkspace.Base
         public static Button cancelLongTimeTask = null;
         public static LongTimeTaskState longTimeTaskState = LongTimeTaskState.Continue;
         public static ObservableCollection<ContextMenuCommand> dbsupportContextmenuCommandList = new ObservableCollection<ContextMenuCommand>();
-
+        public static ObservableCollection<ContextMenuCommand> dbsupportSqlContextmenuCommandList = new ObservableCollection<ContextMenuCommand>();
+        
         public static void CancelLongTimeTaskOn() {
             if (cancelLongTimeTask != null) {
                 cancelLongTimeTask.Dispatcher.BeginInvoke((Action)delegate () {

@@ -1,0 +1,26 @@
+﻿package .model.biz.@(Model.TableInfo.DbKind).res;
+
+import java.io.Serializable;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+/**
+ * @(Model.TableInfo.ClassName)情報を保持するモデル
+ *
+ */
+@@NoArgsConstructor
+@@AllArgsConstructor
+@@Entity
+@@Data
+public class @(Model.TableInfo.ClassName)Model { 
+@foreach (dynamic column in Model.SelectColumns)
+{
+@:  private @column.JavaType @column.CameralVariable;  
+
+}
+}
+

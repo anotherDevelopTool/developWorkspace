@@ -113,7 +113,19 @@
            return new object[]{100,10};
        }
    }
+    class SqlCommnadContextMenuConvert : IMultiValueConverter
+    {
+        /// 需传入一组对象，（基础值 比对值）
+        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return values.Clone();
+        }
 
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return null;
+        }
+    }
     class BackgroundBrushConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

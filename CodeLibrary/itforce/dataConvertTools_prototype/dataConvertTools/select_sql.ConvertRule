@@ -1,0 +1,14 @@
+﻿@{
+	var sqlWhereColumns = (Model.SelectColumns as IEnumerable<dynamic>).Where(item => ((IDictionary<string,object>)item)["IsSelectKey"].ToString().Equals("*"));
+	var selectString = (Model.SelectColumns as IEnumerable<dynamic>).Select(item => ((IDictionary<string,object>)item)["ColumnName"].ToString()).Aggregate((c1, c2) => c1 + "\n  ," + c2);
+}
+
+SELECT
+  @selectString
+FROM
+  @Model.TableInfo.TableName
+WHERE
+@foreach (dynamic column in sqlWhereColumns)
+{
+@:  @column.ColumnName = /* @column.CameralVariable */ @column.SampleData
+}
