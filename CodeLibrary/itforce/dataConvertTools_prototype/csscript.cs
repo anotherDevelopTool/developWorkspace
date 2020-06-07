@@ -100,7 +100,7 @@ public class Script
                                                 List<string> yList = new List<string>();
                                                 for (int j = 0; j < rowList.Count - 1; j++)
                                                 {
-                                                    if (i < rowList[0].Count - 1)
+                                                    if (i < rowList[0].Count)
                                                     {
                                                         yList.Add(rowList[j][i]);
                                                     }
@@ -334,6 +334,18 @@ public class Script
                 convertRuleFilePath = Path.Combine(StartupSetting.instance.homeDir, "addins", "dataConvertTools", "update_sql.ConvertRule");
             }
             else if ("control_name:CommandButton5".Equals(eventstring))
+            {
+                convertRuleFilePath = Path.Combine(StartupSetting.instance.homeDir, "addins", "dataConvertTools", "insert_sql.ConvertRule");
+            }
+            else if ("control_name:CommandButton6".Equals(eventstring))
+            {
+                convertRuleFilePath = Path.Combine(StartupSetting.instance.homeDir, "addins", "dataConvertTools", "entity.json.ConvertRule");
+            }
+            else if ("control_name:CommandButton7".Equals(eventstring))
+            {
+                convertRuleFilePath = Path.Combine(StartupSetting.instance.homeDir, "addins", "dataConvertTools", "model.json.ConvertRule");
+            }
+            else if ("control_name:CommandButton8".Equals(eventstring))
             {
                 convertRuleFilePath = Path.Combine(StartupSetting.instance.homeDir, "addins", "dataConvertTools", "insert_sql.ConvertRule");
             }

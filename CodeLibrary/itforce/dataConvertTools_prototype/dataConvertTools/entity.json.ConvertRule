@@ -1,0 +1,10 @@
+﻿@{
+	var whereColumns = (Model.SelectColumns as IEnumerable<dynamic>).Where(item => ((IDictionary<string,object>)item)["IsInsertKey"].ToString().Equals("*"));
+	var selectString = (Model.SelectColumns as IEnumerable<dynamic>).Select(item =>{ 
+			IDictionary<string,object> dic = ((IDictionary<string,object>)item);
+			return dic["JavaType"].ToString().Equals("String") ? (dic["ColumnName"].ToString() +":" + '"' + dic["SampleData"].ToString()) + '"': (dic["ColumnName"].ToString() +":" + dic["SampleData"].ToString());
+		}).Aggregate((c1, c2) => c1 + "\n  ," + c2);
+}
+{
+  @selectString
+}
