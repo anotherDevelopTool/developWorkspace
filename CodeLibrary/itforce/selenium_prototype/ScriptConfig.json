@@ -1,0 +1,24 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "selenium_prototype",
+  "Description": "selenium_prototype",
+  "Path": "C:\\xujingjiang\\tools\\developWorkspace1.5\\CodeLibrary\\itforce\\selenium_prototype",
+  "StartUp": false,
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\xujingjiang\\tools\\developWorkspace1.5\\CodeLibrary\\itforce\\selenium_prototype\\ScriptConfig.json"
+}
