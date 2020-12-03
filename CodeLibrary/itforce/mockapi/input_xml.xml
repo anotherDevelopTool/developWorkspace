@@ -58,31 +58,31 @@
 		                    <GridViewColumn >
 		                        <GridViewColumn.CellTemplate>
 		                            <DataTemplate>
-		                                <CheckBox IsChecked="{Binding IsIncluded}" Name="checked" IsEnabled="{Binding IsNotKey}" IsThreeState="False" />
+		                                <CheckBox IsChecked="{Binding IsNotKey}" Name="checked" IsThreeState="False" />
 		                            </DataTemplate>
 		                        </GridViewColumn.CellTemplate>
 		                    </GridViewColumn>
 		                    <GridViewColumn  x:Name="column1">
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left" >
-		                                <TextBlock HorizontalAlignment="Left">index name</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">EndPoint</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
 		                            <DataTemplate>
-		                                <TextBlock  Text="{Binding index}" TextTrimming="WordEllipsis"/>
+		                                <TextBlock  Text="{Binding EndPoint}" TextTrimming="WordEllipsis"/>
 		                            </DataTemplate>
 		                        </GridViewColumn.CellTemplate>
 		                    </GridViewColumn>
 		                    <GridViewColumn>
 		                        <GridViewColumn.Header>
 		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">document count</TextBlock>
+		                                <TextBlock HorizontalAlignment="Left">RulePath</TextBlock>
 		                            </StackPanel>
 		                        </GridViewColumn.Header>
 		                        <GridViewColumn.CellTemplate>
 		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding size}" TextTrimming="WordEllipsis" />
+		                                <TextBlock TextWrapping="Wrap" Text="{Binding RulePath}" TextTrimming="WordEllipsis" />
 		                            </DataTemplate>
 		                        </GridViewColumn.CellTemplate>
 		                    </GridViewColumn>

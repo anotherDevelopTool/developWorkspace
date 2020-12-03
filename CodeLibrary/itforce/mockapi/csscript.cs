@@ -33,7 +33,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Net;
 
-public class ElasticInfo : ViewModelBase
+public class EndPointInfo : ViewModelBase
 {
 
     private Boolean _isNotKey = false;
@@ -50,38 +50,38 @@ public class ElasticInfo : ViewModelBase
         }
     }
 
-    private string _index = null;
-    public string index
+    private string _endPoint = null;
+    public string EndPoint
     {
-        get { return _index; }
+        get { return _endPoint; }
         set
         {
-            if (_index != value)
+            if (_endPoint != value)
             {
-                _index = value;
-                RaisePropertyChanged("index");
+                _endPoint = value;
+                RaisePropertyChanged("endPoint");
             }
         }
     }
-    private long _size = 0;
-    public long size
+    private string _rulePath = "";
+    public string RulePath
     {
-        get { return _size; }
+        get { return _rulePath; }
         set
         {
-            if (_size != value)
+            if (_rulePath != value)
             {
-                _size = value;
-                RaisePropertyChanged("size");
+                _rulePath = value;
+                RaisePropertyChanged("rulePath");
             }
         }
     }
-    public List<FieldInfo> FieldInfoList { get; set; }
+    public List<Rule> RuleList { get; set; }
 }
-public class FieldInfo
+public class Rule
 {
-    public string FieldName { get; set; }
-    public string FieldType { get; set; }
+    public string Pattern { get; set; }
+    public string FileName { get; set; }
 }
 
 public class Script
@@ -90,7 +90,7 @@ public class Script
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
         System.Windows.Controls.ListView listView;
-        List<ElasticInfo> elasticInfoList = new List<ElasticInfo>();
+        List<EndPointInfo> endPointInfoList = new List<EndPointInfo>();
         HttpListener _listener = new HttpListener();
 
         [MethodMeta(Name = "ON", Date = "2009-07-20", Description = "ON", LargeIcon = "apiconect")]
@@ -98,8 +98,9 @@ public class Script
         {
             try
             {
-                _listener.Prefixes.Add("http://localhost:8081/");
-                _listener.Prefixes.Add("http://127.0.0.1:8081/");
+                endPointInfoList.Where(endpoint => { return endpoint.IsNotKey;}).ToList().ForEach( endpoint => {
+                    _listener.Prefixes.Add("http://localhost:" + endpoint.EndPoint + "/");
+                });
                 _listener.Start();
                 _listener.BeginGetContext(new AsyncCallback(GetContextCallback), null);
 
@@ -146,6 +147,15 @@ public class Script
                 sb.Append("");
 
                 string responseString = sb.ToString();
+                
+                DevelopWorkspace.Base.Logger.WriteLine(responseString);
+                
+                
+                
+                
+                
+                responseString = System.IO.File.ReadAllText(@"C:\Users\xujingjiang\Source\Repos\developSupportToolls\CodeLibrary\itforce\addinCodeConverter\ScriptConfig.json", Encoding.UTF8);
+                
                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
                 response.ContentLength64 = buffer.Length;
 
@@ -159,13 +169,19 @@ public class Script
                 }
 
                 DevelopWorkspace.Base.Logger.WriteLine(documentContents);
+                
 
-                request.Dump();
+               //request.Dump();
+               
 
                 using (System.IO.Stream outputStream = response.OutputStream)
                 {
                     outputStream.Write(buffer, 0, buffer.Length);
                 }
+                
+                
+                
+                
                 _listener.BeginGetContext(new AsyncCallback(GetContextCallback), null);
             }
             catch (Exception ex)
@@ -180,9 +196,14 @@ public class Script
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             UserControl view = XamlReader.Load(xmlreader) as UserControl;
             listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Controls.ListView>(view, "trvFamilies");
-
-            listView.DataContext = elasticInfoList;
-            //          listView.SelectedIndex = 0;
+            endPointInfoList = new List<EndPointInfo>
+            {
+                new EndPointInfo{ EndPoint = "18002",  RulePath="rba-backend-item-api" },
+                new EndPointInfo{ EndPoint = "18005", RulePath="rba-backend-report-api" },
+                new EndPointInfo{ EndPoint = "18006", RulePath="rba-backend-image-api" }
+            };
+            listView.DataContext = endPointInfoList;
+            listView.SelectedIndex = 0;
 
             return view;
         }
