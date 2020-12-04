@@ -98,7 +98,8 @@ public class Script
         {
             try
             {
-                endPointInfoList.Where(endpoint => { return endpoint.IsNotKey;}).ToList().ForEach( endpoint => {
+                endPointInfoList.Where(endpoint => { return endpoint.IsNotKey; }).ToList().ForEach(endpoint =>
+                {
                     _listener.Prefixes.Add("http://localhost:" + endpoint.EndPoint + "/");
                 });
                 _listener.Start();
@@ -147,15 +148,22 @@ public class Script
                 sb.Append("");
 
                 string responseString = sb.ToString();
-                
+
                 DevelopWorkspace.Base.Logger.WriteLine(responseString);
-                
-                
-                
-                
-                
-                responseString = System.IO.File.ReadAllText(@"C:\Users\xujingjiang\Source\Repos\developSupportToolls\CodeLibrary\itforce\addinCodeConverter\ScriptConfig.json", Encoding.UTF8);
-                
+
+
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.ContentType = "application/json";
+                response.ContentEncoding = Encoding.UTF8;
+
+
+                responseString = "";
+                if (request.Url.LocalPath.Equals("/rba-backend-item-api/items/findproductsinfo"))
+                {
+                    responseString = System.IO.File.ReadAllText(@"C:\xujingjiang\tools\developWorkspace1.5\CodeLibrary\itforce\mockapi\findProductsInfoRes_WhenSuccess.json", Encoding.UTF8);
+                }
+
+
                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
                 response.ContentLength64 = buffer.Length;
 
@@ -169,19 +177,19 @@ public class Script
                 }
 
                 DevelopWorkspace.Base.Logger.WriteLine(documentContents);
-                
 
-               //request.Dump();
-               
+
+                //request.Dump();
+
 
                 using (System.IO.Stream outputStream = response.OutputStream)
                 {
                     outputStream.Write(buffer, 0, buffer.Length);
                 }
-                
-                
-                
-                
+
+
+
+
                 _listener.BeginGetContext(new AsyncCallback(GetContextCallback), null);
             }
             catch (Exception ex)
