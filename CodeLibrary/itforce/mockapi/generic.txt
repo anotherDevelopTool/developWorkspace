@@ -1,0 +1,50 @@
+using System;
+using System.Drawing;
+using System.IO;
+using System.Data.SQLite;
+using System.Data;
+using Microsoft.CSharp;
+using System.Collections.Generic;
+using DevelopWorkspace.Base;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Threading;
+using System.Threading.Tasks;
+public class Rule
+{
+    public string ContentType { get; set; }
+    public string EndPoint { get; set; }
+    public string MatchString { get; set; }
+    public string ResponseFile { get; set; }
+    public int Likeness { get; set; }
+}
+public class Script
+{
+    public static void Main(string[] args)
+    {
+        string retString = System.DateTime.Now.ToString();
+        DevelopWorkspace.Base.Logger.WriteLine(args[0]);
+        DevelopWorkspace.Base.Logger.WriteLine(args[1]);
+        Rule rule = new Rule{ContentType="",EndPoint="",MatchString="",ResponseFile="",Likeness=0};
+        GenericPropertyFinder.PrintTModelPropertyAndValue(rule);
+    }
+}
+//Declaring a Generic Handler Class which will actually give Property Name,Value for any given class.
+public class GenericPropertyFinder
+{
+    static public void PrintTModelPropertyAndValue<TModel>(TModel tmodelObj) where TModel : class
+    {
+        //Getting Type of Generic Class Model
+        Type tModelType = tmodelObj.GetType();
+
+        //We will be defining a PropertyInfo Object which contains details about the class property 
+        System.Reflection.PropertyInfo[] arrayPropertyInfos = tModelType.GetProperties();
+
+        //Now we will loop in all properties one by one to get value
+        foreach (System.Reflection.PropertyInfo property in arrayPropertyInfos)
+        {
+            DevelopWorkspace.Base.Logger.WriteLine("Name of Property is\t:\t" + property.Name);
+            DevelopWorkspace.Base.Logger.WriteLine("Value of Property is\t:\t" + property.GetValue(tmodelObj).ToString());
+            DevelopWorkspace.Base.Logger.WriteLine(Environment.NewLine);
+        }
+    }
+}
