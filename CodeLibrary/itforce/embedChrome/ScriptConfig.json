@@ -1,0 +1,23 @@
+﻿{
+  "Settings": {
+    "Url": "",
+    "ApiKey": "",
+    "UseCache": false,
+    "RefAssemblies": [
+      "WindowsBase",
+      "PresentationCore",
+      "PresentationFramework",
+      "System.Xaml",
+      "PresentationFramework"
+    ]
+  },
+  "AppDomain": 2,
+  "ScriptLanguage": 0,
+  "FirstInputType": 3,
+  "SecondInputType": 3,
+  "Title": "embedChrome",
+  "Description": "embedChrome",
+  "Path": "C:\\xujingjiang\\developWorkspace1.1\\CodeLibrary\\itforce\\embedChrome",
+  "typeName": "ScriptConfig",
+  "jsonfile": "C:\\xujingjiang\\developWorkspace1.1\\CodeLibrary\\itforce\\embedChrome\\ScriptConfig.json"
+}
