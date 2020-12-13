@@ -137,7 +137,16 @@ namespace DevelopWorkspace.Base.Utils
                 var propertyAttribute = (SimpleListViewColumnMeta)Attribute.GetCustomAttribute(property, typeof(SimpleListViewColumnMeta));
                 GridViewColumn viewColumn = new GridViewColumn();
                 SortedColumn sortedColumn = new SortedColumn { ColumnName = property.Name, Column = viewColumn, SortDirection = ListSortDirection.Ascending };
-                viewColumn.Width = 100;
+
+                if (propertyAttribute != null && !Double.IsNaN(propertyAttribute.ColumnDisplayWidth))
+                {
+                    viewColumn.Width = propertyAttribute.ColumnDisplayWidth;
+                }
+                else
+                {
+                    viewColumn.Width = 100;
+                }
+
                 viewColumn.HeaderTemplate = TemplateGenerator.CreateDataTemplate
                 (
                   () =>

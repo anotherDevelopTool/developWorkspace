@@ -47,6 +47,7 @@ namespace DevelopWorkspace.Base
     public class SimpleListViewColumnMeta : Attribute
     {
         public string ColumnDisplayName { get; set; }
+        public Double ColumnDisplayWidth { get; set; }
         public string TaskName { get; set; }
     }
 }

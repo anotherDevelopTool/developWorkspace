@@ -321,6 +321,7 @@ public class Script
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
         System.Windows.Controls.ListView listView;
+        DevelopWorkspace.Base.Utils.SimpleListView simpleListView = new DevelopWorkspace.Base.Utils.SimpleListView();
         List<EndPointInfo> endPointInfoList = new List<EndPointInfo>();
         HttpListener _listener = new HttpListener();
         List<Rule> rules = new List<Rule>();
@@ -468,8 +469,9 @@ public class Script
                 new EndPointInfo{ EndPoint = "18005", RulePath="rba-backend-report-api" },
                 new EndPointInfo{ EndPoint = "18006", RulePath="rba-backend-image-api" }
             };
-            listView.DataContext = endPointInfoList;
-            listView.SelectedIndex = 0;
+            simpleListView.CreateView(endPointInfoList);
+            //listView.DataContext = endPointInfoList;
+            //listView.SelectedIndex = 0;
 
             try
             {
@@ -497,7 +499,7 @@ public class Script
 
             }
 
-            return view;
+            return simpleListView;
         }
 
     }
