@@ -43,4 +43,10 @@ namespace DevelopWorkspace.Base
         public string Description { get; set; }
         public string LargeIcon { get; set; }
     }
+    [AttributeUsage(AttributeTargets.Property)]
+    public class SimpleListViewColumnMeta : Attribute
+    {
+        public string ColumnDisplayName { get; set; }
+        public string TaskName { get; set; }
+    }
 }
