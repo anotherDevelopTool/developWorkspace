@@ -34,8 +34,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
-using CefSharp.WPF.Sample;
-//css_reference CefSharp.WPF.Sample.exe
+using CefSharp;
+using CefSharp.Wpf;
+//css_reference CefSharp.Wpf.dll
 public class ProcessMonitorInfo : ViewModelBase
 {
     private string _service_type = "rba-bo-api";
@@ -229,9 +230,11 @@ public class Script
         {
             StringReader strreader = new StringReader(strXaml);
             XmlTextReader xmlreader = new XmlTextReader(strreader);
-            CefSharp.WPF.Sample.Views.CefBrowserView cefBrowserView = new CefSharp.WPF.Sample.Views.CefBrowserView();
-
-            return cefBrowserView;
+            Cef.Initialize(new CefSettings());
+            CefSharp.Wpf.ChromiumWebBrowser cefBrowserView = new CefSharp.Wpf.ChromiumWebBrowser("https://github.com/cefsharp/cefsharp");
+            UserControl userControl = new UserControl();
+            userControl.Content = cefBrowserView;
+            return userControl;
         }
         //后期清理处理
         public bool DoClearance(string bookName)
@@ -403,7 +406,7 @@ public class Script
                 };
             }
 
-            CefSharp.WPF.Sample.Views.CefBrowserView cefBrowserView = new CefSharp.WPF.Sample.Views.CefBrowserView();
+            CefSharp.Wpf.ChromiumWebBrowser cefBrowserView = new CefSharp.Wpf.ChromiumWebBrowser();
 
             parent.Children.Add(cefBrowserView);
 
