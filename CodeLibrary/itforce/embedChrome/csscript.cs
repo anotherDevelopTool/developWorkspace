@@ -231,6 +231,7 @@ public class Script
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             if( AppDomain.CurrentDomain.GetAssemblies().Where(assembly => assembly.GetName().ToString().StartsWith("CefSharp")).Count() == 0)
             {
+                //编译出错时一旦把这个注释掉之后编译通过之后在关闭注释后再编译
                 Cef.Initialize(new CefSettings());
             }
             CefSharp.Wpf.ChromiumWebBrowser cefBrowserView = new CefSharp.Wpf.ChromiumWebBrowser("https://github.com/cefsharp/cefsharp");
