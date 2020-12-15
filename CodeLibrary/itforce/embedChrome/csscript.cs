@@ -36,7 +36,6 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using CefSharp;
 using CefSharp.Wpf;
-//css_reference CefSharp.Wpf.dll
 public class ProcessMonitorInfo : ViewModelBase
 {
     private string _service_type = "rba-bo-api";
@@ -230,7 +229,10 @@ public class Script
         {
             StringReader strreader = new StringReader(strXaml);
             XmlTextReader xmlreader = new XmlTextReader(strreader);
-            Cef.Initialize(new CefSettings());
+            if( AppDomain.CurrentDomain.GetAssemblies().Where(assembly => assembly.GetName().ToString().StartsWith("CefSharp")).Count() == 0)
+            {
+                Cef.Initialize(new CefSettings());
+            }
             CefSharp.Wpf.ChromiumWebBrowser cefBrowserView = new CefSharp.Wpf.ChromiumWebBrowser("https://github.com/cefsharp/cefsharp");
             UserControl userControl = new UserControl();
             userControl.Content = cefBrowserView;
