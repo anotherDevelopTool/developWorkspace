@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using CefSharp;
+using CefSharp.Wpf;
+namespace DevelopWorkspace.Chrome
+{
+	public class Cef
+	{
+	    public static void Initialize()
+	    {
+	        if( AppDomain.CurrentDomain.GetAssemblies().Where(assembly => assembly.GetName().ToString().StartsWith("CefSharp")).Count() == 0)
+	        {
+	            //编译出错时一旦把这个注释掉之后编译通过之后在关闭注释后再编译
+	            CefSharp.Cef.Initialize(new CefSettings());
+	        }
+	    }
+	
+	}
+}

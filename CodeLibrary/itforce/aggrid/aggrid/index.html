@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>var __basePath = './';</script>
+    <style media="only screen">
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        html {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        body {
+            padding: 1rem;
+            overflow: auto;
+        }
+    </style>
+            <script src="ag-grid-enterprise.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="example-wrapper">
+  <div style="margin-bottom: 5px;">
+    <input
+      type="text"
+      oninput="onQuickFilterChanged()"
+      id="quickFilter"
+      placeholder="quick filter..."
+    />
+  </div>
+<p id="demo" onclick="myFunction()">Click me to change my text color.</p>
+  <div id="myGrid" class="ag-theme-balham" style="height: 100%;"></div>
+</div>
+
+    <script src="main.js"></script>
+</body>
+</html>
