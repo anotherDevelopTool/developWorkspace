@@ -58,6 +58,14 @@
             </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView x:Name="gridView">
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="{x:Type GridViewColumnHeader}">
+                            <Setter Property="Background" Value="{Binding ThemeColorBrush }" />
+                            <Setter Property="Foreground" Value="Black" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="FontSize" Value="12" />
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
                 </GridView>
             </ListView.View>
         </ListView>

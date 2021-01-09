@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -62,7 +61,10 @@ namespace DevelopWorkspace.Base.Utils
         Rule rule2 = new Rule { ContentType = "application/xml", EndPoint = "rba-bo-api3", MatchString = "{}", ResponseFile = "getOrder.json", Likeness = 0, Selected=true };
         Rule rule3 = new Rule { ContentType = "application/ocetstream", EndPoint = "rba-backend-item-api6", MatchString = "{}", ResponseFile = "getOrder.json", Likeness = 0 };
         Rule rule4 = new Rule { ContentType = "application/text", EndPoint = "rba-backend-item-api4", MatchString = "{}", ResponseFile = "getOrder.json", Likeness = 0 };
+        List<Rule> rules = new List<Rule> { rule1, rule2 };
         SimpleListView simpleListView = new SimpleListView();
+        simpleListView.setStyle(120, 120, 120, 120, 20);
+        simpleListView.inflateView(rules);
 
         Window dialog = new Window();
         Grid grid = new Grid();
@@ -76,6 +78,8 @@ namespace DevelopWorkspace.Base.Utils
     */
     public partial class SimpleListView : System.Windows.Controls.UserControl
     {
+        SolidColorBrush backgroundColor = new SolidColorBrush(Color.FromArgb((byte)50, (byte)0, (byte)255, (byte)0));
+        double fontSize = 12.0;
         class SortedColumn
         {
             public string ColumnName { get; set; }
@@ -93,6 +97,7 @@ namespace DevelopWorkspace.Base.Utils
         public SimpleListView()
         {
             InitializeComponent();
+
             //if (bDialog)
             //{
             //    var okButton = new Button();
@@ -126,8 +131,29 @@ namespace DevelopWorkspace.Base.Utils
 
         }
 
-        public void CreateView<TModel>(List<TModel> tmodelList) where TModel : class
+        public void setStyle(byte red,byte green,byte blue,byte alpha,double fontSize=12.0) {
+            backgroundColor = new SolidColorBrush(Color.FromArgb(red, green, blue, alpha));
+            this.fontSize = fontSize;
+        }
+        /**
+         * 
+         * 
+         */
+        public void inflateView<TModel>(List<TModel> tmodelList) where TModel : class
         {
+
+            // 背景等风格定制
+            Style style = new Style
+            {
+                TargetType = typeof(GridViewColumnHeader)
+            };
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, backgroundColor));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.ForegroundProperty, Brushes.Black));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontSizeProperty, fontSize));
+            this.gridView.ColumnHeaderContainerStyle = style;
+
+
             tModelType = tmodelList.GetType().GetGenericArguments()[0];
             //We will be defining a PropertyInfo Object which contains details about the class property 
             System.Reflection.PropertyInfo[] arrayPropertyInfos = tModelType.GetProperties();
@@ -247,6 +273,7 @@ namespace DevelopWorkspace.Base.Utils
                           if (method != null)
                           {
                               var detailButton = new Button();
+                              detailButton.FontSize = fontSize;
                               detailButton.Content = "...";
                               detailButton.Click += (object sender, RoutedEventArgs e) => {
                                   ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
@@ -259,6 +286,7 @@ namespace DevelopWorkspace.Base.Utils
                       if (property.PropertyType == typeof(Boolean))
                       {
                           var checkBox = new CheckBox();
+                          checkBox.FontSize = fontSize;
                           Binding textPropertyBinding = new Binding();
                           textPropertyBinding.Mode = BindingMode.TwoWay;
                           textPropertyBinding.Path = new PropertyPath(property.Name);
@@ -273,6 +301,7 @@ namespace DevelopWorkspace.Base.Utils
                       else
                       {
                           var textBlock = new TextBlock();
+                          textBlock.FontSize = fontSize;
                           Binding textPropertyBinding = new Binding();
                           textPropertyBinding.Path = new PropertyPath(property.Name);
                           textBlock.SetBinding(TextBlock.TextProperty, textPropertyBinding);
