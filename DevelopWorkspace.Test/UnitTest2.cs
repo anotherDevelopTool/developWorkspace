@@ -26,6 +26,7 @@ namespace DevelopWorkspace.Test
         }
         public string ContentType { get; set; }
         public string EndPoint { get; set; }
+        [SimpleListViewColumnMeta(Editablity =true)]
         public string MatchString { get; set; }
         //可以自定义显示列标题以及点击后的动作
         [SimpleListViewColumnMeta(ColumnDisplayName = "レスポンスファイル", TaskName = "OpenFile")]
@@ -60,7 +61,7 @@ namespace DevelopWorkspace.Test
             Rule rule4 = new Rule { ContentType = "application/text", EndPoint = "rba-backend-item-api4", MatchString = "{}", ResponseFile = "getOrder.json", Likeness = 0 };
             List<Rule> rules = new List<Rule> { rule1, rule2 };
             SimpleListView simpleListView = new SimpleListView();
-            simpleListView.setStyle(120, 120, 120, 120, 20);
+            simpleListView.setStyle(120, 120, 255, 120, 12);
             simpleListView.inflateView(rules);
 
             Window dialog = new Window();

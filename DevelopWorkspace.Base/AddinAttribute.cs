@@ -46,6 +46,18 @@ namespace DevelopWorkspace.Base
     [AttributeUsage(AttributeTargets.Property)]
     public class SimpleListViewColumnMeta : Attribute
     {
+        bool visiblity = true;
+        bool editablity = false;
+        public bool Visiblity
+        {
+            get { return visiblity; }
+            set { visiblity = value; }
+        }
+        public bool Editablity
+        {
+            get { return editablity; }
+            set { editablity = value; }
+        }
         public string ColumnDisplayName { get; set; }
         public Double ColumnDisplayWidth { get; set; }
         public string TaskName { get; set; }
