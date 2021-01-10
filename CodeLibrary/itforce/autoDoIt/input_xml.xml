@@ -6,191 +6,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:heid="http://schemas.heidesoft.com/components"
              xmlns:local="clr-namespace:DevelopWorkspace.Main.View"
+             xmlns:base="clr-namespace:DevelopWorkspace.Base.Utils;assembly=DevelopWorkspace.Base"
              xmlns:extoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
              mc:Ignorable="d">
-
+    <Grid ShowGridLines="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60*"/>
+            <RowDefinition Height="40*"/>
+        </Grid.RowDefinitions>
              <StackPanel>
-		        <ListView Name="trvFamilies"  ItemsSource="{Binding}" Grid.Row="1" SelectionMode="Single" BorderThickness="1" ToolTip="通过修改addins路径下的文件autoDoIt.setting的内容定制用户关联信息">
-		            <ListView.ItemContainerStyle>
-		                <Style TargetType="ListViewItem">
-		                    <Setter Property="Background" Value="Transparent"/>
-		                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-		                    <Setter Property="Template">
-		                        <Setter.Value>
-		                            <ControlTemplate TargetType="{x:Type ListViewItem}">
-		                                <Border Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-		                                    <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-		                                </Border>
-		                                <ControlTemplate.Triggers>
-		                                    <Trigger Property="IsSelected" Value="true">
-		                                        <Setter TargetName="Bd" Property="Background" Value="Aqua"/>
-		                                        <Setter Property="Foreground" Value="Black"/>
-		                                    </Trigger>
-		                                    <MultiTrigger>
-		                                        <MultiTrigger.Conditions>
-		                                            <Condition Property="IsSelected" Value="true"/>
-		                                            <Condition Property="Selector.IsSelectionActive" Value="false"/>
-		                                        </MultiTrigger.Conditions>
-		                                        <Setter TargetName="Bd" Property="Background" Value="Aqua"/>
-		                                        <Setter Property="Foreground" Value="Black"/>
-		                                    </MultiTrigger>
-		                                    <Trigger Property="IsEnabled" Value="false">
-		                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-		                                    </Trigger>
-		                                </ControlTemplate.Triggers>
-		                            </ControlTemplate>
-		                        </Setter.Value>
-		                    </Setter>
-		
-		                </Style>
-		            </ListView.ItemContainerStyle>
-		            <ListView.View>
-		                <GridView>
-		                    <!-- ITFORCE -->
-		                    <GridView.ColumnHeaderContainerStyle>
-		                        <Style TargetType="{x:Type GridViewColumnHeader}">
-		                            <Setter Property="Background" Value="{Binding ThemeColorBrush}" />
-		                            <Setter Property="Foreground" Value="Black" />
-		                            <Setter Property="FontWeight" Value="Bold" />
-		                        </Style>
-		                    </GridView.ColumnHeaderContainerStyle>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">机能</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding service_type}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">环境</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding environment_name}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">远程服务器</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding target_host}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">跳板服务器</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding bastion_host}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn  x:Name="column1">
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left" >
-		                                <TextBlock HorizontalAlignment="Left">短用户名</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock  Text="{Binding username}" TextTrimming="WordEllipsis"/>
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">密码</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding password}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">数据库连接信息</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding dbstring}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">hostkbn</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding hostkbn}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">processkbn</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding processkbn}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">ttermpro</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding ttermpro}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                    <GridViewColumn>
-		                        <GridViewColumn.Header>
-		                            <StackPanel HorizontalAlignment="Left">
-		                                <TextBlock HorizontalAlignment="Left">filezilla</TextBlock>
-		                            </StackPanel>
-		                        </GridViewColumn.Header>
-		                        <GridViewColumn.CellTemplate>
-		                            <DataTemplate>
-		                                <TextBlock TextWrapping="Wrap" Text="{Binding filezilla}" TextTrimming="WordEllipsis" />
-		                            </DataTemplate>
-		                        </GridViewColumn.CellTemplate>
-		                    </GridViewColumn>
-		                </GridView>
-		            </ListView.View>
-		        </ListView>
-                <avalonEdit:EdiTextEditor Grid.Row="2" x:Name="sqlSource" ToolTip="输出想要执行的SQL，可以复数"
+             	<base:SimpleListView x:Name="trvFamilies" Grid.Row="0" ></base:SimpleListView>
+                <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="sqlSource" ToolTip="输出想要执行的SQL，可以复数"
                            IsReadOnly="False" 
                            ShowLineNumbers="True"
                            SyntaxHighlighting="SQL"
@@ -199,5 +26,7 @@
                            VerticalScrollBarVisibility="Auto"  >
             </avalonEdit:EdiTextEditor>
 			</StackPanel>
+	
+	</Grid>
     
 </UserControl>

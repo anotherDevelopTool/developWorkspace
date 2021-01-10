@@ -188,7 +188,7 @@ public class Script
     [AddinMeta(Name = "autoDoIt", Date = "2009-07-20", Description = "autoDoIt utility",LargeIcon = "teraterm",Red =128,Green=145,Blue=213)]
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
-        System.Windows.Controls.ListView listView;
+        DevelopWorkspace.Base.Utils.SimpleListView listView;
         ICSharpCodeX.AvalonEdit.Edi.EdiTextEditor sqlSource;
 	    FileSystemEventHandler fileSystemEventHandler;
         string settingFileHash = "";
@@ -522,7 +522,7 @@ public class Script
             StringReader strreader = new StringReader(strXaml);
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             UserControl view = XamlReader.Load(xmlreader) as UserControl;
-            listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Controls.ListView>(view, "trvFamilies");
+            listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<DevelopWorkspace.Base.Utils.SimpleListView>(view, "trvFamilies");
             sqlSource = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<ICSharpCodeX.AvalonEdit.Edi.EdiTextEditor>(view, "sqlSource");
             sqlSource.Text = @"select * from F_WEBJUCHUHDR where  rownum < 1000;
 select * from  F_JUCHUHDR where rownum < 1000;
@@ -533,11 +533,14 @@ select * from  F_SHKSEIDTL where rownum < 1000;
 			string json = DevelopWorkspace.Base.Utils.Files.ReadAllText(getResPathByExt("setting.json"), Encoding.UTF8);
 			AutoItSetting autoItSetting = (AutoItSetting)JsonConvert.DeserializeObject(json, typeof(AutoItSetting));
 			
-            listView.DataContext = autoItSetting.setting;
-		
+            //listView.DataContext = autoItSetting.setting;
+            
+            listView.setStyle(120, 120, 255, 120, 12);
+            listView.inflateView(autoItSetting.setting);
+		      
 	        clearance= new Func<string, bool>(DoClearance);	
 		
-            listView.SelectedIndex = 0;
+            //listView.SelectedIndex = 0;
 
             settingFileHash = DevelopWorkspace.Base.Utils.Files.GetSha256Hash(json);
             //2020/4/19
@@ -576,8 +579,8 @@ select * from  F_SHKSEIDTL where rownum < 1000;
                             if (!string.IsNullOrWhiteSpace(json))
                             {
                                 AutoItSetting autoItSetting = (AutoItSetting)JsonConvert.DeserializeObject(json, typeof(AutoItSetting));
-                                listView.DataContext = autoItSetting.setting;
-                                listView.SelectedIndex = 0;
+                                //listView.DataContext = autoItSetting.setting;
+                                //listView.SelectedIndex = 0;
                             }
                         });
                     }
@@ -599,6 +602,11 @@ select * from  F_SHKSEIDTL where rownum < 1000;
             Content = grid;
 
             StackPanel parent = new StackPanel();
+            StackPanel commandBar = new StackPanel();
+            parent.Children.Add(commandBar);
+            commandBar.Orientation = Orientation.Horizontal;
+            commandBar.HorizontalAlignment = HorizontalAlignment.Left;
+            
             grid.Children.Add(parent);
 
             ViewModel model = new ViewModel();
@@ -609,8 +617,11 @@ select * from  F_SHKSEIDTL where rownum < 1000;
                 var method = methods[i];
                 var methodAttribute = (MethodMetaAttribute)Attribute.GetCustomAttribute(methods[i], typeof(MethodMetaAttribute));
                 Button btn = new Button();
+                btn.Height=20;
+                btn.Width = 120;
+                btn.Margin = new Thickness(5,5,5,5);
                 btn.Content = methodAttribute.Name; ;
-                parent.Children.Add(btn);
+                commandBar.Children.Add(btn);
                 btn.Click += (obj, subargs) =>
                 {
                     method.Invoke(model, new object[] { obj, subargs });

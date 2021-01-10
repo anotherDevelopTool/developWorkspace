@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,6 +91,13 @@ namespace DevelopWorkspace.Base.Utils
     */
     public partial class SimpleListView : System.Windows.Controls.UserControl
     {
+        public delegate void customizeColumnDataDefFunc(SimpleListViewColumnMeta propertyAttribute, PropertyInfo property,GridViewColumn viewColumn, StackPanel stackPanel);
+        public delegate void customizeBlockUIFunc(StackPanel stackPanel);
+        //数据列的创建代理，如果默认的不满足需求，那么可以定制这个代理
+        public customizeColumnDataDefFunc CustomizeColumnDataDefFunc { get; set; }
+        public customizeBlockUIFunc CustomizeHeaderDefFunc { get; set; }
+        public customizeBlockUIFunc CustomizeFooterDefFunc { get; set; }
+
         SolidColorBrush backgroundColor = new SolidColorBrush(Color.FromArgb((byte)50, (byte)0, (byte)255, (byte)0));
         double fontSize = 12.0;
         class SortedColumn
@@ -106,9 +114,78 @@ namespace DevelopWorkspace.Base.Utils
         List<SortedColumn> columnList = new List<SortedColumn>();
         public eConfirmResult ConfirmResult { get; set; }
 
+        bool filteringOn= true;
+        public bool FilteringOn {
+            get { return filteringOn; }
+            set
+            {
+                filteringOn = value;
+            }
+        }
         public SimpleListView()
         {
             InitializeComponent();
+            // 默认的数据列的创建代理
+            CustomizeColumnDataDefFunc = (propertyAttribute, property, viewColumn, stackPanel) =>
+            {
+                if (property.PropertyType == typeof(Boolean))
+                {
+                    var checkBox = new CheckBox();
+                    checkBox.FontSize = fontSize;
+                    Binding textPropertyBinding = new Binding();
+                    textPropertyBinding.Mode = BindingMode.TwoWay;
+                    textPropertyBinding.Path = new PropertyPath(property.Name);
+                    checkBox.SetBinding(CheckBox.IsCheckedProperty, textPropertyBinding);
+                    checkBox.Checked += (object sender, RoutedEventArgs e) =>
+                    {
+                        if (bMultiSelect) return;
+
+                    };
+                    stackPanel.Children.Add(checkBox);
+                }
+                else
+                {
+                    if (propertyAttribute == null || !propertyAttribute.Editablity)
+                    {
+                        var textBlock = new TextBlock();
+                        textBlock.FontSize = fontSize;
+                        textBlock.MinWidth = 120;
+                        textBlock.SetBinding(TextBlock.TextProperty, new Binding()
+                        {
+                            Path = new PropertyPath(property.Name),
+                        });
+                        stackPanel.Children.Add(textBlock);
+                    }
+                    else
+                    {
+                        var textBox = new TextBox();
+                        textBox.FontSize = fontSize;
+                        textBox.MinWidth = 120;
+                        textBox.SetBinding(TextBox.TextProperty, new Binding()
+                        {
+                            Path = new PropertyPath(property.Name),
+                            Mode = BindingMode.TwoWay,
+                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                        });
+
+                        textBox.SetBinding(TextBox.WidthProperty, new Binding()
+                        {
+                            Source = viewColumn,
+                            Path = new PropertyPath("ActualWidth"),
+                            Converter = new ElementWidhtConverter(),
+                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+
+                        });
+                        stackPanel.Children.Add(textBox);
+                    }
+                }
+            };
+            CustomizeHeaderDefFunc = stackPanel => 
+            {
+            };
+            CustomizeFooterDefFunc = stackPanel =>
+            {
+            };
 
             //if (bDialog)
             //{
@@ -143,16 +220,21 @@ namespace DevelopWorkspace.Base.Utils
 
         }
 
-        public void setStyle(byte red,byte green,byte blue,byte alpha,double fontSize=12.0) {
+        public void setStyle(byte red, byte green, byte blue, byte alpha, double fontSize = 12.0, SelectionMode selectionMode= SelectionMode.Single) {
             backgroundColor = new SolidColorBrush(Color.FromArgb(red, green, blue, alpha));
             this.fontSize = fontSize;
+            this.trvFamilies.SelectionMode = selectionMode;
         }
+
         /**
          * 
          * 
          */
         public void inflateView<TModel>(List<TModel> tmodelList) where TModel : class
         {
+
+            CustomizeHeaderDefFunc(this.Header);
+            CustomizeFooterDefFunc(this.Footer);
 
             // 背景等风格定制
             Style style = new Style
@@ -179,6 +261,7 @@ namespace DevelopWorkspace.Base.Utils
                 // 默认显示或者明确指定显示的时候定制列的定义
                 if (propertyAttribute == null || propertyAttribute.Visiblity)
                 {
+                    // 明确指定列宽度的时候
                     if (propertyAttribute != null && !Double.IsNaN(propertyAttribute.ColumnDisplayWidth))
                     {
                         viewColumn.Width = propertyAttribute.ColumnDisplayWidth;
@@ -187,12 +270,13 @@ namespace DevelopWorkspace.Base.Utils
                     {
                         viewColumn.Width = 100;
                     }
-
+                    // 列头定制
                     viewColumn.HeaderTemplate = TemplateGenerator.CreateDataTemplate
                     (
                       () =>
                       {
                           StackPanel stackPanel = new StackPanel();
+                          stackPanel.VerticalAlignment = VerticalAlignment.Top;
                           stackPanel.HorizontalAlignment = HorizontalAlignment.Left;
                           if (property.PropertyType == typeof(Boolean))
                           {
@@ -234,7 +318,7 @@ namespace DevelopWorkspace.Base.Utils
                           }
                           //如果对象类型为字符串时自动赋予过滤机能
                           TextBox filterTextBox = null;
-                          if (property.PropertyType == typeof(string))
+                          if (FilteringOn && property.PropertyType == typeof(string))
                           {
                               filterTextBox = new TextBox();
                               filterTextBox.HorizontalAlignment = HorizontalAlignment.Left;
@@ -255,7 +339,10 @@ namespace DevelopWorkspace.Base.Utils
                               };
                               stackPanel.Children.Add(filterTextBox);
                           }
-
+                          // dummy
+                          if (stackPanel.Children.Count == 1) {
+                              stackPanel.Children.Add(new TextBlock());
+                          }
                           //使用GridViewColumn时因为不是父子关系只是sibling关系导致无法正确绑定，只好退而求其次选择ListView
                           //Binding widthBinding = new Binding();
                           //widthBinding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(GridViewColumn), 1);
@@ -279,80 +366,12 @@ namespace DevelopWorkspace.Base.Utils
                             }
                         }
                     };
+                    // 列数据部分的定义
                     viewColumn.CellTemplate = TemplateGenerator.CreateDataTemplate
                     (
                       () =>
                       {
-                          StackPanel stackPanel = new StackPanel();
-                          stackPanel.Orientation = Orientation.Horizontal;
-
-                          if (propertyAttribute != null && !string.IsNullOrWhiteSpace(propertyAttribute.TaskName))
-                          {
-                              var method = tmodelList[0].GetType().GetMethods().Where(m => m.Name.Equals(propertyAttribute.TaskName)).FirstOrDefault();
-                              if (method != null)
-                              {
-                                  var detailButton = new Button();
-                                  detailButton.FontSize = fontSize;
-                                  detailButton.Content = "...";
-                                  detailButton.Click += (object sender, RoutedEventArgs e) =>
-                                  {
-                                      ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
-                                      listViewItem.IsSelected = true;
-                                      method.Invoke(tmodelList[0], new object[] { listViewItem.DataContext });
-                                  };
-                                  stackPanel.Children.Add(detailButton);
-                              }
-                          }
-                          if (property.PropertyType == typeof(Boolean))
-                          {
-                              var checkBox = new CheckBox();
-                              checkBox.FontSize = fontSize;
-                              Binding textPropertyBinding = new Binding();
-                              textPropertyBinding.Mode = BindingMode.TwoWay;
-                              textPropertyBinding.Path = new PropertyPath(property.Name);
-                              checkBox.SetBinding(CheckBox.IsCheckedProperty, textPropertyBinding);
-                              checkBox.Checked += (object sender, RoutedEventArgs e) =>
-                              {
-                                  if (bMultiSelect) return;
-
-                              };
-                              stackPanel.Children.Add(checkBox);
-                          }
-                          else
-                          {
-                              if (propertyAttribute == null || !propertyAttribute.Editablity)
-                              {
-                                  var textBlock = new TextBlock();
-                                  textBlock.FontSize = fontSize;
-                                  textBlock.MinWidth = 120;
-                                  textBlock.SetBinding(TextBlock.TextProperty, new Binding()
-                                  {
-                                      Path = new PropertyPath(property.Name),
-                                  });
-                                  stackPanel.Children.Add(textBlock);
-                              }
-                              else {
-                                  var textBox = new TextBox();
-                                  textBox.FontSize = fontSize;
-                                  textBox.MinWidth = 120;
-                                  textBox.SetBinding(TextBox.TextProperty, new Binding()
-                                  {
-                                      Path = new PropertyPath(property.Name),
-                                      UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
-                                  });
-
-                                  textBox.SetBinding(TextBox.WidthProperty, new Binding()
-                                  {
-                                      Source = viewColumn,
-                                      Path = new PropertyPath("ActualWidth"),
-                                      Converter= new ElementWidhtConverter(),
-                                      UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
-                                      
-                                  });
-                                  stackPanel.Children.Add(textBox);
-                              }
-                          }
-                          return stackPanel;
+                          return customizeCellTemplateHelper(propertyAttribute, property, tmodelList, viewColumn);
                       }
                     );
                     this.gridView.Columns.Add(viewColumn);
@@ -363,23 +382,48 @@ namespace DevelopWorkspace.Base.Utils
             view.Source = tmodelList;
             view.Filter += new FilterEventHandler(view_Filter);
             this.trvFamilies.DataContext = view;
-                this.trvFamilies.Dispatcher.BeginInvoke((Action)delegate ()
+            this.trvFamilies.Dispatcher.BeginInvoke((Action)delegate ()
+            {
+                foreach (GridViewColumn c in gridView.Columns)
                 {
-                    foreach (GridViewColumn c in gridView.Columns)
-                    {
-                        if (double.IsNaN(c.Width))
-                            c.Width = c.ActualWidth;
-                        c.Width = double.NaN;
-                    }
-                });
+                    if (double.IsNaN(c.Width))
+                        c.Width = c.ActualWidth;
+                    c.Width = double.NaN;
+                }
+            });
 
-            //this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         }
 
+        protected StackPanel customizeCellTemplateHelper<TModel>(SimpleListViewColumnMeta propertyAttribute, PropertyInfo property,List<TModel> tmodelList, GridViewColumn viewColumn) {
+            StackPanel stackPanel = new StackPanel();
+            stackPanel.Orientation = Orientation.Horizontal;
+
+            if (propertyAttribute != null && !string.IsNullOrWhiteSpace(propertyAttribute.TaskName))
+            {
+                var method = tmodelList[0].GetType().GetMethods().Where(m => m.Name.Equals(propertyAttribute.TaskName)).FirstOrDefault();
+                if (method != null)
+                {
+                    var detailButton = new Button();
+                    detailButton.FontSize = fontSize;
+                    detailButton.Margin = new Thickness(5, 1, 5, 1);
+                    detailButton.Content = "...";
+                    detailButton.Click += (object sender, RoutedEventArgs e) =>
+                    {
+                        ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
+                        listViewItem.IsSelected = true;
+                        method.Invoke(tmodelList[0], new object[] { listViewItem.DataContext });
+                    };
+                    stackPanel.Children.Add(detailButton);
+                }
+            }
+            CustomizeColumnDataDefFunc(propertyAttribute, property, viewColumn, stackPanel);
+            return stackPanel;
+        }
+        // 获取选中行的数据
         public object SelectedItem {
             get
             {
-                return trvFamilies.SelectedItem != null ? (trvFamilies.SelectedItem as ListViewItem).DataContext : null;
+                return trvFamilies.SelectedItem;
                         
             }
         }
