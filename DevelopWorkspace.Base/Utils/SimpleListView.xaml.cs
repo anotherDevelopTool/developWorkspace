@@ -301,7 +301,14 @@ namespace DevelopWorkspace.Base.Utils
                           if (property.PropertyType == typeof(Boolean))
                           {
                               var titleBlock = new TextBlock();
-                              titleBlock.Text = property.Name;
+                              if (propertyAttribute != null && !string.IsNullOrWhiteSpace(propertyAttribute.ColumnDisplayName))
+                              {
+                                  titleBlock.Text = propertyAttribute.ColumnDisplayName;
+                              }
+                              else
+                              {
+                                  titleBlock.Text = property.Name;
+                              }
                               stackPanel.Children.Add(titleBlock);
 
                               var titleCheckBox = new CheckBox();
@@ -431,7 +438,10 @@ namespace DevelopWorkspace.Base.Utils
                     {
                         ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
                         listViewItem.IsSelected = true;
-                        method.Invoke(tmodelList[0], new object[] { listViewItem.DataContext });
+
+                        listViewItem.DataContext.Dump();
+
+                        method.Invoke(tmodelList[0], new object[] { listViewItem.DataContext,this.trvFamilies });
                     };
                     stackPanel.Children.Add(detailButton);
                 }

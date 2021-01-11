@@ -41,7 +41,7 @@ namespace DevelopWorkspace.Test
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void OpenFile(object selectedRow)
+        public void OpenFile(object selectedRow,object sender)
         {
 
         }
@@ -171,6 +171,10 @@ namespace DevelopWorkspace.Test
 
             StackPanel parent = new StackPanel();
             grid.Children.Add(simpleListView);
+
+
+            simpleListView.DataContext = rules;
+
             dialog.ShowDialog();
             var selectedItem = simpleListView.SelectedItem;
         }
