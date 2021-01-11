@@ -260,6 +260,33 @@ class SimpleHTTPServer
 
 
 }
+class ListeningConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        bool val = (bool)value;
+        if(val) return "listenning...";
+        return "";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        return value;
+    }
+}
+class ElementWidhtConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        double totalWidth = double.Parse(value.ToString());
+        return totalWidth - 5;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        return value;
+    }
+}
 
 public class EndPointInfo : INotifyPropertyChanged
 {
@@ -318,13 +345,24 @@ public class EndPointInfo : INotifyPropertyChanged
     public string Detail { get; set; }
     [SimpleListViewColumnMeta(Visiblity = false)]
     public List<Rule> RuleList { get; set; }
-
-    public void OpenDetail(object selectedRow,object sender)
+    private bool _listenning = false;
+    public bool Listenning
+    {
+        get { return _listenning; }
+        set
+        {
+            if (_listenning != value)
+            {
+                _listenning = value;
+                RaisePropertyChanged("listenning");
+            }
+        }
+    }
+    public void OpenDetail(object sender,object selectedRow,object view)
     {
 
         try
         {
-            DevelopWorkspace.Base.Utils.SimpleListView simpleListViewSource = sender as DevelopWorkspace.Base.Utils.SimpleListView;
             EndPointInfo endPointInfo = (selectedRow as System.Windows.Controls.ListViewItem).DataContext as EndPointInfo;
             DevelopWorkspace.Base.Utils.SimpleListView simpleListView = new DevelopWorkspace.Base.Utils.SimpleListView();
             simpleListView.setStyle(120, 120, 255, 120, 12);
@@ -336,6 +374,16 @@ public class EndPointInfo : INotifyPropertyChanged
 
             StackPanel parent = new StackPanel();
             grid.Children.Add(simpleListView);
+
+
+            Point position = ((Button)sender).PointToScreen(new Point(0d, 0d));
+            dialog.Width = 800;
+            dialog.Height = 600;
+            dialog.Top = position.Y - dialog.Height / 2 + 50;
+            //detailsDialog.Left = position.X - detailsDialog.Width - ((Button)sender).ActualWidth - 10;
+            dialog.Left = position.X + ((Button)sender).ActualWidth + 10;
+
+            
             dialog.ShowDialog();
         }
         catch (Exception ex)
@@ -602,6 +650,8 @@ public class Script
                 endPointInfoList.Where(endpoint => { return endpoint.IsNotKey; }).ToList().ForEach(endpoint =>
                 {
                     _listener.Prefixes.Add("http://localhost:" + endpoint.EndPoint + "/");
+                    endpoint.Listenning = true;
+
                 });
                 _listener.Start();
                 _listener.BeginGetContext(new AsyncCallback(GetContextCallback), null);
@@ -617,6 +667,12 @@ public class Script
         {
             try
             {
+                endPointInfoList.ToList().ForEach(endpoint =>
+                {
+                    endpoint.Listenning = false;
+
+                });            
+
                 myServer.Stop();
                 _listener.Stop();
             }
@@ -778,6 +834,78 @@ public class Script
                 new EndPointInfo{ EndPoint = "18005", RulePath="rba-backend-report-api" ,Detail="",RuleList= rules},
                 new EndPointInfo{ EndPoint = "18006", RulePath="rba-backend-image-api",Detail="",RuleList= rules }
             };
+
+
+            simpleListView.FilteringOn = false;
+            simpleListView.setStyle(120, 120, 255, 120, 12);
+            simpleListView.CustomizeColumnDataDefFunc = (propertyAttribute, property, viewColumn, stackPanel) =>
+            {
+                if (!property.Name.Equals("Listenning") && property.PropertyType == typeof(Boolean))
+                {
+                    var checkBox = new CheckBox();
+                    checkBox.FontSize = 12;
+                    Binding textPropertyBinding = new Binding();
+                    textPropertyBinding.Mode = BindingMode.TwoWay;
+                    textPropertyBinding.Path = new PropertyPath(property.Name);
+                    checkBox.SetBinding(CheckBox.IsCheckedProperty, textPropertyBinding);
+                    checkBox.Checked += (object sender, RoutedEventArgs e) =>
+                    {
+                        //if (bMultiSelect) return;
+
+                    };
+                    stackPanel.Children.Add(checkBox);
+                }
+                else
+                {
+                    if (propertyAttribute == null || !propertyAttribute.Editablity)
+                    {
+                        var textBlock = new TextBlock();
+                        textBlock.FontSize = 12;
+                        textBlock.MinWidth = 120;
+                        if(!property.Name.Equals("Listenning"))
+                        {
+                            textBlock.SetBinding(TextBlock.TextProperty, new Binding()
+                            {
+                                Path = new PropertyPath(property.Name),
+                            });
+                        }
+                        else
+                        {
+                            textBlock.SetBinding(TextBlock.TextProperty, new Binding()
+                            {
+                                Path = new PropertyPath(property.Name),
+                                Converter = new ListeningConverter(),
+                            });
+                        }
+                        stackPanel.Children.Add(textBlock);
+                    }
+                    else
+                    {
+                        var textBox = new TextBox();
+                        textBox.FontSize = 12;
+                        textBox.MinWidth = 120;
+                        textBox.SetBinding(TextBox.TextProperty, new Binding()
+                        {
+                            Path = new PropertyPath(property.Name),
+                            Mode = BindingMode.TwoWay,
+                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                        });
+
+                        textBox.SetBinding(TextBox.WidthProperty, new Binding()
+                        {
+                            Source = viewColumn,
+                            Path = new PropertyPath("ActualWidth"),
+                            Converter = new ElementWidhtConverter(),
+                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+
+                        });
+                        stackPanel.Children.Add(textBox);
+                    }
+                }
+            };
+
+
+
             simpleListView.inflateView(endPointInfoList);
             return simpleListView;
         }
