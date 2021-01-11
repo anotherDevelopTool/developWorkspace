@@ -537,10 +537,10 @@ select * from  F_SHKSEIDTL where rownum < 1000;
             
             listView.setStyle(120, 120, 255, 120, 12);
             listView.inflateView(autoItSetting.setting);
-		      
+		
 	        clearance= new Func<string, bool>(DoClearance);	
 		
-            //listView.SelectedIndex = 0;
+            listView.SelectedIndex = 0;
 
             settingFileHash = DevelopWorkspace.Base.Utils.Files.GetSha256Hash(json);
             //2020/4/19
@@ -579,8 +579,8 @@ select * from  F_SHKSEIDTL where rownum < 1000;
                             if (!string.IsNullOrWhiteSpace(json))
                             {
                                 AutoItSetting autoItSetting = (AutoItSetting)JsonConvert.DeserializeObject(json, typeof(AutoItSetting));
-                                //listView.DataContext = autoItSetting.setting;
-                                //listView.SelectedIndex = 0;
+                                listView.DataContext = autoItSetting.setting;
+                                listView.SelectedIndex = 0;
                             }
                         });
                     }

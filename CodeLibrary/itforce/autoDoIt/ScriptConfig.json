@@ -17,7 +17,8 @@
   "SecondInputType": 3,
   "Title": "autoDoIt",
   "Description": "autoDoIt",
-  "Path": "C:\\xujingjiang\\developWorkspace1.1\\CodeLibrary\\itforce\\autoDoIt",
+  "Path": "C:\\xujingjiang\\tools\\developWorkspace1.5\\CodeLibrary\\itforce\\autoDoIt",
+  "StartUp": false,
   "typeName": "ScriptConfig",
-  "jsonfile": "C:\\xujingjiang\\developWorkspace1.1\\CodeLibrary\\itforce\\autoDoIt\\ScriptConfig.json"
+  "jsonfile": "C:\\xujingjiang\\tools\\developWorkspace1.5\\CodeLibrary\\itforce\\autoDoIt\\ScriptConfig.json"
 }

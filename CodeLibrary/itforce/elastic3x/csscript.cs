@@ -44,10 +44,19 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-public class ElasticInfo : ViewModelBase
+using DevelopWorkspace.Main;
+public class ElasticInfo : INotifyPropertyChanged
 {
+    public virtual void RaisePropertyChanged(string propertyName)
+    {
+        if (PropertyChanged != null)
+            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
 
     private Boolean _isNotKey = false;
+    [SimpleListViewColumnMeta(Visiblity = false)]
     public Boolean IsNotKey
     {
         get { return _isNotKey; }
@@ -62,6 +71,7 @@ public class ElasticInfo : ViewModelBase
     }
 
     private string _index = null;
+    [SimpleListViewColumnMeta(ColumnDisplayWidth = 240.0)]
     public string index
     {
         get { return _index; }
@@ -87,6 +97,7 @@ public class ElasticInfo : ViewModelBase
             }
         }
     }
+    [SimpleListViewColumnMeta(Visiblity = false)]
     public List<FieldInfo> FieldInfoList { get; set; }
 }
 public class FieldInfo
@@ -102,7 +113,7 @@ public class Script
     [AddinMeta(Name = "elasticSearch", Date = "2009-07-20", Description = "elastic utility", LargeIcon = "elasticsearch", Red = 128, Green = 145, Blue = 213)]
     public class ViewModel : DevelopWorkspace.Base.Model.ScriptBaseViewModel
     {
-        System.Windows.Controls.ListView listView;
+        DevelopWorkspace.Base.Utils.SimpleListView listView;
         List<ElasticInfo> elasticInfoList = new List<ElasticInfo>();
 
         [MethodMeta(Name = "Excelにエクスポート", Date = "2009-07-20", Description = "指定EXCEL内的数据反映到Elastic", LargeIcon = "export")]
@@ -216,11 +227,13 @@ public class Script
             StringReader strreader = new StringReader(strXaml);
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             UserControl view = XamlReader.Load(xmlreader) as UserControl;
-            listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Controls.ListView>(view, "trvFamilies");
+            listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<DevelopWorkspace.Base.Utils.SimpleListView>(view, "trvFamilies");
 
             getIndices();
 
-            listView.DataContext = elasticInfoList;
+            listView.setStyle(120, 120, 255, 120, 12);
+            listView.inflateView(elasticInfoList);
+
             listView.SelectedIndex = 0;
 
             return view;
@@ -240,8 +253,13 @@ public class Script
                         elasticInfoList.Add(new ElasticInfo { IsNotKey = false, index = prop.Name, size = 0 });
                         getCount(prop.Name);
                     }
+                    elasticInfoList = elasticInfoList.OrderBy(info => info.index).ToList();
+                    listView.DataContext = elasticInfoList;
+
+
                 }
             }
+
         }
         public async Task getMapping(string indexname)
         {
@@ -344,7 +362,7 @@ public class Script
                             {
                                 if (offset >= 0)
                                 {
-                                    value2_copy[idx, offset ] = jproperty.Value.ToString();
+                                    value2_copy[idx, offset] = jproperty.Value.ToString();
                                 }
 
                             }
@@ -352,7 +370,7 @@ public class Script
                             {
                                 if (offset >= 0)
                                 {
-                                    value2_copy[idx, offset ] = "";
+                                    value2_copy[idx, offset] = "";
                                 }
                             }
                         }
@@ -367,7 +385,7 @@ public class Script
                         }
                         table.Add(temp);
                     }
-                    DevelopWorkspace.Main.XlApp.loadDataIntoActiveSheet(1, 2, new List<List<List<string>>> { table });
+                    table.exportToActiveSheetOfExcel();
 
                 }
                 else

@@ -15,7 +15,6 @@
             <RowDefinition Height="60*"/>
             <RowDefinition Height="40*"/>
         </Grid.RowDefinitions>
-             <StackPanel>
              	<base:SimpleListView x:Name="trvFamilies" Grid.Row="0" ></base:SimpleListView>
                 <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="sqlSource" ToolTip="输出想要执行的SQL，可以复数"
                            IsReadOnly="False" 
@@ -25,7 +24,6 @@
                            HorizontalScrollBarVisibility="Auto" 
                            VerticalScrollBarVisibility="Auto"  >
             </avalonEdit:EdiTextEditor>
-			</StackPanel>
 	
 	</Grid>
     
