@@ -122,6 +122,26 @@ namespace DevelopWorkspace.Base.Utils
                 filteringOn = value;
             }
         }
+        public int SelectedIndex
+        {
+            get { return this.trvFamilies.SelectedIndex; }
+            set
+            {
+                this.trvFamilies.SelectedIndex = value;
+            }
+        }
+        public new object DataContext
+        {
+            get { return this.trvFamilies.DataContext; }
+            set
+            {
+                view.Filter -= new FilterEventHandler(view_Filter);
+                view.Source = value;
+                view.Filter += new FilterEventHandler(view_Filter);
+                this.trvFamilies.DataContext = view;
+            }
+        }
+
         public SimpleListView()
         {
             InitializeComponent();
