@@ -47,13 +47,13 @@ using System.Threading;
 using System.Diagnostics;
 class SimpleHTTPServer
 {
-    private readonly string[] _indexFiles = { 
-        "index.html", 
-        "index.htm", 
-        "default.html", 
-        "default.htm" 
+    private readonly string[] _indexFiles = {
+        "index.html",
+        "index.htm",
+        "default.html",
+        "default.htm"
     };
-    
+
     private static IDictionary<string, string> _mimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
         #region extension to MIME type list
         {".asf", "video/x-ms-asf"},
@@ -126,13 +126,13 @@ class SimpleHTTPServer
     private string _rootDirectory;
     private HttpListener _listener;
     private int _port;
- 
+
     public int Port
     {
         get { return _port; }
         private set { }
     }
- 
+
     /// <summary>
     /// Construct server with given port.
     /// </summary>
@@ -142,7 +142,7 @@ class SimpleHTTPServer
     {
         this.Initialize(path, port);
     }
- 
+
     /// <summary>
     /// Construct server with suitable port.
     /// </summary>
@@ -156,7 +156,7 @@ class SimpleHTTPServer
         l.Stop();
         this.Initialize(path, port);
     }
- 
+
     /// <summary>
     /// Stop server and dispose all functions.
     /// </summary>
@@ -165,10 +165,11 @@ class SimpleHTTPServer
         _serverThread.Abort();
         _listener.Stop();
     }
- 
+
     private void Listen()
     {
-        try{
+        try
+        {
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://localhost:" + _port.ToString() + "/");
             _listener.Start();
@@ -181,7 +182,7 @@ class SimpleHTTPServer
                 }
                 catch (Exception ex)
                 {
-     
+
                 }
             }
         }
@@ -189,16 +190,16 @@ class SimpleHTTPServer
         {
 
         }
-        
+
 
     }
- 
+
     private void Process(HttpListenerContext context)
     {
         string filename = context.Request.Url.AbsolutePath;
         Console.WriteLine(filename);
         filename = filename.Substring(1);
- 
+
         if (string.IsNullOrEmpty(filename))
         {
             foreach (string indexFile in _indexFiles)
@@ -210,28 +211,28 @@ class SimpleHTTPServer
                 }
             }
         }
- 
+
         filename = Path.Combine(_rootDirectory, filename);
- 
+
         if (File.Exists(filename))
         {
             try
             {
                 Stream input = new FileStream(filename, FileMode.Open);
-                
+
                 //Adding permanent http response headers
                 string mime;
                 context.Response.ContentType = _mimeTypeMappings.TryGetValue(Path.GetExtension(filename), out mime) ? mime : "application/octet-stream";
                 context.Response.ContentLength64 = input.Length;
                 context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
                 context.Response.AddHeader("Last-Modified", System.IO.File.GetLastWriteTime(filename).ToString("r"));
- 
+
                 byte[] buffer = new byte[1024 * 16];
                 int nbytes;
                 while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
                     context.Response.OutputStream.Write(buffer, 0, nbytes);
                 input.Close();
-                
+
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
                 context.Response.OutputStream.Flush();
             }
@@ -239,16 +240,16 @@ class SimpleHTTPServer
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
- 
+
         }
         else
         {
             context.Response.StatusCode = (int)HttpStatusCode.NotFound;
         }
-        
+
         context.Response.OutputStream.Close();
     }
- 
+
     private void Initialize(string path, int port)
     {
         this._rootDirectory = path;
@@ -256,14 +257,22 @@ class SimpleHTTPServer
         _serverThread = new Thread(this.Listen);
         _serverThread.Start();
     }
- 
- 
+
+
 }
 
-public class EndPointInfo : ViewModelBase
+public class EndPointInfo : INotifyPropertyChanged
 {
+    public virtual void RaisePropertyChanged(string propertyName)
+    {
+        if (PropertyChanged != null)
+            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
 
     private Boolean _isNotKey = false;
+    [SimpleListViewColumnMeta(ColumnDisplayName = "选择")]
     public Boolean IsNotKey
     {
         get { return _isNotKey; }
@@ -278,6 +287,7 @@ public class EndPointInfo : ViewModelBase
     }
 
     private string _endPoint = null;
+    [SimpleListViewColumnMeta(ColumnDisplayWidth = 60.0, ColumnDisplayName = "端口号")]
     public string EndPoint
     {
         get { return _endPoint; }
@@ -291,6 +301,7 @@ public class EndPointInfo : ViewModelBase
         }
     }
     private string _rulePath = "";
+    [SimpleListViewColumnMeta(ColumnDisplayWidth = 250.0, ColumnDisplayName = "服务根路径")]
     public string RulePath
     {
         get { return _rulePath; }
@@ -303,7 +314,37 @@ public class EndPointInfo : ViewModelBase
             }
         }
     }
+    [SimpleListViewColumnMeta(ColumnDisplayName = "详细...", TaskName = "OpenDetail")]
+    public string Detail { get; set; }
+    [SimpleListViewColumnMeta(Visiblity = false)]
     public List<Rule> RuleList { get; set; }
+
+    public void OpenDetail(object selectedRow,object sender)
+    {
+
+        try
+        {
+            DevelopWorkspace.Base.Utils.SimpleListView simpleListViewSource = sender as DevelopWorkspace.Base.Utils.SimpleListView;
+            EndPointInfo endPointInfo = simpleListViewSource.SelectedItem as EndPointInfo;
+            DevelopWorkspace.Base.Utils.SimpleListView simpleListView = new DevelopWorkspace.Base.Utils.SimpleListView();
+            simpleListView.setStyle(120, 120, 255, 120, 12);
+            simpleListView.inflateView(endPointInfo.RuleList);
+
+            Window dialog = new Window();
+            Grid grid = new Grid();
+            dialog.Content = grid;
+
+            StackPanel parent = new StackPanel();
+            grid.Children.Add(simpleListView);
+            dialog.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            ex.Dump();
+        }
+
+    }
+
 }
 public class Rule
 {
@@ -555,8 +596,8 @@ public class Script
         {
             try
             {
-            
-                myServer = new SimpleHTTPServer(@"C:\Users\xujingjiang\Source\Repos\developSupportToolls\developWorkspace\bin\Debug",8084);
+
+                myServer = new SimpleHTTPServer(@"C:\xujingjiang\tools\Apache24\htdocs", 8084);
 
                 endPointInfoList.Where(endpoint => { return endpoint.IsNotKey; }).ToList().ForEach(endpoint =>
                 {
@@ -617,6 +658,10 @@ public class Script
                         requestString = readStream.ReadToEnd();
                     }
                 }
+                if (string.IsNullOrWhiteSpace(requestString))
+                {
+                    requestString = request.QueryString == null ? "" : request.QueryString.ToString();
+                }
 
                 DevelopWorkspace.Base.Logger.WriteLine(requestString);
 
@@ -636,7 +681,14 @@ public class Script
                         response.StatusCode = (int)HttpStatusCode.OK;
                         response.ContentType = findedRule.ContentType;
                         response.ContentEncoding = Encoding.UTF8;
-                        
+                        if (request.Url.LocalPath.StartsWith("/rba-bo-api"))
+                        {
+                            response.AddHeader("Access-Control-Allow-Credentials", "true");
+                            response.AddHeader("Access-Control-Allow-Headers", "Content-Type");
+                            response.AddHeader("Access-Control-Allow-Methods", "*");
+                            response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+                        }
+
                         string responseFilePath = findedRule.ResponseFile;
                         if (FileExist(ref responseFilePath))
                         {
@@ -692,11 +744,12 @@ public class Script
             listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Controls.ListView>(view, "trvFamilies");
             endPointInfoList = new List<EndPointInfo>
             {
-                new EndPointInfo{ EndPoint = "18002",  RulePath="rba-backend-item-api" },
-                new EndPointInfo{ EndPoint = "18005", RulePath="rba-backend-report-api" },
-                new EndPointInfo{ EndPoint = "18006", RulePath="rba-backend-image-api" }
+                new EndPointInfo{ EndPoint = "18001",  RulePath="rba-bo-api",Detail="..." },
+                new EndPointInfo{ EndPoint = "18002",  RulePath="rba-backend-item-api",Detail="..." },
+                new EndPointInfo{ EndPoint = "18005", RulePath="rba-backend-report-api" ,Detail="..."},
+                new EndPointInfo{ EndPoint = "18006", RulePath="rba-backend-image-api",Detail="..." }
             };
-            simpleListView.CreateView(endPointInfoList);
+            simpleListView.inflateView(endPointInfoList);
             //listView.DataContext = endPointInfoList;
             //listView.SelectedIndex = 0;
 
