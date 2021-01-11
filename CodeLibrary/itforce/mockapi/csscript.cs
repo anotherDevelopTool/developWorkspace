@@ -325,7 +325,7 @@ public class EndPointInfo : INotifyPropertyChanged
         try
         {
             DevelopWorkspace.Base.Utils.SimpleListView simpleListViewSource = sender as DevelopWorkspace.Base.Utils.SimpleListView;
-            EndPointInfo endPointInfo = simpleListViewSource.SelectedItem as EndPointInfo;
+            EndPointInfo endPointInfo = (selectedRow as System.Windows.Controls.ListViewItem).DataContext as EndPointInfo;
             DevelopWorkspace.Base.Utils.SimpleListView simpleListView = new DevelopWorkspace.Base.Utils.SimpleListView();
             simpleListView.setStyle(120, 120, 255, 120, 12);
             simpleListView.inflateView(endPointInfo.RuleList);
@@ -742,14 +742,6 @@ public class Script
             XmlTextReader xmlreader = new XmlTextReader(strreader);
             UserControl view = XamlReader.Load(xmlreader) as UserControl;
             listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Controls.ListView>(view, "trvFamilies");
-            endPointInfoList = new List<EndPointInfo>
-            {
-                new EndPointInfo{ EndPoint = "18001",  RulePath="rba-bo-api",Detail="..." },
-                new EndPointInfo{ EndPoint = "18002",  RulePath="rba-backend-item-api",Detail="..." },
-                new EndPointInfo{ EndPoint = "18005", RulePath="rba-backend-report-api" ,Detail="..."},
-                new EndPointInfo{ EndPoint = "18006", RulePath="rba-backend-image-api",Detail="..." }
-            };
-            simpleListView.inflateView(endPointInfoList);
             //listView.DataContext = endPointInfoList;
             //listView.SelectedIndex = 0;
 
@@ -779,6 +771,14 @@ public class Script
 
             }
 
+            endPointInfoList = new List<EndPointInfo>
+            {
+                new EndPointInfo{ EndPoint = "18001",  RulePath="rba-bo-api",Detail="",RuleList= rules},
+                new EndPointInfo{ EndPoint = "18002",  RulePath="rba-backend-item-api",Detail="",RuleList= rules },
+                new EndPointInfo{ EndPoint = "18005", RulePath="rba-backend-report-api" ,Detail="",RuleList= rules},
+                new EndPointInfo{ EndPoint = "18006", RulePath="rba-backend-image-api",Detail="",RuleList= rules }
+            };
+            simpleListView.inflateView(endPointInfoList);
             return simpleListView;
         }
 
