@@ -438,10 +438,7 @@ namespace DevelopWorkspace.Base.Utils
                     {
                         ListViewItem listViewItem = GetVisualAncestor<ListViewItem>((DependencyObject)sender);
                         listViewItem.IsSelected = true;
-
-                        listViewItem.DataContext.Dump();
-
-                        method.Invoke(tmodelList[0], new object[] { listViewItem.DataContext,this.trvFamilies });
+                        method.Invoke(tmodelList[0], new object[] { listViewItem,this.trvFamilies });
                     };
                     stackPanel.Children.Add(detailButton);
                 }
