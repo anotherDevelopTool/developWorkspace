@@ -11,11 +11,6 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel;
-using System;
-using Microsoft.CSharp;
-using System.Drawing;
-using System.IO;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Windows;
@@ -28,27 +23,61 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Xml;
 using System.Windows.Markup;
-using DevelopWorkspace.Base;
 using Heidesoft.Components.Controls;
 using System.Windows.Threading;
-using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Diagnostics;
-using System.Threading;
 using Xceed.Wpf.AvalonDock.Layout;
 using System.Reflection;
-using DevelopWorkspace.Base;
 using DevelopWorkspace.Base.Model;
 using DevelopWorkspace.Base.Utils;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
 using System.Collections.ObjectModel;
 using Microsoft.Office.Interop.Word;
+using AutoIt;
+//css_reference AutoItX3.Assembly.dll
 public class Script
 {
+    [DllImport("User32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr handle);
+
+    [DllImport("User32.dll")]
+    private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
+
+    private const int SW_SHOWNORMAL = 1;
+    private const int SW_SHOWMAXIMIZED = 3;
+
+    public static void BringToFront(IntPtr handle)
+    {
+        if (handle == IntPtr.Zero)
+            return;
+
+        // Maximize window
+        ShowWindow(handle, SW_SHOWNORMAL);
+
+        SetForegroundWindow(handle);
+    }
+    public static void OpenMemoFile(string filename)
+    {
+        string helpfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "help", filename);
+        if (File.Exists(helpfile))
+        {
+            Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
+            app.Documents.Open(helpfile);
+            app.Visible = true;
+            string processName = "WINWORD";
+            Process[] processes = Process.GetProcessesByName(processName);
+            if (processes.Length == 0) // Process not running
+            { }
+            else // Process running
+            {
+                BringToFront(processes[0].MainWindowHandle);
+            }
+
+        }
+    }
     public static void Main(string[] args)
     {
         //需要appdomain以shared方式执行
@@ -115,101 +144,163 @@ public class Script
                 Services.dbsupportContextmenuCommandList.Add(junitCommand);
             });
         }
-        
+
         // 扩张主画面，DB，Script默认嵌入机能的Ribbon
         Services.RibbonQueryMain = (object parent) =>
         {
             Fluent.RibbonGroupBox ribbonGroupBox = new Fluent.RibbonGroupBox();
-            ribbonGroupBox.Header = "ScriptEnhanced";
-            ribbonGroupBox.Width = 120;
-            Fluent.Button button = new Fluent.Button();
-            button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
-            button.Header = "memo";
-            button.Margin = new Thickness(5, 0, 5, 0);
-            button.Click += (object sender, RoutedEventArgs e) =>
-               {
-                   DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
-                   {
-                       try
-                       {
-                           //System.Diagnostics.Process.Start("https://www.google.com/");
-                           
-                            string helpfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "help", "main.docx");
-                            if (File.Exists(helpfile))
-                            {
-                                Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
-                                app.Documents.Open(helpfile);
-                                app.Visible = true;
-                                
-                            }
-                           
-                           
-                           
-                           
-                       }
-                       catch (Exception ex)
-                       {
-                           DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
-                       }
-                   }));
+            ribbonGroupBox.Header = "その他";
 
-               };
-            ribbonGroupBox.Items.Add(button);
+            {
+                Fluent.Button button = new Fluent.Button();
+                button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
+                button.Header = "メモ";
+                button.Margin = new Thickness(1, 0, 1, 0);
+                button.Click += (object sender, RoutedEventArgs e) =>
+                   {
+                       DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
+                       {
+                           try
+                           {
+                               OpenMemoFile("main.docx");
+                           }
+                           catch (Exception ex)
+                           {
+                               DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                           }
+                       }));
+
+                   };
+                ribbonGroupBox.Items.Add(button);
+            }
+            {
+                Fluent.Button button = new Fluent.Button();
+                button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
+                button.Header = "Confluence";
+                button.Margin = new Thickness(1, 0, 1, 0);
+                button.Click += (object sender, RoutedEventArgs e) =>
+                   {
+                       DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
+                       {
+                           try
+                           {
+                               System.Diagnostics.Process.Start("https://www.google.com/");
+                           }
+                           catch (Exception ex)
+                           {
+                               DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                           }
+                       }));
+
+                   };
+                ribbonGroupBox.Items.Add(button);
+            }
             return ribbonGroupBox;
+
         };
         Services.RibbonQueryDb = (object parent) =>
         {
             Fluent.RibbonGroupBox ribbonGroupBox = new Fluent.RibbonGroupBox();
-            ribbonGroupBox.Header = "ScriptEnhanced";
-            ribbonGroupBox.Width = 120;
-            Fluent.Button button = new Fluent.Button();
-            button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
-            button.Header = "memo";
-            button.Margin = new Thickness(5, 0, 5, 0);
-            button.Click += (object sender, RoutedEventArgs e) =>
-               {
-                   DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
-                   {
-                       try
-                       {
-                           System.Diagnostics.Process.Start("https://www.google.com/");
-                       }
-                       catch (Exception ex)
-                       {
-                           DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
-                       }
-                   }));
+            ribbonGroupBox.Header = "その他";
 
-               };
-            ribbonGroupBox.Items.Add(button);
+            {
+                Fluent.Button button = new Fluent.Button();
+                button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
+                button.Header = "メモ";
+                button.Margin = new Thickness(1, 0, 1, 0);
+                button.Click += (object sender, RoutedEventArgs e) =>
+                   {
+                       DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
+                       {
+                           try
+                           {
+                               OpenMemoFile("dbsupport.docx");
+                           }
+                           catch (Exception ex)
+                           {
+                               DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                           }
+                       }));
+
+                   };
+                ribbonGroupBox.Items.Add(button);
+            }
+            {
+                Fluent.Button button = new Fluent.Button();
+                button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
+                button.Header = "Confluence";
+                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Click += (object sender, RoutedEventArgs e) =>
+                   {
+                       DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
+                       {
+                           try
+                           {
+                               System.Diagnostics.Process.Start("https://www.google.com/");
+                           }
+                           catch (Exception ex)
+                           {
+                               DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                           }
+                       }));
+
+                   };
+                ribbonGroupBox.Items.Add(button);
+            }
             return ribbonGroupBox;
+
         };
         Services.RibbonQueryScript = (object parent) =>
         {
             Fluent.RibbonGroupBox ribbonGroupBox = new Fluent.RibbonGroupBox();
-            ribbonGroupBox.Header = "ScriptEnhanced";
-            ribbonGroupBox.Width = 120;
-            Fluent.Button button = new Fluent.Button();
-            button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
-            button.Header = "memo";
-            button.Margin = new Thickness(5, 0, 5, 0);
-            button.Click += (object sender, RoutedEventArgs e) =>
-               {
-                   DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
-                   {
-                       try
-                       {
-                           System.Diagnostics.Process.Start("https://www.google.com/");
-                       }
-                       catch (Exception ex)
-                       {
-                           DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
-                       }
-                   }));
+            ribbonGroupBox.Header = "その他";
 
-               };
-            ribbonGroupBox.Items.Add(button);
+            {
+                Fluent.Button button = new Fluent.Button();
+                button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
+                button.Header = "メモ";
+                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Click += (object sender, RoutedEventArgs e) =>
+                   {
+                       DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
+                       {
+                           try
+                           {
+                               OpenMemoFile("script.docx");
+                           }
+                           catch (Exception ex)
+                           {
+                               DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                           }
+                       }));
+
+                   };
+                ribbonGroupBox.Items.Add(button);
+            }
+            {
+                Fluent.Button button = new Fluent.Button();
+                button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
+                button.Header = "Confluence";
+                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Click += (object sender, RoutedEventArgs e) =>
+                   {
+                       DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
+                       {
+                           try
+                           {
+                               System.Diagnostics.Process.Start("https://www.google.com/");
+                           }
+                           catch (Exception ex)
+                           {
+                               DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                           }
+                       }));
+
+                   };
+                ribbonGroupBox.Items.Add(button);
+            }
             return ribbonGroupBox;
+
         };
 
 
