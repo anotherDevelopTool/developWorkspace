@@ -2,11 +2,47 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace DevelopWorkspace.Base.Utils
 {
     public class Files
     {
+        private static bool CanLoadResource(Uri uri)
+        {
+            try
+            {
+                Application.GetResourceStream(uri);
+                return true;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+        }
+        public static BitmapImage GetIconFile(string icon) 
+        {
+            string iconfile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins", icon + ".png");
+            if (File.Exists(iconfile))
+            {
+                var uri = new Uri(iconfile);
+                return new BitmapImage(uri);
+            }
+            else
+            {
+                var resourceString = "/DevelopWorkspace;component/Images/" + icon + ".png";
+                if (CanLoadResource(new Uri(resourceString, UriKind.Relative)))
+                {
+                    return new BitmapImage(new Uri(resourceString, UriKind.Relative));
+                }
+                else
+                {
+                    return new BitmapImage(new Uri("/DevelopWorkspace;component/Images/plugin.png", UriKind.Relative));
+                }
+            }
+
+        }
         public static string ReadAllText(string fileName, Encoding encode)
         {
             FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);

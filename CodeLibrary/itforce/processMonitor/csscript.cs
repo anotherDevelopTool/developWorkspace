@@ -36,7 +36,7 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 public class ProcessMonitorInfo : ViewModelBase
 {
-    private string _service_type = "";
+    private string _service_type = "rba-bo-api";
     public string service_type
     {
         get { return _service_type; }
@@ -49,7 +49,7 @@ public class ProcessMonitorInfo : ViewModelBase
             }
         }
     }
-    private string _process_name = "java";
+    private string _process_name = "java.exe";
     public string process_name
     {
         get { return _process_name; }
@@ -62,7 +62,7 @@ public class ProcessMonitorInfo : ViewModelBase
             }
         }
     }
-    private string _logfile = "";
+    private string _logfile = "system.log";
     public string logfile
     {
         get { return _logfile; }
@@ -101,7 +101,7 @@ public class ProcessMonitorInfo : ViewModelBase
             }
         }
     }
-    private string _current_dir = "";
+    private string _current_dir = "system.log";
     public string current_dir
     {
         get { return _current_dir; }
@@ -139,7 +139,7 @@ public class Script
             try
             {
                 ProcessMonitorInfo ProcessMonitorInfo = (ProcessMonitorInfo)listView.SelectedItem;
-                string logfile = ProcessMonitorInfo.logfile;
+                string logfile = ProcessMonitorInfo.logfile.FormatWith(new { userName = userName });
                 bool alive = ProcessMonitorInfo.alive;
                 string process_name = ProcessMonitorInfo.process_name;
 
@@ -149,7 +149,7 @@ public class Script
                     return;
                 }
                 bool bMore = false;
-                Logger.WriteLine(ReadLastLines(logfile, 0, 150, out bMore).SkipWhile(p => { return string.IsNullOrWhiteSpace(p);}).Aggregate((a, b) => a + "\n" + b));
+                Logger.WriteLine(ReadLastLines(logfile, 0, 150, out bMore).Aggregate((a, b) => a + "\n" + b));
             }
             catch (Exception ex)
             {
@@ -157,16 +157,45 @@ public class Script
             }
 
         }
+
+        public Fluent.RibbonGroupBox getRibbonGroupBox()
+        {
+            Fluent.RibbonGroupBox ribbonGroupBox = new Fluent.RibbonGroupBox();
+            ribbonGroupBox.Header = "TestRibbonGroupBox";
+            ribbonGroupBox.Width = 250;
+            Fluent.Button button = new Fluent.Button();
+            button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
+            button.Header = "test";
+            button.Margin = new Thickness(5, 0, 5, 0);
+            button.Click += (object sender, RoutedEventArgs e) =>
+               {
+                   DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
+                   {
+                       try
+                       {
+                           System.Diagnostics.Process.Start("https://www.google.com/");
+                       }
+                       catch (Exception ex)
+                       {
+                           DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                       }
+                   }));
+
+               };
+            ribbonGroupBox.Items.Add(button);
+            return ribbonGroupBox;
+
+        }
+
         [MethodMeta(Name = "最新status取得", Date = "2009-07-20", Description = "", LargeIcon = "monitor")]
         public void EventHandler2(object sender, RoutedEventArgs e)
         {
             try
             {
-                Process[] processes = Process.GetProcessesByName("java");
+                Process[] processes = Process.GetProcessesByName("chrome");
                 List<ProcessMonitorInfo> removedList = new List<ProcessMonitorInfo>();
                 foreach (var processMonitorInfo in processMonitorInfoList)
                 {
-
                     var process = processes.FirstOrDefault(p => p.ProcessName.Equals(processMonitorInfo.process_name) && p.GetCurrentDirectory().Equals(processMonitorInfo.current_dir));
                     if (process != null)
                     {
@@ -232,12 +261,7 @@ public class Script
             listView = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<System.Windows.Controls.ListView>(view, "trvFamilies");
             string json = DevelopWorkspace.Base.Utils.Files.ReadAllText(getResPathByExt("setting.json"), Encoding.UTF8);
             ProcessMonitorSetting processMonitorSetting = (ProcessMonitorSetting)JsonConvert.DeserializeObject(json, typeof(ProcessMonitorSetting));
-            processMonitorSetting.setting.ForEach(item =>
-            {
-                item.logfile = item.logfile.FormatWith(new { userName = userName });
-                item.current_dir = item.current_dir.FormatWith(new { userName = userName });
-                processMonitorInfoList.Add(item);
-            });
+            processMonitorSetting.setting.ForEach(item => processMonitorInfoList.Add(item));
             listView.DataContext = processMonitorInfoList;
 
             clearance = new Func<string, bool>(DoClearance);
@@ -311,8 +335,7 @@ public class Script
                     if (File.Exists(StatisticsFile))
                     {
                         // Open file
-                        FileStream fileStream = new FileStream(StatisticsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                        using (StreamReader sr = new StreamReader(fileStream))
+                        using (StreamReader sr = new StreamReader(StatisticsFile))
                         {
                             long FileLength = sr.BaseStream.Length;
                             int c, linescount = 0;

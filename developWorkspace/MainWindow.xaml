@@ -514,7 +514,7 @@
 
 
 
-                        <Fluent:RibbonTabItem Header="home" ReduceOrder="(P),(P),(P),(P),(P)">
+                        <Fluent:RibbonTabItem x:Name ="ribbonTabTool" Header="home" ReduceOrder="(P),(P),(P),(P),(P)">
                             <Fluent:RibbonGroupBox x:Name="tools" Header="{DynamicResource  mainwindow.lang.tools}">
                                 <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.dbsupport}"  ToolTip="{DynamicResource  mainwindow.lang.tools.dbsupport.hint}" Icon="Images\dbtool.png" LargeIcon="Images\dbtool.png" Command="{Binding NewDbUtilCommand}" Name="btndbutil" />
                                 <Fluent:Button Header="{DynamicResource  mainwindow.lang.tools.script}"  ToolTip="{DynamicResource  mainwindow.lang.tools.script.hint}" Icon="Images\csscript.png" 	LargeIcon="Images\csscript.png" Command="{Binding NewScriptCommand}" Name="btncsscript" />

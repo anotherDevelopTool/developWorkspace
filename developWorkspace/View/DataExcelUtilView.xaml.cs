@@ -197,6 +197,11 @@ namespace DevelopWorkspace.Main.View
                 }
                 //从control.resources里面取出ribbontabitem的xaml定义同时实例化
                 var ribbonTabTool = FindResource("RibbonTabTool") as Fluent.RibbonTabItem;
+
+                //通过外部脚本扩张Ribbon机能
+                Fluent.RibbonGroupBox ribbonGroupBox = Services.RibbonQueryDb(trvFamilies) as Fluent.RibbonGroupBox;
+                if(ribbonGroupBox != null) ribbonTabTool.Groups.Insert(ribbonTabTool.Groups.Count -1,ribbonGroupBox);
+
                 var sqlTabTool = FindResource("SqlTabTool") as Fluent.RibbonTabItem;
                 ribbon.Tabs.Add(ribbonTabTool);
                 ribbon.Tabs.Add(sqlTabTool);

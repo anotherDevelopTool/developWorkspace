@@ -78,6 +78,8 @@ namespace DevelopWorkspace.Main.View
                 List<System.Windows.Controls.Control> buttonList = new List<System.Windows.Controls.Control>();
                 buttonList.Add(btn_1);
                 var methods = model.GetType().GetMethods().Where(m => m.GetCustomAttributes(typeof(MethodMetaAttribute), false).Length > 0).ToList();
+
+
                 List<MethodMetaAttribute> methodMetaAttributeList = new List<MethodMetaAttribute>();
                 Dictionary<string, Fluent.RibbonTabItem> tabItemList = new Dictionary<string, RibbonTabItem>();
                 List<Fluent.RibbonTabItem> tabItemSortedList = new List<RibbonTabItem>();
@@ -222,7 +224,14 @@ namespace DevelopWorkspace.Main.View
                     }
 
                 }
-
+                // 自定义Ribbon，提供更强力接口
+                var ribbonGroupBoxList = model.GetType().GetMethods().Where(m => m.ReturnType == typeof(Fluent.RibbonGroupBox)).ToList();
+                for (int i = 0; i < ribbonGroupBoxList.Count; i++)
+                {
+                    var method = ribbonGroupBoxList[i];
+                    var groupBox = method.Invoke(model, new object[] { }) as Fluent.RibbonGroupBox;
+                    if(groupBox != null) ribbonTabTool.Groups.Add(groupBox);
+                }
                 //之前的active内容关联的tab需要隐藏
                 if (Base.Services.ActiveModel != null)
                 {

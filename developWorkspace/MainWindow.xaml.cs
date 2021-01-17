@@ -786,6 +786,13 @@ namespace DevelopWorkspace.Main
                     {
                         loadStartupScripts(codeLibrary, executor);
                     }
+
+                    //通过外部脚本扩张Ribbon机能
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                    {
+                        Fluent.RibbonGroupBox ribbonGroupBox = Services.RibbonQueryMain(null) as Fluent.RibbonGroupBox;
+                        if (ribbonGroupBox != null) ribbonTabTool.Groups.Add(ribbonGroupBox);
+                    });
                 }
                 catch (Exception ex)
                 {

@@ -54,6 +54,9 @@ namespace DevelopWorkspace.Base
 
         public delegate void BusyWork(Action action, Boolean hasContinuedAction = false);
         public delegate void BusyIndicator(string indicatorMessage);
+
+        public delegate object RibbonQuery(object parent);
+
         static BusyWork _busyWork = (Action action, Boolean hasContinuedAction) => { action.Invoke(); };
         //20190315 cancel longtimetask 
         public static Button cancelLongTimeTask = null;
@@ -92,6 +95,30 @@ namespace DevelopWorkspace.Base
             get { return Services._busyWorkIndicator; }
             set { Services._busyWorkIndicator = value; }
         }
+
+        //主窗体用的扩张用
+        static RibbonQuery _ribbonQueryMain = (object parent) => { return null; };
+        public static RibbonQuery RibbonQueryMain
+        {
+            get { return Services._ribbonQueryMain; }
+            set { Services._ribbonQueryMain = value; }
+        }
+        //DB机能用的扩张用
+        static RibbonQuery _ribbonQueryDb = (object parent) => { return null; };
+        public static RibbonQuery RibbonQueryDb
+        {
+            get { return Services._ribbonQueryDb; }
+            set { Services._ribbonQueryDb = value; }
+        }
+        //DB机能用的扩张用
+        static RibbonQuery _ribbonQueryScript = (object parent) => { return null; };
+        public static RibbonQuery RibbonQueryScript
+        {
+            get { return Services._ribbonQueryScript; }
+            set { Services._ribbonQueryScript = value; }
+        }
+
+
         static Dictionary<Model.PaneViewModel, List<object>> dicRibbonCache = new Dictionary<Model.PaneViewModel, List<object>>();
         public static void RegRibbon(Model.PaneViewModel model, List<object> tabs)
         {

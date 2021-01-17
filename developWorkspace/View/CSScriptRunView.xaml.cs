@@ -109,6 +109,11 @@ namespace DevelopWorkspace.Main.View
                 //从control.resources里面取出ribbontabitem的xaml定义同时实例化
                 //    DevelopWorkspace.Base.Logger.WriteLine("Process committed");
                 var ribbonTabTool = FindResource("RibbonTabTool") as Fluent.RibbonTabItem;
+
+                //通过外部脚本扩张Ribbon机能
+                Fluent.RibbonGroupBox ribbonGroupBox = Services.RibbonQueryScript(null) as Fluent.RibbonGroupBox;
+                if (ribbonGroupBox != null) ribbonTabTool.Groups.Add(ribbonGroupBox);
+
                 ribbon.Tabs.Add(ribbonTabTool);
                 ribbon.SelectedTabIndex = ribbon.Tabs.Count - 1;
                 Base.Services.ActiveModel.RibbonTabIndex = ribbon.SelectedTabIndex;
