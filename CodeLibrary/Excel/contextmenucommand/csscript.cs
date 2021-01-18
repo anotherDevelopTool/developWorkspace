@@ -368,7 +368,7 @@ order by index_schema,
                 Fluent.Button button = new Fluent.Button();
                 button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
                 button.Header = "Confluence";
-                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Margin = new Thickness(1, 0, 1, 0);
                 button.Click += (object sender, RoutedEventArgs e) =>
                    {
                        DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
@@ -398,7 +398,7 @@ order by index_schema,
                 Fluent.Button button = new Fluent.Button();
                 button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
                 button.Header = "メモ";
-                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Margin = new Thickness(1, 0, 1, 0);
                 button.Click += (object sender, RoutedEventArgs e) =>
                    {
                        DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
@@ -420,7 +420,7 @@ order by index_schema,
                 Fluent.Button button = new Fluent.Button();
                 button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
                 button.Header = "Confluence";
-                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Margin = new Thickness(1, 0, 1, 0);
                 button.Click += (object sender, RoutedEventArgs e) =>
                    {
                        DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>

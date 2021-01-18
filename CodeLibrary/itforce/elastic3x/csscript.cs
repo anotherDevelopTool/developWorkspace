@@ -45,6 +45,85 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using DevelopWorkspace.Main;
+using DevelopWorkspace.UX.enhance;
+public class BindableAvalonEditor : ICSharpCode.AvalonEdit.TextEditor, INotifyPropertyChanged
+{
+    /// <summary>
+    /// A bindable Text property
+    /// </summary>
+    public new string Text
+    {
+        get
+        {
+            return (string)GetValue(TextProperty);
+        }
+        set
+        {
+            SetValue(TextProperty, value);
+            RaisePropertyChanged("Text");
+        }
+    }
+
+    /// <summary>
+    /// The bindable text property dependency property
+    /// </summary>
+    public static readonly DependencyProperty TextProperty =
+        DependencyProperty.Register(
+            "Text",
+            typeof(string),
+            typeof(BindableAvalonEditor),
+            new FrameworkPropertyMetadata
+            {
+                DefaultValue = default(string),
+                BindsTwoWayByDefault = true,
+                PropertyChangedCallback = OnDependencyPropertyChanged
+            }
+        );
+
+    protected static void OnDependencyPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
+    {
+        var target = (BindableAvalonEditor)obj;
+
+        if (target.Document != null)
+        {
+            var caretOffset = target.CaretOffset;
+            var newValue = args.NewValue;
+
+            if (newValue == null)
+            {
+                newValue = "";
+            }
+
+            target.Document.Text = (string)newValue;
+            target.CaretOffset = Math.Min(caretOffset, newValue.ToString().Length);
+        }
+    }
+
+    protected override void OnTextChanged(EventArgs e)
+    {
+        if (this.Document != null)
+        {
+            Text = this.Document.Text;
+        }
+
+        base.OnTextChanged(e);
+    }
+
+    /// <summary>
+    /// Raises a property changed event
+    /// </summary>
+    /// <param name="property">The name of the property that updates</param>
+    public void RaisePropertyChanged(string property)
+    {
+        if (PropertyChanged != null)
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(property));
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+}
+
 public class ElasticInfo : INotifyPropertyChanged
 {
     public virtual void RaisePropertyChanged(string propertyName)
@@ -99,7 +178,36 @@ public class ElasticInfo : INotifyPropertyChanged
     }
     [SimpleListViewColumnMeta(Visiblity = false)]
     public List<FieldInfo> FieldInfoList { get; set; }
+
+    private string _query = null;
+    [SimpleListViewColumnMeta(ColumnDisplayWidth = 480.0, Editablity = true)]
+    public string Query
+    {
+        get { return _query; }
+        set
+        {
+            if (_query != value)
+            {
+                _query = value;
+                RaisePropertyChanged("query");
+            }
+        }
+    }
 }
+class ElementWidhtConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        double totalWidth = double.Parse(value.ToString());
+        return totalWidth - 15;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        return value;
+    }
+}
+
 public class FieldInfo
 {
     public string FieldName { get; set; }
@@ -108,6 +216,7 @@ public class FieldInfo
 
 public class Script
 {
+
     //https://stackoverflow.com/questions/248362/how-do-i-build-a-datatemplate-in-c-sharp-code
     //TODO 面向Addin基类化
     [AddinMeta(Name = "elasticSearch", Date = "2009-07-20", Description = "elastic utility", LargeIcon = "elasticsearch", Red = 128, Green = 145, Blue = 213)]
@@ -121,8 +230,9 @@ public class Script
         {
             dynamic content = listView.SelectedItem;
             string slectetedIndex = content.index;
+            string query = content.Query;
 
-            search(slectetedIndex);
+            search(slectetedIndex, query);
 
         }
         [MethodMeta(Name = "Elasticへ更新", Date = "2009-07-20", Description = "导入指定index的所有document到EXCEL,@timestampe must input like 2017-02-03T19:27:20.606Z", LargeIcon = "import")]
@@ -222,6 +332,10 @@ public class Script
             delete(slectetedIndex);
         }
 
+        public Fluent.RibbonGroupBox  getHelpRibbonGroupBox()
+        {
+            return UX.getHelpRibbonGroupBox("elasticSearch","https://confluence.rakuten-it.com/confluence/pages/viewpage.action?pageId=2427411586");
+        }
         public override UserControl getView(string strXaml)
         {
             StringReader strreader = new StringReader(strXaml);
@@ -232,6 +346,68 @@ public class Script
             getIndices();
 
             listView.setStyle(120, 120, 255, 120, 12);
+            listView.CustomizeColumnDataDefFunc = (propertyAttribute, property, viewColumn, stackPanel) =>
+            {
+                if (property.PropertyType == typeof(Boolean))
+                {
+                    var checkBox = new CheckBox();
+                    checkBox.FontSize = 12;
+                    Binding textPropertyBinding = new Binding();
+                    textPropertyBinding.Mode = BindingMode.TwoWay;
+                    textPropertyBinding.Path = new PropertyPath(property.Name);
+                    checkBox.SetBinding(CheckBox.IsCheckedProperty, textPropertyBinding);
+                    checkBox.Checked += (object sender, RoutedEventArgs e) =>
+                    {
+                        //if (bMultiSelect) return;
+
+                    };
+                    stackPanel.Children.Add(checkBox);
+                }
+                else
+                {
+                    if (propertyAttribute == null || !propertyAttribute.Editablity)
+                    {
+                        var textBlock = new TextBlock();
+                        textBlock.FontSize = 12;
+                        textBlock.MinWidth = 120;
+                        textBlock.SetBinding(TextBlock.TextProperty, new Binding()
+                        {
+                            Path = new PropertyPath(property.Name),
+                        });
+                        stackPanel.Children.Add(textBlock);
+                    }
+                    else
+                    {
+                        var textBox = new BindableAvalonEditor();
+                        textBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        textBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+
+
+                        textBox.FontSize = 12;
+                        textBox.MinWidth = 120;
+                        textBox.SetBinding(BindableAvalonEditor.TextProperty, new Binding()
+                        {
+                            Path = new PropertyPath(property.Name),
+                            Mode = BindingMode.TwoWay,
+                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                        });
+
+                        textBox.SetBinding(TextBox.WidthProperty, new Binding()
+                        {
+                            Source = viewColumn,
+                            Path = new PropertyPath("ActualWidth"),
+                            Converter = new ElementWidhtConverter(),
+                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+
+                        });
+                        stackPanel.Children.Add(textBox);
+                    }
+                }
+            };
+
+
+
+
             listView.inflateView(elasticInfoList);
 
             listView.SelectedIndex = 0;
@@ -295,13 +471,16 @@ public class Script
             elasticInfo.size = docs_num;
 
         }
-        public async Task search(string indexname)
+        public async Task search(string indexname, string query)
         {
             var response = string.Empty;
             using (var client = new HttpClient())
             {
 
-                var payload = @"
+                string payload = query;
+                if (string.IsNullOrWhiteSpace(payload))
+                {
+                    payload = @"
                                {      
                                  ""size"":1000,
                                  ""query"":
@@ -309,6 +488,7 @@ public class Script
                                       ""match_all"": {}  
                                       }  
                                 }";
+                }
                 HttpContent c = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
                 HttpResponseMessage result = await client.PostAsync("http://lab-arbarepelk101z.dev.jp.local:9200/" + indexname + "/_search", c);
                 if (result.IsSuccessStatusCode)
@@ -476,7 +656,10 @@ public class Script
                 };
             }
 
-            parent.Children.Add(model.getView(strXaml));
+            var view = model.getView(strXaml);
+            view.Height = 600;
+            view.Width = 800;
+            parent.Children.Add(view);
 
             model.install(strXaml);
         }
