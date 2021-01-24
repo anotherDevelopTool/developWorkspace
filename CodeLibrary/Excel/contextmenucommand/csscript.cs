@@ -145,6 +145,145 @@ public class Script
             });
         }
 
+
+        ContextMenuCommand indexInfoCommand = new ContextMenuCommand("output index information", "対象テーブルのインデクス情報を出力します。", "indexinfo",
+                        (p) =>
+                        {
+                            BackgroundWorker backgroundWorker = new BackgroundWorker();
+                            backgroundWorker.DoWork += new DoWorkEventHandler((s, ev) =>
+                            {
+                                DevelopWorkspace.Main.TableInfo tableinfo = p as DevelopWorkspace.Main.TableInfo;
+                                if (tableinfo == null)
+                                {
+                                    return;
+
+                                }
+
+                                try
+                                {
+                                    tableinfo.XLAppRef.DbConnection.Open();
+
+                                    var cmd = tableinfo.XLAppRef.DbConnection.CreateCommand();
+
+                                    Regex regex = new Regex(@"^\s{0,}select\b", RegexOptions.IgnoreCase);
+
+                                    string commandText = "";
+                                    string SelectedText = @"select 
+b.uniqueness, a.index_name, a.table_name, a.column_name
+from all_ind_columns a, all_indexes b
+where a.index_name=b.index_name 
+and a.table_name = upper('" + tableinfo.TableName + @"')
+order by a.table_name, a.index_name, a.column_position";
+
+                                    string mysqlSelectedText = @"
+select index_schema,
+       index_name,
+       group_concat(column_name order by seq_in_index) as index_columns,
+       index_type,
+       case non_unique
+            when 1 then 'Not Unique'
+            else 'Unique'
+            end as is_unique,
+        table_name
+from information_schema.statistics
+where table_schema not in ('information_schema', 'mysql',
+                           'performance_schema', 'sys')
+                           and table_name='" + tableinfo.TableName + @"'
+group by index_schema,
+         index_name,
+         index_type,
+         non_unique,
+         table_name
+order by index_schema,
+         index_name";
+
+                                    if (tableinfo.XLAppRef.Provider.ProviderID == 3)
+                                    {
+                                        SelectedText = mysqlSelectedText;
+                                    }
+
+                                    if (regex.Match(SelectedText).Success)
+                                        commandText = tableinfo.XLAppRef.Provider.LimitCondition.FormatWith(new { RawSQL = SelectedText, MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount });
+                                    else
+                                        commandText = SelectedText;
+
+                                    cmd.CommandText = commandText;
+                                    DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, DevelopWorkspace.Base.Level.DEBUG);
+
+                                    List<string> titleList = new List<string>();
+                                    List<int> columnPadSizeList = new List<int>();
+                                    List<List<string>> dataListList = new List<List<string>>();
+                                    bool titleInitial = false;
+                                    Services.executeWithBackgroundAction(() =>
+                {
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            if (!titleInitial)
+                            {
+                                titleInitial = true;
+                                for (int idx = 0; idx < rdr.FieldCount; idx++)
+                                {
+                                    titleList.Add(rdr.GetName(idx).ToString());
+                                    columnPadSizeList.Add(rdr.GetName(idx).ToString().Length);
+                                }
+                            }
+                            List<string> dataList = new List<string>();
+                            for (int idx = 0; idx < rdr.FieldCount; idx++)
+                            {
+                                string data = rdr[idx] == null ? "" : rdr[idx].ToString();
+                                dataList.Add(data);
+                                if (columnPadSizeList[idx] < data.Length) columnPadSizeList[idx] = data.Length;
+                            }
+                            dataListList.Add(dataList);
+                        }
+                    }
+                    if (dataListList.Count > 0)
+                    {
+                        string titleOutput = "";
+                        for (int idx = 0; idx < titleList.Count; idx++)
+                        {
+                            titleOutput += string.Format("{0," + (0 - columnPadSizeList[idx] - 4) + "}", titleList[idx]);
+                        }
+                        DevelopWorkspace.Base.Logger.WriteLine(titleOutput);
+                        int outputLimit = dataListList.Count;
+                        if (outputLimit > AppConfig.DatabaseConfig.This.maxRecordCount) outputLimit = AppConfig.DatabaseConfig.This.maxRecordCount;
+                        for (int idx = 0; idx < dataListList.Count; idx++)
+                        {
+                            string dataOutput = "";
+                            for (int jdx = 0; jdx < dataListList[idx].Count; jdx++)
+                            {
+                                dataOutput += string.Format("{0," + (0 - columnPadSizeList[jdx] - 4) + "}", dataListList[idx][jdx]);
+                            }
+                            DevelopWorkspace.Base.Logger.WriteLine(dataOutput);
+                        }
+                    }
+                });
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    DevelopWorkspace.Base.Logger.WriteLine(ex.Message, DevelopWorkspace.Base.Level.ERROR);
+                                }
+                                finally
+                                {
+                                    tableinfo.XLAppRef.DbConnection.Close();
+                                }
+                            });
+
+                            backgroundWorker.RunWorkerAsync();
+                        },
+                        (p) => { return true; });
+        if (!Services.dbsupportContextmenuCommandList.Contains(indexInfoCommand))
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            {
+                Services.dbsupportContextmenuCommandList.Add(indexInfoCommand);
+            });
+        }
+
+
         // 扩张主画面，DB，Script默认嵌入机能的Ribbon
         Services.RibbonQueryMain = (object parent) =>
         {
@@ -229,7 +368,7 @@ public class Script
                 Fluent.Button button = new Fluent.Button();
                 button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
                 button.Header = "Confluence";
-                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Margin = new Thickness(1, 0, 1, 0);
                 button.Click += (object sender, RoutedEventArgs e) =>
                    {
                        DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
@@ -259,7 +398,7 @@ public class Script
                 Fluent.Button button = new Fluent.Button();
                 button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("word");
                 button.Header = "メモ";
-                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Margin = new Thickness(1, 0, 1, 0);
                 button.Click += (object sender, RoutedEventArgs e) =>
                    {
                        DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
@@ -281,7 +420,7 @@ public class Script
                 Fluent.Button button = new Fluent.Button();
                 button.LargeIcon = DevelopWorkspace.Base.Utils.Files.GetIconFile("confluence");
                 button.Header = "Confluence";
-                button.Margin = new Thickness(5, 0, 5, 0);
+                button.Margin = new Thickness(1, 0, 1, 0);
                 button.Click += (object sender, RoutedEventArgs e) =>
                    {
                        DevelopWorkspace.Base.Services.BusyWorkService(new Action(() =>
