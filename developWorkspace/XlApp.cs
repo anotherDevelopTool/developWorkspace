@@ -1167,7 +1167,7 @@
                     var lstDataConditionWithIdx = workArea[tableKEY].DataTypeConditionList.Select((token, idx) => new { token, idx });
 
                     lstKeyWithIdx = (from primary_key in lstKeyWithIdx where primary_key.token == "*" select primary_key);
-
+                    
                     //目前这个版本针对blob，clob类型没有做对应，将来是否有需要？只有到那时候才知道
                     //http://stackoverflow.com/questions/5371222/getting-binary-data-using-sqldatareader
                     var lstColumnTypeWithIdx = workArea[tableKEY].Schemas[SCHEMA_DATATYPE_NAME].Select((token, idx) => new { token, idx });
@@ -1347,6 +1347,8 @@
                         //根据结果组装UPDATE文或者INSERT文
                         if (lstKeyWithIdx.Count() != 0)
                         {
+                            //2022/03/11 Bugfix 主键不是开头列的时候比较项目位置不正
+                            var lstKeyWithIdxPos = lstKeyWithIdx.ToList();
                             foreach (List<string> rowResult in BatchSelectResult)
                             {
                                 int resIdx = 0;
@@ -1357,19 +1359,19 @@
                                     ////字符字段被单引号括起来的原因，和数据库取出来时不一致啦，这里做下补丁处理，如果不考虑这个因素，完全可以使用LINQ描述这段逻辑
 
                                     // 通常的字符类型
-                                    if (row.Value[resIdx].StartsWith("'"))
+                                    if (row.Value[lstKeyWithIdxPos[resIdx].idx].StartsWith("'"))
                                     {
-                                        if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
+                                        if (row.Value[lstKeyWithIdxPos[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
                                     }
                                     // 数字类型等
-                                    else if (row.Value[resIdx].IndexOf("'") == -1)
+                                    else if (row.Value[lstKeyWithIdxPos[resIdx].idx].IndexOf("'") == -1)
                                     {
-                                        if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx] != rowResult[resIdx]) break;
+                                        if (row.Value[lstKeyWithIdxPos[resIdx].idx] != rowResult[resIdx]) break;
                                     }
                                     // 如果row.value是日付类型，那么在这个时点已经通过to_date...等转意，需要使用下面的方式判断
                                     else
                                     {
-                                        if (row.Value[lstKeyWithIdx.ToList()[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break;
+                                        if (row.Value[lstKeyWithIdxPos[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break;
                                     }
                                     //2019/02/25 如果所有的键值都相等则认为是更新
                                     if (resIdx == rowResult.Count - 2) isHit = true;
