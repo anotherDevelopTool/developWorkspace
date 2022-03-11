@@ -1157,6 +1157,32 @@
                     iProcessCnt++;
                     Base.Services.BusyWorkIndicatorService(string.Format("{0}/{1}:{2}", iProcessCnt, workArea.Keys.Count, tableKEY));
 
+                    //2022/3/11 表没有数据的时候也需要有提供清除数据的机会
+                    //如果不设定下面这个模式会导致即使字段过长会自动截断而不抛出错误
+                    if (provider.ProviderName.Equals("MySQL"))
+                    {
+                        cmd.CommandText = "SET SESSION sql_mode = 'STRICT_TRANS_TABLES'";
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    if (!string.IsNullOrEmpty(workArea[tableKEY].DeleteSql))
+                    {
+                        cmd.CommandText = workArea[tableKEY].DeleteSql;
+                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DeleteSql, Level.DEBUG);
+                        cmd.ExecuteNonQuery();
+                    }
+                    if (!string.IsNullOrEmpty(workArea[tableKEY].DropTableSql))
+                    {
+                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DropTableSql, Level.DEBUG);
+                        cmd.CommandText = workArea[tableKEY].DropTableSql;
+                        cmd.ExecuteNonQuery();
+                    }
+                    if (!string.IsNullOrEmpty(workArea[tableKEY].CreateTableSql))
+                    {
+                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].CreateTableSql, Level.DEBUG);
+                        cmd.CommandText = workArea[tableKEY].CreateTableSql;
+                        cmd.ExecuteNonQuery();
+                    }
 
                     //没有数据是那么进行下一个表的处理
                     if (workArea[tableKEY].Rows.Count == 0) continue;
@@ -1183,31 +1209,6 @@
                     //    DevelopWorkspace.Base.Logger.WriteLine(string.Format("do nothing with table:{0} where primarykey does not exist", tableKEY),Level.WARNING);
                     //    continue;
                     //}
-                    //如果不设定下面这个模式会导致即使字段过长会自动截断而不抛出错误
-                    if (provider.ProviderName.Equals("MySQL"))
-                    {
-                        cmd.CommandText = "SET SESSION sql_mode = 'STRICT_TRANS_TABLES'";
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    if (!string.IsNullOrEmpty(workArea[tableKEY].DeleteSql))
-                    {
-                        cmd.CommandText = workArea[tableKEY].DeleteSql;
-                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DeleteSql, Level.DEBUG);
-                        cmd.ExecuteNonQuery();
-                    }
-                    if (!string.IsNullOrEmpty(workArea[tableKEY].DropTableSql))
-                    {
-                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DropTableSql, Level.DEBUG);
-                        cmd.CommandText = workArea[tableKEY].DropTableSql;
-                        cmd.ExecuteNonQuery();
-                    }
-                    if (!string.IsNullOrEmpty(workArea[tableKEY].CreateTableSql))
-                    {
-                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].CreateTableSql, Level.DEBUG);
-                        cmd.CommandText = workArea[tableKEY].CreateTableSql;
-                        cmd.ExecuteNonQuery();
-                    }
                     //有主健时需要判断update/insert
                     //更新还是新规的判定结果一括取得备用
                     List<List<string>> BatchSelectResult = new List<List<string>>();
@@ -1355,23 +1356,24 @@
                                 bool isHit = false;
                                 for (resIdx = 0; resIdx < rowResult.Count - 1; resIdx++)
                                 {
+                                    int relativePos = lstKeyWithIdxPos[resIdx].idx;
                                     // 2019/09/26 yhou由于日期型被格式化，取出的内容和实际的存在一个被格式化，一个没有被格式化导致不能使用==进行比较
                                     ////字符字段被单引号括起来的原因，和数据库取出来时不一致啦，这里做下补丁处理，如果不考虑这个因素，完全可以使用LINQ描述这段逻辑
 
                                     // 通常的字符类型
-                                    if (row.Value[lstKeyWithIdxPos[resIdx].idx].StartsWith("'"))
+                                    if (row.Value[relativePos].StartsWith("'"))
                                     {
-                                        if (row.Value[lstKeyWithIdxPos[resIdx].idx] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
+                                        if (row.Value[relativePos] != "'" + rowResult[resIdx].Replace("'", "''") + "'") break;
                                     }
                                     // 数字类型等
-                                    else if (row.Value[lstKeyWithIdxPos[resIdx].idx].IndexOf("'") == -1)
+                                    else if (row.Value[relativePos].IndexOf("'") == -1)
                                     {
-                                        if (row.Value[lstKeyWithIdxPos[resIdx].idx] != rowResult[resIdx]) break;
+                                        if (row.Value[relativePos] != rowResult[resIdx]) break;
                                     }
                                     // 如果row.value是日付类型，那么在这个时点已经通过to_date...等转意，需要使用下面的方式判断
                                     else
                                     {
-                                        if (row.Value[lstKeyWithIdxPos[resIdx].idx].IndexOf(rowResult[resIdx]) == -1) break;
+                                        if (row.Value[relativePos].IndexOf(rowResult[resIdx]) == -1) break;
                                     }
                                     //2019/02/25 如果所有的键值都相等则认为是更新
                                     if (resIdx == rowResult.Count - 2) isHit = true;
