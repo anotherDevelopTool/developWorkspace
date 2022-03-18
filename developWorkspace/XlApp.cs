@@ -1941,7 +1941,7 @@
 
             var fc = (Microsoft.Office.Interop.Excel.FormatCondition)fcs.Add(
                 Type: Microsoft.Office.Interop.Excel.XlFormatConditionType.xlExpression,
-                Formula1: $"=AND($A{startRow}=" + '"' + "Modified" + '"' + $",MOD(COUNTIF($A${startRow}:$A{startRow}," + '"' + "Modified" + '"' + $"),2)=1,B{startRow}<>B{startRow+1})"
+                Formula1: $"=AND($A{startRow}=" + '"' + "Modified" + '"' + $",MOD(COUNTIF($A${startRow}:$A{startRow}," + '"' + "Modified" + '"' + $"),2)=0,B{startRow}<>B{startRow-1})"
             );
             var interior = fc.Interior;
             fc.Font.Color = System.Drawing.ColorTranslator.ToOle(Color.Red);
