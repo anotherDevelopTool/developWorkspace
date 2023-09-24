@@ -11,6 +11,7 @@ using System.IO;
 using System.Windows.Threading;
 using System.Threading;
 using System.Collections.ObjectModel;
+using static DevelopWorkspace.Base.Services;
 
 namespace DevelopWorkspace.Base
 {
@@ -53,11 +54,13 @@ namespace DevelopWorkspace.Base
     {
 
         public delegate void BusyWork(Action action, Boolean hasContinuedAction = false);
+        public delegate void SimpleAroundWork(object target, string actionName,object context,Action action);
         public delegate void BusyIndicator(string indicatorMessage);
 
         public delegate object RibbonQuery(object parent);
 
         static BusyWork _busyWork = (Action action, Boolean hasContinuedAction) => { action.Invoke(); };
+        static SimpleAroundWork _aroundWork = (object target,string actionName, object context, Action action ) => { action.Invoke(); };
         //20190315 cancel longtimetask 
         public static Button cancelLongTimeTask = null;
         public static LongTimeTaskState longTimeTaskState = LongTimeTaskState.Continue;
@@ -95,6 +98,13 @@ namespace DevelopWorkspace.Base
             get { return Services._busyWorkIndicator; }
             set { Services._busyWorkIndicator = value; }
         }
+
+        public static SimpleAroundWork SimpleAroundCallService
+        {
+            get { return Services._aroundWork; }
+            set { Services._aroundWork = value; }
+        }
+        
 
         //主窗体用的扩张用
         static RibbonQuery _ribbonQueryMain = (object parent) => { return null; };
