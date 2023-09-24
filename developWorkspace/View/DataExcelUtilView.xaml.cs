@@ -1510,8 +1510,12 @@ namespace DevelopWorkspace.Main.View
                     {
                         dbTran.Commit();
                         DevelopWorkspace.Base.Logger.WriteLine("database committed", Level.INFO);
-                    }
 
+                        Base.Services.SimpleAroundCallService(this, "batch", cmbSavedDatabases.SelectedItem, new Action(() => {
+                            // 加到这个位置不是很合适，临时用途                            
+                        }));
+
+                    }
                 }
                 catch (Exception ex)
                     {
