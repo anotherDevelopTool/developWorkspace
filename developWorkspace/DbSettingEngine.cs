@@ -86,6 +86,7 @@
         public virtual DbSet<DataTypeCondition> DataTypeConditiones { get; set; }
         public virtual DbSet<ConnectionHistory> ConnectionHistories { get; set; }
         public virtual DbSet<Snapshot> Snapshots { get; set; }
+        public virtual DbSet<CustSelectSql> CustSelectSqls { get; set; }
         public virtual DbSet<ThirdPartyTool> ThirdPartyTools { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
 
@@ -142,7 +143,16 @@
         public string DeleteClause { get; set; }
 
     }
+    [Table("CustSelectSqls")]
+    public class CustSelectSql
+    {
+        [Key, Column(Order = 0)]
+        public int CustSelectSqlID { get; set; }
+        public int ConnectionHistoryID { get; set; }
+        public string CustSelectSqlName { get; set; }
+        public string SqlStatementText { get; set; }
 
+    }
     [Table("ProjectKeywords")]
     public class ProjectKeyword
     {

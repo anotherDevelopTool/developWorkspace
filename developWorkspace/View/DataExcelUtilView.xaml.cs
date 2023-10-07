@@ -37,6 +37,7 @@ using System.Runtime.CompilerServices;
 using static DevelopWorkspace.Base.Services;
 using static System.Net.Mime.MediaTypeNames;
 using Application = System.Windows.Application;
+using ICSharpCodeX.AvalonEdit.Edi;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -91,6 +92,7 @@ namespace DevelopWorkspace.Main.View
         List<KeyValuePair<string, string>> logicalName4Tables = new List<KeyValuePair<string, string>>();
         CollectionViewSource view = new CollectionViewSource();
         int iAllCheck = 0;
+        EdiTextEditor customSQLEditor = null;
         XlApp _xls = new XlApp();
         public XlApp xlApp
         {
@@ -201,6 +203,14 @@ namespace DevelopWorkspace.Main.View
                 //从control.resources里面取出ribbontabitem的xaml定义同时实例化
                 var ribbonTabTool = FindResource("RibbonTabTool") as Fluent.RibbonTabItem;
 
+/*                for (int i = 0; i < 5; i++)
+                {
+                    TabItem tabItem = FindResource("CustSqlTab") as TabItem;
+                    tabControl1.Items.Add(tabItem);
+                    // Do something with each button
+                }*/
+
+
                 //通过外部脚本扩张Ribbon机能
                 Fluent.RibbonGroupBox ribbonGroupBox = Services.RibbonQueryDb(trvFamilies) as Fluent.RibbonGroupBox;
                 if(ribbonGroupBox != null) ribbonTabTool.Groups.Insert(ribbonTabTool.Groups.Count -1,ribbonGroupBox);
@@ -271,6 +281,11 @@ namespace DevelopWorkspace.Main.View
                 trvFamilies.ContextMenu.ItemsSource = Services.dbsupportContextmenuCommandList;
 
                 txtOutput.ContextMenu.ItemsSource = Services.dbsupportSqlContextmenuCommandList;
+
+
+
+
+
             }));
         }
 
@@ -798,7 +813,32 @@ namespace DevelopWorkspace.Main.View
                     {
                         snapshotGroupBox.Visibility = Visibility.Hidden;
                     }
+
+                    var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(snapshot => snapshot.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID);
+                    int idx = 0;
+                    foreach (var custSelectSql in custSelectSqls)
+                    {
+                        idx++;
+                        if (idx == 1)
+                        {
+                            this.txtSelectCustomSQL_1.Text = custSelectSql.SqlStatementText;
+                            this.txtSelectCustomSQL_TabItem1.Header = custSelectSql.CustSelectSqlName;
+                        }
+                        else if (idx == 2)
+                        {
+                            this.txtSelectCustomSQL_2.Text = custSelectSql.SqlStatementText;
+                            this.txtSelectCustomSQL_TabItem2.Header = custSelectSql.CustSelectSqlName;
+                        }
+                        else if (idx == 3)
+                        {
+                            this.txtSelectCustomSQL_3.Text = custSelectSql.SqlStatementText;
+                            this.txtSelectCustomSQL_TabItem3.Header = custSelectSql.CustSelectSqlName;
+                        }
+                    }
+
+
                 }
+
 
             }
             catch (Exception ex) {
@@ -1139,9 +1179,52 @@ namespace DevelopWorkspace.Main.View
         }
         private void drawDataToExcel()
         {
-            var selected = from ti in tableList where ti.Selected == true select ti;
-            if (selected.Count() == 0) return;
-            TableInfo[] selectedList = selected.ToArray();
+            TableInfo[] selectedList;
+            IEnumerable<TableInfo> selected;
+            //todo 根据自定义抽取SQL文抽取数据 
+            //customSQLString = "";
+            if (customSQLEditor == null)
+            {
+                selected = from ti in tableList where ti.Selected == true select ti;
+                if (selected.Count() == 0) return;
+
+                // 恢复现场
+                foreach (TableInfo tableinfo in selected) {
+                    tableinfo.CustomWhereClause = null;
+                }
+
+                selectedList = selected.ToArray();
+            }
+            else {
+                if (customSQLEditor.Text.Trim().Length == 0) return;
+                List<TableInfo> custTableList = new List<TableInfo>();
+                TableInfo findTableInfo;
+                using (StringReader reader = new StringReader(customSQLEditor.Text))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        string pattern = @"from\s*(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)";
+                        Match match = Regex.Match(line, pattern);
+                        if (match.Success)
+                        {
+                            string tableName = match.Groups["tablename"].Value; 
+                            string whereClause = match.Groups["where"].Value;
+                            findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(tableName.ToLower()));
+                            if (findTableInfo != null)
+                            {
+                                findTableInfo.CustomWhereClause = whereClause;
+                                custTableList.Add(findTableInfo);
+                            }
+                        }
+
+                    }
+                }
+                if (custTableList.Count() == 0) return;
+                selected = custTableList;
+                selectedList = custTableList.ToArray();
+            }
+
             try
             {
                 Base.Services.CancelLongTimeTaskOn();
@@ -1257,8 +1340,47 @@ namespace DevelopWorkspace.Main.View
                         {
                             tableNameList.Add(table.TableName);
                         }
-                        var selected = from ti in tableList join tablename in tableNameList on ti.TableName equals tablename select ti;
-                        TableInfo[] selectedList = selected.ToArray();
+
+                        TableInfo[] selectedList;
+                        IEnumerable<TableInfo> selected;
+                        //todo 根据自定义抽取SQL文抽取数据 
+                        //customSQLString = "";
+                        if (customSQLEditor == null)
+                        {
+                            selected = from ti in tableList join tablename in tableNameList on ti.TableName equals tablename select ti;
+                            selectedList = selected.ToArray();
+                        }
+                        else
+                        {
+                            if (customSQLEditor.Text.Trim().Length == 0) return;
+                            List<TableInfo> custTableList = new List<TableInfo>();
+                            TableInfo findTableInfo;
+                            using (StringReader reader = new StringReader(customSQLEditor.Text))
+                            {
+                                string line;
+                                while ((line = reader.ReadLine()) != null)
+                                {
+                                    string pattern = @"from\s*(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)";
+                                    Match match = Regex.Match(line, pattern);
+                                    if (match.Success)
+                                    {
+                                        string tableName = match.Groups["tablename"].Value;
+                                        string whereClause = match.Groups["where"].Value;
+                                        findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(tableName.ToLower()));
+                                        if (findTableInfo != null)
+                                        {
+                                            findTableInfo.CustomWhereClause = whereClause;
+                                            custTableList.Add(findTableInfo);
+                                        }
+                                    }
+
+                                }
+                            }
+                            if (custTableList.Count() == 0) return;
+                            selected = custTableList;
+                            selectedList = custTableList.ToArray();
+                        }
+
                         if (selectedList.Count() == diffDataSet.Tables.Count)
                         {
                             //取出最新DB内容并对基础dataset进行比对加工
@@ -1644,12 +1766,25 @@ namespace DevelopWorkspace.Main.View
         private void tabControl1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var tc = sender as TabControl; //The sender is a type of TabControl...
-
             if (tc != null)
             {
                 System.Diagnostics.Debug.WriteLine($"tabControl1_SelectionChanged: {tc.SelectedIndex}");
-                if(tc.SelectedIndex == 0) 
+                // 自定义抽取数据的SQ的TAB追加
+                if (tc.SelectedIndex != 1)
+                {
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 2;
+
+                    if (tc.SelectedIndex == 2)
+                        customSQLEditor = txtSelectCustomSQL_1;
+                    else if (tc.SelectedIndex == 3)
+                        customSQLEditor = txtSelectCustomSQL_2;
+                    else if (tc.SelectedIndex == 4)
+                        customSQLEditor = txtSelectCustomSQL_3;
+                    else
+                        customSQLEditor = null;
+
+
+                }
                 else
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 1;
 

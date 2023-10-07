@@ -159,6 +159,21 @@
                 return _whereClause;
             }
         }
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
+        private string _customwhereClause;
+        public string CustomWhereClause
+        {
+            set
+            {
+                _customwhereClause = value;
+                RaisePropertyChanged("CustomWhereClause");
+            }
+            get
+            {
+                return _customwhereClause;
+            }
+        }
         public string getClauseString(bool isSelectClause = true)
         {
             string retClauseString = "";
@@ -282,87 +297,118 @@
                         else {
                             selectDataSqlBuilder.Append(",");
                         }
-
+                        ;
                         if (!string.IsNullOrEmpty(ci.dataTypeCondtion.ExcelFormatString))
                         {
-                            selectDataSqlBuilder.Append(ci.dataTypeCondtion.ExcelFormatString.FormatWith(ci));
+                            selectDataSqlBuilder.Append(ci.dataTypeCondtion.ExcelFormatString.FormatWith(new
+                            {
+                                ColumnName = TableName + "." + ci.ColumnName,
+                                AliasColumnName = ci.ColumnName
+                            }));
 
                         }
                         else
                         {
-                            selectDataSqlBuilder.Append(ci.ColumnName);
+                            selectDataSqlBuilder.Append(TableName + "." + ci.ColumnName);
                         }
                     }
-                    string fullTableName = string.IsNullOrEmpty(SchemaName) ? TableName : SchemaName + "." + TableName;
+                    string fullTableName = string.IsNullOrEmpty(SchemaName) ? TableName : SchemaName + "." + TableName + " " + TableName;
                     selectDataSqlBuilder.Append(" from " + fullTableName);
                     _selectDataSql = selectDataSqlBuilder.ToString();
                 }
+
 
                 // where内容整理，除了where的过滤条件，对order by以及限制取得件数做简单调整
                 // 对限制件数目前支持 oracle的rownum方式以及 limit 的方式
                 string analyzedWhereString = "";
                 string analyzedOrderString = "";
                 string analyzedLimitString = "";
-
-                if (!string.IsNullOrEmpty(WhereClause))
+                string modifiedSql = "";
+                if (CustomWhereClause == null)
                 {
-                    Regex regex = new Regex(@"^\bwhere\s+|\blimit\b\s{0,}[0-9]+$|\border\s+by\s+", RegexOptions.IgnoreCase);
-                    var result = regex.Matches(WhereClause);
-                    int whereKeywordIndex = -1;
-                    int orderKeywordIndex = -1;
-                    int limitKeywordIndex = -1;
 
-                    foreach (Match match in result)
+                    if (!string.IsNullOrEmpty(WhereClause))
                     {
-                        if (match.Value.IndexOf("where", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        Regex regex = new Regex(@"^\bwhere\s+|\blimit\b\s{0,}[0-9]+$|\border\s+by\s+", RegexOptions.IgnoreCase);
+                        var result = regex.Matches(WhereClause);
+                        int whereKeywordIndex = -1;
+                        int orderKeywordIndex = -1;
+                        int limitKeywordIndex = -1;
+
+                        foreach (Match match in result)
                         {
-                            whereKeywordIndex = match.Value.Length;
+                            if (match.Value.IndexOf("where", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                            {
+                                whereKeywordIndex = match.Value.Length;
+                            }
+                            if (match.Value.IndexOf("order", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                            {
+                                orderKeywordIndex = match.Index;
+                            }
+                            if (match.Value.IndexOf("limit", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                            {
+                                limitKeywordIndex = match.Index;
+                            }
                         }
-                        if (match.Value.IndexOf("order", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        int whereLastIndex = WhereClause.Length;
+                        if ((limitKeywordIndex >= 0 && orderKeywordIndex >= 0))
                         {
-                            orderKeywordIndex = match.Index;
+                            whereLastIndex = new int[] { orderKeywordIndex, limitKeywordIndex }.Min();
                         }
-                        if (match.Value.IndexOf("limit", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        else if (limitKeywordIndex >= 0)
                         {
-                            limitKeywordIndex = match.Index;
+                            whereLastIndex = limitKeywordIndex;
                         }
-                    }
-                    int whereLastIndex = WhereClause.Length;
-                    if ((limitKeywordIndex >= 0 && orderKeywordIndex >= 0))
-                    {
-                        whereLastIndex = new int[] { orderKeywordIndex, limitKeywordIndex }.Min();
-                    }
-                    else if (limitKeywordIndex >= 0)
-                    {
-                        whereLastIndex = limitKeywordIndex;
-                    }
-                    else if (orderKeywordIndex >= 0)
-                    {
-                        whereLastIndex = orderKeywordIndex;
-                    }
+                        else if (orderKeywordIndex >= 0)
+                        {
+                            whereLastIndex = orderKeywordIndex;
+                        }
 
-                    if (whereKeywordIndex == -1) whereKeywordIndex = 0;
-                    analyzedWhereString = WhereClause.Substring(whereKeywordIndex, whereLastIndex - whereKeywordIndex);
+                        if (whereKeywordIndex == -1) whereKeywordIndex = 0;
+                        analyzedWhereString = WhereClause.Substring(whereKeywordIndex, whereLastIndex - whereKeywordIndex);
 
-                    if (orderKeywordIndex >= 0)
-                    {
-                        if (limitKeywordIndex >= 0)
-                            analyzedOrderString = WhereClause.Substring(orderKeywordIndex, limitKeywordIndex - orderKeywordIndex);
-                        else
-                            analyzedOrderString = WhereClause.Substring(orderKeywordIndex);
+                        if (orderKeywordIndex >= 0)
+                        {
+                            if (limitKeywordIndex >= 0)
+                                analyzedOrderString = WhereClause.Substring(orderKeywordIndex, limitKeywordIndex - orderKeywordIndex);
+                            else
+                                analyzedOrderString = WhereClause.Substring(orderKeywordIndex);
+                        }
+                        if (limitKeywordIndex >= 0) analyzedLimitString = WhereClause.Substring(limitKeywordIndex);
                     }
-                    if (limitKeywordIndex >= 0) analyzedLimitString = WhereClause.Substring(limitKeywordIndex);
+                    modifiedSql = _selectDataSql;
+                    if (!string.IsNullOrWhiteSpace(analyzedWhereString))
+                    {
+                        modifiedSql += " where " + analyzedWhereString;
+                    }
+                    if (!string.IsNullOrWhiteSpace(analyzedOrderString))
+                    {
+                        modifiedSql += " " + analyzedOrderString;
+                    }
                 }
-                string modifiedSql = _selectDataSql;
-                if (!string.IsNullOrWhiteSpace(analyzedWhereString))
-                {
-                    modifiedSql += " where " + analyzedWhereString;
+                else {
+                    //如果是自定义的SQL,那么无需进行加工，直接附加
+                    string pattern = @"join\s*(?<tablename>[A-Za-z0-9_-]+)\s*";
+                    string rewrittenWhereClause = "";
+                    MatchCollection matches = Regex.Matches(CustomWhereClause, pattern);
+                    int cursor = 0;
+                    if (matches.Count > 0)
+                    {
+                        for(int idx=0;idx < matches.Count;idx++)
+                        {
+                            rewrittenWhereClause += CustomWhereClause.Substring(cursor, matches[idx].Index - cursor);
+                            rewrittenWhereClause += "join " + this.SchemaName + "." + matches[idx].Groups["tablename"].Value + " " + matches[idx].Groups["tablename"].Value + " ";  
+                            cursor = matches[idx].Index + matches[idx].Length;
+                        }
+                        // last one?
+                        rewrittenWhereClause += CustomWhereClause.Substring(cursor, CustomWhereClause.Length - cursor);
+                    }
+                    else
+                    {
+                        rewrittenWhereClause = CustomWhereClause;
+                    }
+                    modifiedSql += _selectDataSql + " " + rewrittenWhereClause;
                 }
-                if (!string.IsNullOrWhiteSpace(analyzedOrderString))
-                {
-                    modifiedSql += " " + analyzedOrderString;
-                }
-
                 if (!string.IsNullOrWhiteSpace(analyzedLimitString))
                 {
                     modifiedSql = LimitCondition.FormatWith(new { RawSQL = modifiedSql,MaxRecord = analyzedLimitString.Substring("limit".Length) });
@@ -1946,6 +1992,17 @@
             var interior = fc.Interior;
             fc.Font.Color = System.Drawing.ColorTranslator.ToOle(Color.Red);
             fc.StopIfTrue = false;
+
+            // Set the line color of the format condition
+            Microsoft.Office.Interop.Excel.Borders borders = fc.Borders;
+            Microsoft.Office.Interop.Excel.Border border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeTop];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
+            border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
+            border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeLeft];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
+            border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
 
             ////
             fc = (Microsoft.Office.Interop.Excel.FormatCondition)fcs.Add(
