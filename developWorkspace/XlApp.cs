@@ -386,11 +386,12 @@
                         modifiedSql += " " + analyzedOrderString;
                     }
                 }
-                else {
+                else
+                {
                     //如果是自定义的SQL,那么无需进行加工，直接附加
-                    string pattern = @"join\s*(?<tablename>[A-Za-z0-9_-]+)\s*";
+                    string pattern = @"\bjoin\s+(?<tablename>[A-Za-z0-9_-]+)\b";
                     string rewrittenWhereClause = "";
-                    MatchCollection matches = Regex.Matches(CustomWhereClause, pattern);
+                    MatchCollection matches = Regex.Matches(CustomWhereClause, pattern, RegexOptions.IgnoreCase);
                     int cursor = 0;
                     if (matches.Count > 0)
                     {

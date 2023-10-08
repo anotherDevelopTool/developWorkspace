@@ -38,6 +38,7 @@ using static DevelopWorkspace.Base.Services;
 using static System.Net.Mime.MediaTypeNames;
 using Application = System.Windows.Application;
 using ICSharpCodeX.AvalonEdit.Edi;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -93,6 +94,7 @@ namespace DevelopWorkspace.Main.View
         CollectionViewSource view = new CollectionViewSource();
         int iAllCheck = 0;
         EdiTextEditor customSQLEditor = null;
+        List<TabItem> selectCustomSQLTabItemList = null;
         XlApp _xls = new XlApp();
         public XlApp xlApp
         {
@@ -282,8 +284,7 @@ namespace DevelopWorkspace.Main.View
 
                 txtOutput.ContextMenu.ItemsSource = Services.dbsupportSqlContextmenuCommandList;
 
-
-
+                selectCustomSQLTabItemList = new List<TabItem>() { null, null, this.txtSelectCustomSQL_TabItem1, this.txtSelectCustomSQL_TabItem2, this.txtSelectCustomSQL_TabItem3, this.txtSelectCustomSQL_TabItem4, this.txtSelectCustomSQL_TabItem5, this.txtSelectCustomSQL_TabItem6, this.txtSelectCustomSQL_TabItem7, this.txtSelectCustomSQL_TabItem8, this.txtSelectCustomSQL_TabItem9, this.txtSelectCustomSQL_TabItem10 };
 
 
             }));
@@ -570,7 +571,8 @@ namespace DevelopWorkspace.Main.View
                     {
                         var whereClause = (from wherehistory in (cmbSavedDatabases.SelectedItem as ConnectionHistory).WhereClauseHistories where wherehistory.TableName == rdr["name"].ToString() select wherehistory).FirstOrDefault();
                         //tableList.Add(new TableInfo() { TableName = rdr["name"].ToString(), SchemaName = xlApp.SchemaName, Remark = rdr["name"].ToString().GetLogicalName(), WhereClause = whereClause == null ? "" : whereClause, DateTimeFormatter = iProvider.DateTimeFormatter, DeleteClause = "1=0" });
-                        tableList.Add(new TableInfo() {
+                        tableList.Add(new TableInfo()
+                        {
                             TableName = rdr["name"].ToString(),
                             RowCount = string.IsNullOrEmpty(rdr["rowcount"].ToString()) ? 0 : int.Parse(rdr["rowcount"].ToString()),
                             SchemaName = xlApp.SchemaName,
@@ -582,7 +584,8 @@ namespace DevelopWorkspace.Main.View
                             ExcelTableHeaderThemeColor = themeColor,
                             ExcelSchemaHeaderThemeColor = schemaThemeColor,
                             XLAppRef = xlApp,
-                            ThemeColorBrush = brush });
+                            ThemeColorBrush = brush
+                        });
 
                         //2019/08/11 当数据库为SQLite时，表的当前行数自动手动统计
                         if (iProvider.ProviderID == 1 || AppConfig.DatabaseConfig.This.doRealCount)
@@ -616,11 +619,13 @@ namespace DevelopWorkspace.Main.View
 
                 //2019/3/13
                 //利用左结合的方式优化检索速度-作为技巧留下痕迹实际没有用到
-                if (DatabaseConfig.This.withRemark && tableList.Count != 0) {
+                if (DatabaseConfig.This.withRemark && tableList.Count != 0)
+                {
                     List<ProjectKeyword> projectKeywordsList = DbRemarkHelper.projectKeywordsList;
                     //var remarks = from tableinfo in tableList join projectKeyword in projectKeywordsList on tableinfo.TableName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() into tm from defualt in tm.DefaultIfEmpty(new ProjectKeyword()) where string.IsNullOrEmpty(tableinfo.Remark) select new { tableinfo.TableName, defualt.ProjectKeywordRemark };
                     var remarkList = from tableinfo in tableList join projectKeyword in projectKeywordsList on tableinfo.TableName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { tableinfo, projectKeyword.ProjectKeywordRemark };
-                    foreach (var remark in remarkList) {
+                    foreach (var remark in remarkList)
+                    {
                         remark.tableinfo.Remark = remark.ProjectKeywordRemark;
                     }
                 }
@@ -638,7 +643,8 @@ namespace DevelopWorkspace.Main.View
                 //DevelopWorkspace.Base.Logger.WriteLine("table columninfo....start", Base.Level.DEBUG);
                 //2019/03/09
                 //针对mysql不能通过getschematable取得正确的类型信息，这里通过数据库字典的方式取得列属性信息取得
-                getColumnSchemaTask = new Task(() => {
+                getColumnSchemaTask = new Task(() =>
+                {
                     DevelopWorkspace.Base.Logger.WriteLine($"getColumnSchemaTask begin...", Level.DEBUG);
                     System.Reflection.ConstructorInfo constructorInfo = xlApp.DbConnection.GetType().GetConstructor(Type.EmptyTypes);
                     System.Data.Common.DbConnection nestedConn = constructorInfo.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
@@ -815,33 +821,29 @@ namespace DevelopWorkspace.Main.View
                     }
 
                     var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(snapshot => snapshot.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID);
-                    int idx = 0;
+                    int idx = 2;
                     foreach (var custSelectSql in custSelectSqls)
                     {
+                        var ediTextEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(selectCustomSQLTabItemList[idx]);
+                        ediTextEditor.Text = custSelectSql.SqlStatementText;
+                        selectCustomSQLTabItemList[idx].Header = custSelectSql.CustSelectSqlName;
+                        selectCustomSQLTabItemList[idx].Visibility = Visibility.Visible;
                         idx++;
-                        if (idx == 1)
-                        {
-                            this.txtSelectCustomSQL_1.Text = custSelectSql.SqlStatementText;
-                            this.txtSelectCustomSQL_TabItem1.Header = custSelectSql.CustSelectSqlName;
-                        }
-                        else if (idx == 2)
-                        {
-                            this.txtSelectCustomSQL_2.Text = custSelectSql.SqlStatementText;
-                            this.txtSelectCustomSQL_TabItem2.Header = custSelectSql.CustSelectSqlName;
-                        }
-                        else if (idx == 3)
-                        {
-                            this.txtSelectCustomSQL_3.Text = custSelectSql.SqlStatementText;
-                            this.txtSelectCustomSQL_TabItem3.Header = custSelectSql.CustSelectSqlName;
-                        }
                     }
-
-
+                    // 预留出2个可以追加的位置，最大显示到10个
+                    if (idx < 12)
+                    {
+                        selectCustomSQLTabItemList[idx].Visibility = Visibility.Visible;
+                    }
+                    idx++;
+                    if (idx < 12)
+                    {
+                        selectCustomSQLTabItemList[idx].Visibility = Visibility.Visible;
+                    }
                 }
-
-
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
                 throw ex;
             }
@@ -1360,8 +1362,8 @@ namespace DevelopWorkspace.Main.View
                                 string line;
                                 while ((line = reader.ReadLine()) != null)
                                 {
-                                    string pattern = @"from\s*(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)";
-                                    Match match = Regex.Match(line, pattern);
+                                    string pattern = @"\bfrom\s+(?<tablename>[A-Za-z0-9_-]+)\s+(?<where>.*)";
+                                    Match match = Regex.Match(line, pattern, RegexOptions.IgnoreCase);
                                     if (match.Success)
                                     {
                                         string tableName = match.Groups["tablename"].Value;
@@ -1773,17 +1775,10 @@ namespace DevelopWorkspace.Main.View
                 if (tc.SelectedIndex != 1)
                 {
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 2;
-
-                    if (tc.SelectedIndex == 2)
-                        customSQLEditor = txtSelectCustomSQL_1;
-                    else if (tc.SelectedIndex == 3)
-                        customSQLEditor = txtSelectCustomSQL_2;
-                    else if (tc.SelectedIndex == 4)
-                        customSQLEditor = txtSelectCustomSQL_3;
-                    else
+                    if (tc.SelectedIndex == 0)
                         customSQLEditor = null;
-
-
+                    else
+                        customSQLEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(selectCustomSQLTabItemList[tc.SelectedIndex]);
                 }
                 else
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 1;

@@ -493,7 +493,7 @@ x:Name="dataview"
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid ShowGridLines="False">
-        <TabControl Name="tabControl1" TabStripPlacement="Left" BorderThickness="0" SelectionChanged="tabControl1_SelectionChanged">
+        <TabControl x:Name="tabControl1" TabStripPlacement="Left" BorderThickness="0" SelectionChanged="tabControl1_SelectionChanged">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabItem}">
                     <Setter Property="Template">
@@ -815,7 +815,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="txtSelectCustomSQL_TabItem1" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.sql}">
+            <TabItem x:Name="txtSelectCustomSQL_TabItem1" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <Grid>
                     <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_1" 
                                    IsReadOnly="False" 
@@ -852,7 +852,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="txtSelectCustomSQL_TabItem2" Header="…" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.sql}">
+            <TabItem x:Name="txtSelectCustomSQL_TabItem2" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <Grid>
                     <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_2" 
                                    IsReadOnly="False" 
@@ -889,9 +889,268 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="txtSelectCustomSQL_TabItem3" Header="…" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.sql}">
+            <TabItem x:Name="txtSelectCustomSQL_TabItem3" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <Grid>
                     <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_3" 
+                                   IsReadOnly="False" 
+                                   ShowLineNumbers="True"
+                                   SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
+                                   HorizontalScrollBarVisibility="Auto" 
+                                   VerticalScrollBarVisibility="Auto"  >
+                        <avalonEdit:EdiTextEditor.ContextMenu>
+                            <ContextMenu>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </avalonEdit:EdiTextEditor.ContextMenu>
+                    </avalonEdit:EdiTextEditor>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="txtSelectCustomSQL_TabItem4" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+                <Grid>
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_4" 
+                                   IsReadOnly="False" 
+                                   ShowLineNumbers="True"
+                                   SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
+                                   HorizontalScrollBarVisibility="Auto" 
+                                   VerticalScrollBarVisibility="Auto"  >
+                        <avalonEdit:EdiTextEditor.ContextMenu>
+                            <ContextMenu>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </avalonEdit:EdiTextEditor.ContextMenu>
+                    </avalonEdit:EdiTextEditor>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="txtSelectCustomSQL_TabItem5" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+                <Grid>
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_5" 
+                                   IsReadOnly="False" 
+                                   ShowLineNumbers="True"
+                                   SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
+                                   HorizontalScrollBarVisibility="Auto" 
+                                   VerticalScrollBarVisibility="Auto"  >
+                        <avalonEdit:EdiTextEditor.ContextMenu>
+                            <ContextMenu>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </avalonEdit:EdiTextEditor.ContextMenu>
+                    </avalonEdit:EdiTextEditor>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="txtSelectCustomSQL_TabItem6" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+                <Grid>
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_6" 
+                                   IsReadOnly="False" 
+                                   ShowLineNumbers="True"
+                                   SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
+                                   HorizontalScrollBarVisibility="Auto" 
+                                   VerticalScrollBarVisibility="Auto"  >
+                        <avalonEdit:EdiTextEditor.ContextMenu>
+                            <ContextMenu>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </avalonEdit:EdiTextEditor.ContextMenu>
+                    </avalonEdit:EdiTextEditor>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="txtSelectCustomSQL_TabItem7" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+                <Grid>
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_7" 
+                                   IsReadOnly="False" 
+                                   ShowLineNumbers="True"
+                                   SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
+                                   HorizontalScrollBarVisibility="Auto" 
+                                   VerticalScrollBarVisibility="Auto"  >
+                        <avalonEdit:EdiTextEditor.ContextMenu>
+                            <ContextMenu>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </avalonEdit:EdiTextEditor.ContextMenu>
+                    </avalonEdit:EdiTextEditor>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="txtSelectCustomSQL_TabItem8" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+                <Grid>
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_8" 
+                                   IsReadOnly="False" 
+                                   ShowLineNumbers="True"
+                                   SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
+                                   HorizontalScrollBarVisibility="Auto" 
+                                   VerticalScrollBarVisibility="Auto"  >
+                        <avalonEdit:EdiTextEditor.ContextMenu>
+                            <ContextMenu>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </avalonEdit:EdiTextEditor.ContextMenu>
+                    </avalonEdit:EdiTextEditor>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="txtSelectCustomSQL_TabItem9" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+                <Grid>
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_9" 
+                                   IsReadOnly="False" 
+                                   ShowLineNumbers="True"
+                                   SyntaxHighlighting="SQL"
+                                   BorderThickness="0"
+                                   HorizontalScrollBarVisibility="Auto" 
+                                   VerticalScrollBarVisibility="Auto"  >
+                        <avalonEdit:EdiTextEditor.ContextMenu>
+                            <ContextMenu>
+                                <ContextMenu.Resources>
+                                    <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
+                                </ContextMenu.Resources>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Icon" Value="{StaticResource image}" />
+                                        <Setter Property="Header" Value="{Binding header}"></Setter>
+                                        <Setter Property="ToolTip" Value="{Binding tooltip}"></Setter>
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource SqlCommnadContextMenuConvert}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding  Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type avalonEdit:EdiTextEditor}}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Command" Value="{Binding}"></Setter>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </avalonEdit:EdiTextEditor.ContextMenu>
+                    </avalonEdit:EdiTextEditor>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="txtSelectCustomSQL_TabItem10" Visibility="Hidden" Header="{DynamicResource  dbsupport.lang.tools.dbsupport.custom}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+                <Grid>
+                    <avalonEdit:EdiTextEditor Grid.Row="1" x:Name="txtSelectCustomSQL_10" 
                                    IsReadOnly="False" 
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"

@@ -52,8 +52,9 @@
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.whereclause">DBデータをエクスポートする際にテーブルの絞り込み条件をカスタマイズできる。特定した更新ユーザー、更新タイムスタンプなどがよく利用される、またそれらの組み合わせも</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.deleteclause">ExcelシートにあるデータをDBへ反映する前にDbデータを削除する条件をカスタマイズできる。デフォルトは1 =0であり、削除処理を行わないである</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.sql">自由入力SQL文</system:String>
-            <system:String x:Key="dbsupport.lang.tools.dbsupport.custom">収集SQL文</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.custom">custom</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.sql">直接SQL文を入力するか、スキーマのコンテキストメニューから取得入力できる</system:String>
+            <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.custom">業務データを抽出するselect文を定義して、それを元にデータのエクスポートと差分が行える。</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.togglerows">toggle rows</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.toggleselectedrows">toggle selected rows</system:String>
             <system:String x:Key="dbsupport.lang.tools.dbsupport.hint.whereclauseusage">10 > rownum</system:String>

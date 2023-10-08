@@ -23,6 +23,27 @@ namespace DevelopWorkspace.Base.Utils
         }
 
         //逻辑树
+        public static T FindLogicaChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            T foundChild = null;
+
+            foreach (object logicalChild in LogicalTreeHelper.GetChildren(parent))
+            {
+                if (logicalChild is T )
+                {
+                    foundChild = logicalChild as T;
+                    break;
+                }
+                //DevelopWorkspace.Base.Logger.WriteLine(logicalChild.ToString());
+                if (logicalChild is DependencyObject)
+                {
+                    foundChild = FindLogicaChild<T>(logicalChild as DependencyObject);
+                    if (foundChild != null) break;
+                }
+
+            }
+            return foundChild;
+        }
         public static T FindLogicaChild<T>(DependencyObject parent, string childName) where T : DependencyObject
         {
             T foundChild = null;
