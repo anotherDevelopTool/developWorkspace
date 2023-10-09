@@ -1445,7 +1445,7 @@ namespace DevelopWorkspace.Main.View
             }
             foreach (string sqlcommand in sqlcommandList)
             {
-                Match singleSqlMatch = Regex.Match(sqlcommand, @"\bfrom\s+(?<tablename>[A-Za-z0-9_-]+)\s+(?<where>.*)", RegexOptions.IgnoreCase);
+                Match singleSqlMatch = Regex.Match(sqlcommand, @"\bfrom\s+(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)", RegexOptions.IgnoreCase);
                 if (singleSqlMatch.Success)
                 {
                     string tableName = singleSqlMatch.Groups["tablename"].Value;
