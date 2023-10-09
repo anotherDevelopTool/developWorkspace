@@ -1199,29 +1199,7 @@ namespace DevelopWorkspace.Main.View
             }
             else {
                 if (customSQLEditor.Text.Trim().Length == 0) return;
-                List<TableInfo> custTableList = new List<TableInfo>();
-                TableInfo findTableInfo;
-                using (StringReader reader = new StringReader(customSQLEditor.Text))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        string pattern = @"from\s*(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)";
-                        Match match = Regex.Match(line, pattern);
-                        if (match.Success)
-                        {
-                            string tableName = match.Groups["tablename"].Value; 
-                            string whereClause = match.Groups["where"].Value;
-                            findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(tableName.ToLower()));
-                            if (findTableInfo != null)
-                            {
-                                findTableInfo.CustomWhereClause = whereClause;
-                                custTableList.Add(findTableInfo);
-                            }
-                        }
-
-                    }
-                }
+                List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLEditor.Text.Trim());
                 if (custTableList.Count() == 0) return;
                 selected = custTableList;
                 selectedList = custTableList.ToArray();
@@ -1355,29 +1333,7 @@ namespace DevelopWorkspace.Main.View
                         else
                         {
                             if (customSQLEditor.Text.Trim().Length == 0) return;
-                            List<TableInfo> custTableList = new List<TableInfo>();
-                            TableInfo findTableInfo;
-                            using (StringReader reader = new StringReader(customSQLEditor.Text))
-                            {
-                                string line;
-                                while ((line = reader.ReadLine()) != null)
-                                {
-                                    string pattern = @"\bfrom\s+(?<tablename>[A-Za-z0-9_-]+)\s+(?<where>.*)";
-                                    Match match = Regex.Match(line, pattern, RegexOptions.IgnoreCase);
-                                    if (match.Success)
-                                    {
-                                        string tableName = match.Groups["tablename"].Value;
-                                        string whereClause = match.Groups["where"].Value;
-                                        findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(tableName.ToLower()));
-                                        if (findTableInfo != null)
-                                        {
-                                            findTableInfo.CustomWhereClause = whereClause;
-                                            custTableList.Add(findTableInfo);
-                                        }
-                                    }
-
-                                }
-                            }
+                            List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLEditor.Text.Trim());
                             if (custTableList.Count() == 0) return;
                             selected = custTableList;
                             selectedList = custTableList.ToArray();
@@ -1437,6 +1393,105 @@ namespace DevelopWorkspace.Main.View
                     SetViewActionState(ViewActionState.do_end);
                 }
             }));
+        }
+
+        private List<TableInfo> getTableInfoAccordingCustomSQL(string CustomSelectSQL)
+        {
+            List<TableInfo> custTableList = new List<TableInfo>();
+            TableInfo findTableInfo;
+
+            string settingContext = "";
+            List<string> sqlcommandList = new List<string>();
+
+            MatchCollection matches = Regex.Matches(CustomSelectSQL, @"^\bselect\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            int cursor = 0;
+            int idx = 0;
+            if (matches.Count > 0)
+            {
+
+                for (idx = 0; idx < matches.Count; idx++)
+                {
+                    if (idx == 0) settingContext = CustomSelectSQL.Substring(cursor, matches[idx].Index - cursor);
+                    if (matches.Count == 0)
+                        sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
+                    else
+                    {
+                        if (idx < matches.Count - 1) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " "));
+                        if (idx == (matches.Count - 1)) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
+                    }
+                }
+            }
+            Dictionary<string, string> variableMap = new Dictionary<string, string>();
+            // 值设定上下文存在的时候解析
+            if (!string.IsNullOrWhiteSpace(settingContext.Trim()))
+            {
+                string line;
+                using (StringReader reader = new StringReader(settingContext))
+                {
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        matches = Regex.Matches(line, @"(?<columnName>[',A-Za-z0-9_-]+)", RegexOptions.IgnoreCase);
+                        if (matches.Count > 1)
+                        {
+                            // 最后一个默认为是值
+                            string columnValue = matches[matches.Count - 1].Groups["columnName"].Value;
+                            for (idx = 0; idx < matches.Count - 1; idx++)
+                            {
+                                string columnName = matches[idx].Groups["columnName"].Value;
+                                if (variableMap.ContainsKey(columnName)) {
+                                    variableMap[columnName] = columnValue;
+                                }
+                                else
+                                    variableMap.Add(columnName, columnValue);
+
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (string sqlcommand in sqlcommandList)
+            {
+                Match singleSqlMatch = Regex.Match(sqlcommand, @"\bfrom\s+(?<tablename>[A-Za-z0-9_-]+)\s+(?<where>.*)", RegexOptions.IgnoreCase);
+                if (singleSqlMatch.Success)
+                {
+                    string tableName = singleSqlMatch.Groups["tablename"].Value;
+                    string whereClause = singleSqlMatch.Groups["where"].Value;
+                    // 尝试替换值
+                    if (variableMap.Count > 0)
+                    {
+                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(=|<>|>|<|between\b){1,}\s*)(?<columnValue>([0-9_-]+|'[^']*'))\s?", match =>
+                        {
+                            string columnName = match.Groups["columnName"].Value;
+                            string columnValue = match.Groups["columnValue"].Value;
+                            if (variableMap.ContainsKey(columnName))
+                            {
+
+                                return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + " ";
+                            }
+                            return match.Groups[0].Value;
+                        }, RegexOptions.IgnoreCase);
+                        // 置换：in ( value1,valuie2 )
+                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>([',A-Za-z0-9_-]+\s*){1,}\))", match =>
+                        {
+                            string columnName = match.Groups["columnName"].Value;
+                            string columnValue = match.Groups["columnValue"].Value;
+                            if (variableMap.ContainsKey(columnName))
+                            {
+
+                                return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
+                            }
+                            return match.Groups[0].Value;
+                        }, RegexOptions.IgnoreCase);
+                    }
+                    findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(tableName.ToLower()));
+                    if (findTableInfo != null)
+                    {
+                        findTableInfo.CustomWhereClause = whereClause;
+                        custTableList.Add(findTableInfo);
+                    }
+                }
+            }
+            return custTableList;
         }
         private void cmbSavedDatabases_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
