@@ -2068,7 +2068,7 @@
             );
 
             interior = fc.Interior;
-            interior.Color = System.Drawing.ColorTranslator.ToOle(Color.Gray);
+            interior.Color = System.Drawing.ColorTranslator.ToOle(Color.LightGray);
             fc.StopIfTrue = false;
             ///////
             fc = (Microsoft.Office.Interop.Excel.FormatCondition)fcs.Add(
@@ -2076,9 +2076,20 @@
                 Formula1: $"=$A{startRow}=" + '"' + "Added" + '"'
             );
 
+            borders = fc.Borders;
+            border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeTop];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
+            border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
+            border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeLeft];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
+            border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight];
+            border.Color = System.Drawing.Color.Red; // Set the line color to red
+
             interior = fc.Interior;
-            interior.Color = System.Drawing.ColorTranslator.ToOle(Color.Red);
+            interior.Color = System.Drawing.ColorTranslator.ToOle(Color.MediumPurple);
             fc.StopIfTrue = false;
+
             //////
             fc = (Microsoft.Office.Interop.Excel.FormatCondition)fcs.Add(
                 Type: Microsoft.Office.Interop.Excel.XlFormatConditionType.xlExpression,
@@ -2089,7 +2100,6 @@
             interior.Color = System.Drawing.ColorTranslator.ToOle(Color.Azure);
             fc.StopIfTrue = false;
             /////
-
 
             interior = null;
             fc = null;
