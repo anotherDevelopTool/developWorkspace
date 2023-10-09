@@ -1189,12 +1189,6 @@ namespace DevelopWorkspace.Main.View
             {
                 selected = from ti in tableList where ti.Selected == true select ti;
                 if (selected.Count() == 0) return;
-
-                // 恢复现场
-                foreach (TableInfo tableinfo in selected) {
-                    tableinfo.CustomWhereClause = null;
-                }
-
                 selectedList = selected.ToArray();
             }
             else {
@@ -1455,6 +1449,7 @@ namespace DevelopWorkspace.Main.View
                 if (singleSqlMatch.Success)
                 {
                     string tableName = singleSqlMatch.Groups["tablename"].Value;
+                    string selectClause = sqlcommand.Substring(0,singleSqlMatch.Index);
                     string whereClause = singleSqlMatch.Groups["where"].Value;
                     // 尝试替换值
                     if (variableMap.Count > 0)
@@ -1477,7 +1472,6 @@ namespace DevelopWorkspace.Main.View
                             string columnValue = match.Groups["columnValue"].Value;
                             if (variableMap.ContainsKey(columnName))
                             {
-
                                 return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
                             }
                             return match.Groups[0].Value;
@@ -1487,6 +1481,28 @@ namespace DevelopWorkspace.Main.View
                     if (findTableInfo != null)
                     {
                         findTableInfo.CustomWhereClause = whereClause;
+                        // SELECT项目的自定义，如果是select *则使用默认表结构的定义以及顺序
+                        List<string> selectColumnList = new List<string>();
+                        foreach ( string columnString in selectClause.Split(','))
+                        {
+                            MatchCollection selectMatch = Regex.Matches(columnString, @"\b(?<columnName>[A-Za-z0-9_-]+)\b", RegexOptions.IgnoreCase);
+
+                            if (selectMatch.Count > 0)
+                            {
+                                if (selectMatch[selectMatch.Count -1].Value.ToLower().Equals("select")) continue;
+                                // 最后一个match值作为项目名
+                                // 这里的正则对一些特殊的Case有瑕疵,这里稍微补救一下
+                                string possibleColumnName = selectMatch[selectMatch.Count - 1].Value.ToLower();
+                                if (!selectColumnList.Contains(possibleColumnName)) {
+                                    if (findTableInfo.Columns.FindIndex( column => column.ColumnName.ToLower().Equals(possibleColumnName)) == -1 )
+                                        DevelopWorkspace.Base.Logger.WriteLine($"{possibleColumnName} does not exists in {tableName}", Base.Level.WARNING);
+                                    else
+                                        selectColumnList.Add(possibleColumnName);
+                                }
+                            }
+                        }
+                        findTableInfo.CustomSelectClause = selectColumnList;
+                        findTableInfo.CustomSelectString = selectClause;
                         custTableList.Add(findTableInfo);
                     }
                 }
@@ -1816,7 +1832,9 @@ namespace DevelopWorkspace.Main.View
             var model = sender as PaneViewModel;
             if(this.DataContext as Base.Model.PaneViewModel == model) { 
                 System.Diagnostics.Debug.WriteLine($"RibbonSelectionChangeEventFunc: {e.SelectedIndex}");
-                if (e.SelectedIndex == 1) tabControl1.SelectedIndex = 0;
+                if (e.SelectedIndex == 1) { 
+                    if(tabControl1.SelectedIndex == 1) tabControl1.SelectedIndex = 0; 
+                }
                 if (e.SelectedIndex == 2) tabControl1.SelectedIndex = 1;
             }
         }
@@ -1830,8 +1848,14 @@ namespace DevelopWorkspace.Main.View
                 if (tc.SelectedIndex != 1)
                 {
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 2;
-                    if (tc.SelectedIndex == 0)
+                    if (tc.SelectedIndex == 0) {
                         customSQLEditor = null;
+                        // 恢复现场
+                        foreach (TableInfo tableinfo in tableList)
+                        {
+                            tableinfo.CustomWhereClause = null;
+                        }
+                    }
                     else
                         customSQLEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(selectCustomSQLTabItemList[tc.SelectedIndex]);
                 }

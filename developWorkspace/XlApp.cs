@@ -174,6 +174,36 @@
                 return _customwhereClause;
             }
         }
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
+        private List<string> _customSelectColumnName = new List<string>() ;
+        public List<string> CustomSelectClause
+        {
+            set
+            {
+                _customSelectColumnName = value;
+                RaisePropertyChanged("CustomSelectClause");
+            }
+            get
+            {
+                return _customSelectColumnName;
+            }
+        }
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
+        private string _customSelectString = "";
+        public string CustomSelectString
+        {
+            set
+            {
+                _customSelectString = value;
+                RaisePropertyChanged("CustomSelectString");
+            }
+            get
+            {
+                return _customSelectString;
+            }
+        }
         public string getClauseString(bool isSelectClause = true)
         {
             string retClauseString = "";
@@ -408,7 +438,15 @@
                     {
                         rewrittenWhereClause = CustomWhereClause;
                     }
-                    modifiedSql += _selectDataSql + " " + rewrittenWhereClause;
+                    // 默认的抽取项目是表的定义结构，项目的顺序也是按照它的物理顺序，这里提供自定义的途径
+                    if(CustomSelectClause.Count == 0 )
+                        modifiedSql += _selectDataSql + " " + rewrittenWhereClause;
+                    else
+                    {
+                        string fullTableName = string.IsNullOrEmpty(SchemaName) ? TableName : SchemaName + "." + TableName + " " + TableName;
+                        modifiedSql += CustomSelectString + " from " + fullTableName + " " + rewrittenWhereClause;
+
+                    }
                 }
                 if (!string.IsNullOrWhiteSpace(analyzedLimitString))
                 {
@@ -431,11 +469,29 @@
                 for (int iSchemaIdx = 0; iSchemaIdx < Columns[0].Schemas.Count; iSchemaIdx++)
                 {
                     List<string> exportSchemaRow = new List<string>();
-                    for (int iColumnIdx = 0; iColumnIdx < Columns.Count; iColumnIdx++)
+
+                    if (CustomWhereClause == null || CustomSelectClause.Count == 0)
                     {
-                        //toddo
-                        if (!Columns[iColumnIdx].IsIncluded) continue;
-                        exportSchemaRow.Add(Columns[iColumnIdx].Schemas[iSchemaIdx]);
+                        for (int iColumnIdx = 0; iColumnIdx < Columns.Count; iColumnIdx++)
+                        {
+                            //toddo
+                            if (!Columns[iColumnIdx].IsIncluded) continue;
+                            exportSchemaRow.Add(Columns[iColumnIdx].Schemas[iSchemaIdx]);
+                        }
+                    }
+                    else {
+                        foreach (string columnName in CustomSelectClause)
+                        {
+                            //toddo
+                            var columnInfo = Columns.FirstOrDefault(item => item.ColumnName.ToLower().Equals(columnName.ToLower()));
+                            if (columnInfo == null) { 
+                                // todo:warning
+                            }
+                            else
+                            {
+                                exportSchemaRow.Add(columnInfo.Schemas[iSchemaIdx]);
+                            }
+                        }
                     }
                     exportSchemaRegion.Add(exportSchemaRow);
                 }
@@ -2153,7 +2209,14 @@
             if (tableInfo.WhereCondition != null)
             {
                 List<string> rowData = new List<string>();
-                List<string> columnNameList = (from column in tableInfo.Columns select column.ColumnName).ToList();
+                List<string> columnNameList = null;
+                if (tableInfo.CustomWhereClause == null || tableInfo.CustomSelectClause.Count == 0)
+                    columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
+                else
+                {
+                    columnNameList = tableInfo.CustomSelectClause;
+                }
+
                 foreach (string columnName in columnNameList)
                 {
                     string dummyValue = "";
@@ -2192,7 +2255,12 @@
             using (DbDataReader rdr = cmd.ExecuteReader())
             {
                 List<string> rowData = null;
-                List<string> columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
+                List<string> columnNameList = null;
+                if (tableInfo.CustomWhereClause == null || tableInfo.CustomSelectClause.Count == 0)
+                    columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
+                else {
+                    columnNameList = tableInfo.CustomSelectClause;
+                }
                 //deleted with refactor:2016/02/06
                 //List<string> dataTypeList = (from column in tableInfo.Columns select column.ColumnType).ToList();
                 while (rdr.Read())
