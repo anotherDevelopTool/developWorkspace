@@ -419,7 +419,7 @@
                 else
                 {
                     //如果是自定义的SQL,那么无需进行加工，直接附加
-                    string pattern = @"\bjoin\s+(?<tablename>[A-Za-z0-9_-]+)\b";
+                    string pattern = @"\b(?<opeName>join|from)\s+(?<tablename>[A-Za-z0-9_-]+)\b";
                     string rewrittenWhereClause = "";
                     MatchCollection matches = Regex.Matches(CustomWhereClause, pattern, RegexOptions.IgnoreCase);
                     int cursor = 0;
@@ -428,7 +428,7 @@
                         for(int idx=0;idx < matches.Count;idx++)
                         {
                             rewrittenWhereClause += CustomWhereClause.Substring(cursor, matches[idx].Index - cursor);
-                            rewrittenWhereClause += "join " + this.SchemaName + "." + matches[idx].Groups["tablename"].Value + " " + matches[idx].Groups["tablename"].Value + " ";  
+                            rewrittenWhereClause += matches[idx].Groups["opeName"].Value + " " + this.SchemaName + "." + matches[idx].Groups["tablename"].Value + " " + matches[idx].Groups["tablename"].Value + " ";  
                             cursor = matches[idx].Index + matches[idx].Length;
                         }
                         // last one?

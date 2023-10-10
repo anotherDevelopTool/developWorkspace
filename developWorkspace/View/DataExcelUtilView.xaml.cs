@@ -1465,8 +1465,20 @@ namespace DevelopWorkspace.Main.View
                             }
                             return match.Groups[0].Value;
                         }, RegexOptions.IgnoreCase);
-                        // 置换：in ( value1,valuie2 )
-                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>([',A-Za-z0-9_-]+\s*){1,}\))", match =>
+                        // todo 置换：in ( value1,valuie2 ) pattern如果出现嵌套的情况可能会导致死循环
+                        // 文字的情况
+                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>('[',A-Za-z0-9_-]+\s*){1,}\))", match =>
+                        {
+                            string columnName = match.Groups["columnName"].Value;
+                            string columnValue = match.Groups["columnValue"].Value;
+                            if (variableMap.ContainsKey(columnName))
+                            {
+                                return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
+                            }
+                            return match.Groups[0].Value;
+                        }, RegexOptions.IgnoreCase);
+                        // 数字的情况
+                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>([0-9,]+\s*){1,}\))", match =>
                         {
                             string columnName = match.Groups["columnName"].Value;
                             string columnValue = match.Groups["columnValue"].Value;
