@@ -39,6 +39,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Application = System.Windows.Application;
 using ICSharpCodeX.AvalonEdit.Edi;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static System.Windows.Forms.LinkLabel;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -1395,7 +1396,23 @@ namespace DevelopWorkspace.Main.View
             TableInfo findTableInfo;
 
             string settingContext = "";
+            List<string> skipCommentList = new List<string>();
             List<string> sqlcommandList = new List<string>();
+
+            string onerow;
+            using (StringReader reader = new StringReader(CustomSelectSQL))
+            {
+                while ((onerow = reader.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(onerow, @"^\s*--", RegexOptions.IgnoreCase))
+                    {
+                    }
+                    else {
+                        skipCommentList.Add(onerow);
+                    }
+                }
+            }
+            CustomSelectSQL = string.Join("\n", skipCommentList);
 
             MatchCollection matches = Regex.Matches(CustomSelectSQL, @"^\bselect\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
             int cursor = 0;
