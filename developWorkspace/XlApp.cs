@@ -452,9 +452,6 @@
                 {
                     modifiedSql = LimitCondition.FormatWith(new { RawSQL = modifiedSql,MaxRecord = analyzedLimitString.Substring("limit".Length) });
                 }
-                else {
-                    modifiedSql = LimitCondition.FormatWith(new { RawSQL = modifiedSql, MaxRecord = AppConfig.DatabaseConfig.This.maxRecordCount });
-                }
 
                 return modifiedSql;
             }
@@ -2273,9 +2270,12 @@
                 }
                 //deleted with refactor:2016/02/06
                 //List<string> dataTypeList = (from column in tableInfo.Columns select column.ColumnType).ToList();
+                // 防止取得数据过大，这里需要限制一下不超过：AppConfig.DatabaseConfig.This.maxRecordCount
+                int iCnt = 1;
                 while (rdr.Read())
                 {
                     rowData = new List<string>();
+                    if (iCnt > AppConfig.DatabaseConfig.This.maxRecordCount) break;
                     foreach (string columnName in columnNameList)
                     {
                         //deleted with refactor:2016/02/06
@@ -2345,6 +2345,8 @@
                     }
                     #endregion
                     linked.Add(rowData);
+                    iCnt++;
+
                 }
                 #region DIFF数据做成
                 if (orgDataset != null)
