@@ -419,27 +419,42 @@
                 else
                 {
                     //如果是自定义的SQL,那么无需进行加工，直接附加
-                    string pattern = @"\b(?<opeName>join|from)\s+(?<tablename>[A-Za-z0-9_-]+)\b";
+                    //schema如果无需定义的话，那么跳过改写逻辑
                     string rewrittenWhereClause = "";
-                    MatchCollection matches = Regex.Matches(CustomWhereClause, pattern, RegexOptions.IgnoreCase);
-                    int cursor = 0;
-                    if (matches.Count > 0)
-                    {
-                        for(int idx=0;idx < matches.Count;idx++)
-                        {
-                            rewrittenWhereClause += CustomWhereClause.Substring(cursor, matches[idx].Index - cursor);
-                            rewrittenWhereClause += matches[idx].Groups["opeName"].Value + " " + this.SchemaName + "." + matches[idx].Groups["tablename"].Value + " " + matches[idx].Groups["tablename"].Value + " ";  
-                            cursor = matches[idx].Index + matches[idx].Length;
-                        }
-                        // last one?
-                        rewrittenWhereClause += CustomWhereClause.Substring(cursor, CustomWhereClause.Length - cursor);
-                    }
-                    else
+                    if (string.IsNullOrWhiteSpace(this.SchemaName))
                     {
                         rewrittenWhereClause = CustomWhereClause;
                     }
+                    else
+                    {
+                        string pattern = @"\b(?<opeName>join|from)\s+(?<schemaname>[A-Za-z0-9_-]+\.)?(?<tablename>[A-Za-z0-9_-]+)\b";
+                        MatchCollection matches = Regex.Matches(CustomWhereClause, pattern, RegexOptions.IgnoreCase);
+                        int cursor = 0;
+                        if (matches.Count > 0)
+                        {
+                            for (int idx = 0; idx < matches.Count; idx++)
+                            {
+                                rewrittenWhereClause += CustomWhereClause.Substring(cursor, matches[idx].Index - cursor);
+                                // 如果SQL内没有定义Schema那么使用系统设定的Schema否则不进行替换
+                                if (string.IsNullOrWhiteSpace(matches[idx].Groups["schemaname"].Value))
+                                {
+                                    rewrittenWhereClause += matches[idx].Groups["opeName"].Value + " " + this.SchemaName + "." + matches[idx].Groups["tablename"].Value + " " + matches[idx].Groups["tablename"].Value + " ";
+                                }
+                                else {
+                                    rewrittenWhereClause += matches[idx].Value + " ";
+                                }
+                                cursor = matches[idx].Index + matches[idx].Length;
+                            }
+                            // last one?
+                            rewrittenWhereClause += CustomWhereClause.Substring(cursor, CustomWhereClause.Length - cursor);
+                        }
+                        else
+                        {
+                            rewrittenWhereClause = CustomWhereClause;
+                        }
+                    }
                     // 默认的抽取项目是表的定义结构，项目的顺序也是按照它的物理顺序，这里提供自定义的途径
-                    if(CustomSelectClause.Count == 0 )
+                    if (CustomSelectClause.Count == 0 )
                         modifiedSql += _selectDataSql + " " + rewrittenWhereClause;
                     else
                     {

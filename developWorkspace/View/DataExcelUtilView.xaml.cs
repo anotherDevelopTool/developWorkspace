@@ -1462,7 +1462,7 @@ namespace DevelopWorkspace.Main.View
             }
             foreach (string sqlcommand in sqlcommandList)
             {
-                Match singleSqlMatch = Regex.Match(sqlcommand, @"\bfrom\s+(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)", RegexOptions.IgnoreCase);
+                Match singleSqlMatch = Regex.Match(sqlcommand, @"\bfrom\s+(?<schemaname>[A-Za-z0-9_-]+\.)?(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)", RegexOptions.IgnoreCase);
                 if (singleSqlMatch.Success)
                 {
                     string tableName = singleSqlMatch.Groups["tablename"].Value;
@@ -1471,7 +1471,7 @@ namespace DevelopWorkspace.Main.View
                     // 尝试替换值
                     if (variableMap.Count > 0)
                     {
-                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(=|<>|>|<|between\b){1,}\s*)(?<columnValue>([0-9_-]+|'[^']*'))\s?", match =>
+                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(=|<>|>|<|between\b){1,}\s*)(?<columnValue>([0-9]+|'[^']*'))\s?", match =>
                         {
                             string columnName = match.Groups["columnName"].Value;
                             string columnValue = match.Groups["columnValue"].Value;
