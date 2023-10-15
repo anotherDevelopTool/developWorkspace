@@ -261,7 +261,7 @@ namespace DevelopWorkspace.Main.View
                 databaseConfig = JsonConfig<DatabaseConfig>.load(StartupSetting.instance.homeDir);
                 propertygrid1.SelectedObject = databaseConfig;
 
-                if (AppConfig.DatabaseConfig.This.snapshotMode)
+                if (true)
                 {
                     gallerySampleInRibbonGallery = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<Fluent.InRibbonGallery>(ribbonTabTool, "gallerySampleInRibbonGallery");
                     snapshotGroupBox = DevelopWorkspace.Base.Utils.WPF.FindLogicaChild<Fluent.RibbonGroupBox>(ribbonTabTool, "snapshotGroupBox");
@@ -823,15 +823,15 @@ namespace DevelopWorkspace.Main.View
                     var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(snapshot => snapshot.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID);
                     foreach (var custSelectSql in custSelectSqls)
                     {
-                        custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlOBJ = custSelectSql });
+                        custSelectSqlViewList.Add(new CustSelectSqlView { SqlStatementTextDocument = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "select * from products" },  IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlOBJ = custSelectSql });
                     }
 
                     // 预留出2个可以追加的位置，最大显示到10个
                     if (custSelectSqlViewList.Count < 10) {
-                        custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlOBJ = new CustSelectSql { CustSelectSqlName = "Custom", SqlStatementText = ""} });
+                        custSelectSqlViewList.Add(new CustSelectSqlView { SqlStatementTextDocument = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "select * from products" },  IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlOBJ = new CustSelectSql { CustSelectSqlName = "Custom123", SqlStatementText = "1234567"} });
                     }
                     while (custSelectSqlViewList.Count < 10) {
-                        custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Hidden, IsEditMode = Visibility.Collapsed, CustSelectSqlOBJ = new CustSelectSql { CustSelectSqlName = "Custom", SqlStatementText = "" } });
+                        custSelectSqlViewList.Add(new CustSelectSqlView { SqlStatementTextDocument = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "select * from products" }, IsVisibleMode = Visibility.Hidden, IsEditMode = Visibility.Collapsed, CustSelectSqlOBJ = new CustSelectSql { CustSelectSqlName = "Custom456", SqlStatementText = "abcdefg" } });
                     }
                     tabControl1.DataContext = custSelectSqlViewList;
                 }
@@ -1875,7 +1875,8 @@ namespace DevelopWorkspace.Main.View
                 if (tc.SelectedIndex != 1)
                 {
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 2;
-                    if (tc.SelectedIndex == 0) {
+                    if (tc.SelectedIndex == 0)
+                    {
                         customSQLEditor = null;
                         // 恢复现场
                         foreach (TableInfo tableinfo in tableList)
@@ -1884,7 +1885,8 @@ namespace DevelopWorkspace.Main.View
                         }
                     }
                     else
-                        customSQLEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(selectCustomSQLTabItemList[tc.SelectedIndex]);
+                        ;
+                        //customSQLEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(selectCustomSQLTabItemList[tc.SelectedIndex]);
                 }
                 else
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 1;
@@ -2098,6 +2100,8 @@ namespace DevelopWorkspace.Main.View
     }
     class CustSelectSqlView {
         public CustSelectSql CustSelectSqlOBJ { get; set; }
+        public ICSharpCodeX.AvalonEdit.Document.TextDocument SqlStatementTextDocument { get; set; }
+
         public Visibility IsVisibleMode { get; set; }
         public Visibility IsEditMode { get; set; }
     }

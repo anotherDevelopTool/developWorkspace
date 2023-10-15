@@ -20,7 +20,8 @@ x:Name="dataview"
             <main:ElementWidhtConverter x:Key="ElementWidhtConverter"/>
             <main:BackgroundBrushConverter x:Key="BackgroundBrushConverter"/>
             <main:SqlCommnadContextMenuConvert x:Key="SqlCommnadContextMenuConvert"/>
-            <main:InvertVisibleConverter x:Key="InvertVisibleConverter"/>            
+            <main:InvertVisibleConverter x:Key="InvertVisibleConverter"/>
+            <main:StringToTextDocumentConverter x:Key="StringToTextDocumentConverter"/>
             <TabItem x:Key="CustSqlTab"  Header="Select" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.sql}">
                 <Grid>
                     <avalonEdit:EdiTextEditor Grid.Row="1" 
@@ -816,7 +817,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[0].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[0].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[0].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[0].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -829,7 +830,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[0].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[0].SqlStatementTextDocument, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -861,7 +862,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[1].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[1].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[1].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[1].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -870,15 +871,15 @@ x:Name="dataview"
 
                 </TabItem.Header>
                 <Grid>
-                    <avalonEdit:EdiTextEditor Grid.Row="1"
+                    <avalonEdit:TextEditor Grid.Row="1"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[1].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[1].SqlStatementTextDocument, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
-                        <avalonEdit:EdiTextEditor.ContextMenu>
+                        <avalonEdit:TextEditor.ContextMenu>
                             <ContextMenu>
                                 <ContextMenu.Resources>
                                     <Image x:Key="image" Source="{Binding image}" Width="20" Height="20" x:Shared="False"/>
@@ -902,11 +903,11 @@ x:Name="dataview"
                                     </Style>
                                 </ContextMenu.ItemContainerStyle>
                             </ContextMenu>
-                        </avalonEdit:EdiTextEditor.ContextMenu>
-                    </avalonEdit:EdiTextEditor>
+                        </avalonEdit:TextEditor.ContextMenu>
+                    </avalonEdit:TextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[2].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[2].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[2].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[2].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -919,7 +920,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[2].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[2].SqlStatementTextDocument, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -951,7 +952,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[3].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[3].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[3].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[3].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -964,7 +965,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[3].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[3].CustSelectSqlOBJ.SqlStatementText, Converter={StaticResource StringToTextDocumentConverter}, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -1009,7 +1010,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[4].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[4].CustSelectSqlOBJ.SqlStatementText, Converter={StaticResource StringToTextDocumentConverter}, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -1041,7 +1042,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[5].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[5].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[5].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[5].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -1054,7 +1055,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[5].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[5].CustSelectSqlOBJ.SqlStatementText, Converter={StaticResource StringToTextDocumentConverter}, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -1086,7 +1087,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[6].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[6].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[6].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[6].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -1099,7 +1100,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[6].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[6].CustSelectSqlOBJ.SqlStatementText, Converter={StaticResource StringToTextDocumentConverter}, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -1131,7 +1132,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[7].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[7].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[0].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[7].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -1144,7 +1145,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[7].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[7].CustSelectSqlOBJ.SqlStatementText, Converter={StaticResource StringToTextDocumentConverter}, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -1176,7 +1177,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[8].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[8].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[8].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[8].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -1189,7 +1190,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[8].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[8].CustSelectSqlOBJ.SqlStatementText, Converter={StaticResource StringToTextDocumentConverter}, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
@@ -1221,7 +1222,7 @@ x:Name="dataview"
                     </avalonEdit:EdiTextEditor>
                 </Grid>
             </TabItem>
-            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[9].IsEditMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
+            <TabItem MouseDoubleClick="Tab_DoubleClick"  Tag="{Binding Path=DataContext[9].IsVisibleMode,RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource  dbsupport.lang.tools.dbsupport.hint.custom}">
                 <TabItem.Header>
                     <StackPanel>
                         <TextBlock Text="{Binding Path=DataContext[9].CustSelectSqlOBJ.CustSelectSqlName, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Visibility="{Binding Path=DataContext[9].IsEditMode,Converter={StaticResource InvertVisibleConverter},RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
@@ -1234,7 +1235,7 @@ x:Name="dataview"
                                    IsReadOnly="False"  
                                    ShowLineNumbers="True"
                                    SyntaxHighlighting="SQL"
-                                   Text="{Binding Path=DataContext[9].CustSelectSqlOBJ.SqlStatementText, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Document="{Binding Path=DataContext[9].CustSelectSqlOBJ.SqlStatementText, Converter={StaticResource StringToTextDocumentConverter}, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                    BorderThickness="0"
                                    HorizontalScrollBarVisibility="Auto" 
                                    VerticalScrollBarVisibility="Auto"  >
