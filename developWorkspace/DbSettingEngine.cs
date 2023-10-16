@@ -113,6 +113,7 @@
         public string ExcelSupportDataThemeColor { get; set; }
 
         public virtual ICollection<WhereClauseHistory> WhereClauseHistories { get; set; }
+        public virtual ICollection<CustSelectSql> CustSelectSqls { get; set; }
 
     }
     [Table("WhereClauseHistories")]

@@ -40,6 +40,8 @@ using Application = System.Windows.Application;
 using ICSharpCodeX.AvalonEdit.Edi;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static System.Windows.Forms.LinkLabel;
+using System.Timers;
+using Newtonsoft.Json.Linq;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -186,6 +188,7 @@ namespace DevelopWorkspace.Main.View
         SqlParser SqlParser = new SqlParser();
         int currentQueryIdx = 0;
         bool isDbReady = false;
+        System.Threading.Timer timer = null;
 
         public DataExcelUtilView()
         {
@@ -286,11 +289,47 @@ namespace DevelopWorkspace.Main.View
                 txtOutput.ContextMenu.ItemsSource = Services.dbsupportSqlContextmenuCommandList;
 
                 selectCustomSQLTabItemList = new List<TabItem>() { null, null, this.txtSelectCustomSQL_TabItem1, this.txtSelectCustomSQL_TabItem2, this.txtSelectCustomSQL_TabItem3, this.txtSelectCustomSQL_TabItem4, this.txtSelectCustomSQL_TabItem5, this.txtSelectCustomSQL_TabItem6, this.txtSelectCustomSQL_TabItem7, this.txtSelectCustomSQL_TabItem8, this.txtSelectCustomSQL_TabItem9, this.txtSelectCustomSQL_TabItem10 };
+                timer = new System.Threading.Timer(DoTempSaveJob, this, TimeSpan.Zero, TimeSpan.FromMinutes(10));
+                (this.DataContext as Base.Model.ViewModelBase).clearance = new Func<string, bool>(doClearanceBeforeDepart);
 
 
             }));
         }
+        static void DoTempSaveJob(object state)
+        {
+            var view = state as DataExcelUtilView;
+            if (!view.IsDbReady) return;
 
+            var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(custSelectSql => custSelectSql.ConnectionHistoryID == view.xlApp.ConnectionHistory.ConnectionHistoryID);
+            int idx = 2;
+            view.Dispatcher.BeginInvoke((Action)delegate ()
+            {
+                foreach (var custSelectSql in custSelectSqls)
+                {
+                        var ediTextEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(view.selectCustomSQLTabItemList[idx]);
+                        custSelectSql.SqlStatementText = ediTextEditor.Text;
+                        idx++;
+                }
+                for (; idx < 12; idx++) {
+                    //如果不存在则追加
+                    var ediTextEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(view.selectCustomSQLTabItemList[idx]);
+                    if(string.IsNullOrWhiteSpace(ediTextEditor.Text)) continue;
+                    view.xlApp.ConnectionHistory.CustSelectSqls.Add(new CustSelectSql()
+                    {
+                        ConnectionHistoryID = view.xlApp.ConnectionHistory.ConnectionHistoryID,
+                        CustSelectSqlName = "TBD...",
+                        SqlStatementText = ediTextEditor.Text
+                    });
+                }
+                DbSettingEngine.GetEngine().SaveChanges();
+            });
+
+        }
+        public bool doClearanceBeforeDepart(string bookName)
+        {
+            timer.Dispose();
+            return true;
+        }
         private void GallerySampleInRibbonGallery_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0) {
@@ -377,6 +416,10 @@ namespace DevelopWorkspace.Main.View
 
         private void LoadTables()
         {
+
+            // todo 一时保存处理
+            DoTempSaveJob(this);
+
             List<string> getRowCountSqlList = new List<string>();
 
             int iProviderId = (cmbSavedDatabases.SelectedItem as ConnectionHistory).ProviderID;
@@ -770,6 +813,7 @@ namespace DevelopWorkspace.Main.View
                             };
                         }
                         DevelopWorkspace.Base.Logger.WriteLine($"getColumnSchemaTask end normally...", Level.DEBUG);
+
                     }
                     catch (Exception ex)
                     {
@@ -821,7 +865,7 @@ namespace DevelopWorkspace.Main.View
                         snapshotGroupBox.Visibility = Visibility.Hidden;
                     }
 
-                    var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(snapshot => snapshot.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID);
+                    var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(custSelectSql => custSelectSql.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID);
                     int idx = 2;
                     foreach (var custSelectSql in custSelectSqls)
                     {
@@ -1415,21 +1459,13 @@ namespace DevelopWorkspace.Main.View
             CustomSelectSQL = string.Join("\n", skipCommentList);
 
             MatchCollection matches = Regex.Matches(CustomSelectSQL, @"^\bselect\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            int cursor = 0;
-            int idx = 0;
             if (matches.Count > 0)
             {
-
-                for (idx = 0; idx < matches.Count; idx++)
+                for (int idx = 0; idx < matches.Count; idx++)
                 {
-                    if (idx == 0) settingContext = CustomSelectSQL.Substring(cursor, matches[idx].Index - cursor);
-                    if (matches.Count == 0)
-                        sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
-                    else
-                    {
-                        if (idx < matches.Count - 1) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " "));
-                        if (idx == (matches.Count - 1)) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
-                    }
+                    if (idx == 0) settingContext = CustomSelectSQL.Substring(0, matches[idx].Index);
+                    if (idx < matches.Count - 1) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " "));
+                    if (idx == (matches.Count - 1)) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
                 }
             }
             Dictionary<string, string> variableMap = new Dictionary<string, string>();
@@ -1446,7 +1482,7 @@ namespace DevelopWorkspace.Main.View
                         {
                             // 最后一个默认为是值
                             string columnValue = matches[matches.Count - 1].Groups["columnName"].Value;
-                            for (idx = 0; idx < matches.Count - 1; idx++)
+                            for (int idx = 0; idx < matches.Count - 1; idx++)
                             {
                                 string columnName = matches[idx].Groups["columnName"].Value;
                                 if (variableMap.ContainsKey(columnName)) {
@@ -1454,7 +1490,6 @@ namespace DevelopWorkspace.Main.View
                                 }
                                 else
                                     variableMap.Add(columnName, columnValue);
-
                             }
                         }
                     }
