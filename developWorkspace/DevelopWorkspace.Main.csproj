@@ -336,6 +336,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converter\InvertVisibleConverter.cs" />
+    <Compile Include="Converter\StringToTextDocumentConverter.cs" />
     <Compile Include="CustomRoslynHost .cs" />
     <Compile Include="ExtensionHelper.cs" />
     <Compile Include="FileWatcher.cs" />

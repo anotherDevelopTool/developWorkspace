@@ -325,6 +325,28 @@
                 return new Uri("pack://application:,,,/DevelopWorkspace;component/Images/excel.png", UriKind.RelativeOrAbsolute);
             }
         }
+        private List<CustSelectSqlView> _custSelectSqlViewList = new List<CustSelectSqlView>();
+        public List<CustSelectSqlView> custSelectSqlViewList {
+            get
+            {
+                return this._custSelectSqlViewList;
+            }
 
+            set
+            {
+                if (this._custSelectSqlViewList != value)
+                {
+                    this._custSelectSqlViewList = value;
+                    this.RaisePropertyChanged("custSelectSqlViewList");
+                }
+            }
+        }
+    }
+    class CustSelectSqlView
+    {
+        public string CustSelectSqlName { get; set; }
+        public ICSharpCodeX.AvalonEdit.Document.TextDocument SqlStatementText { get; set; }
+        public Visibility IsVisibleMode { get; set; }
+        public Visibility IsEditMode { get; set; }
     }
 }

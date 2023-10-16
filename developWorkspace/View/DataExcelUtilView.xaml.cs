@@ -42,6 +42,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static System.Windows.Forms.LinkLabel;
 using System.Timers;
 using Newtonsoft.Json.Linq;
+using System.Configuration;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -96,8 +97,6 @@ namespace DevelopWorkspace.Main.View
         List<KeyValuePair<string, string>> logicalName4Tables = new List<KeyValuePair<string, string>>();
         CollectionViewSource view = new CollectionViewSource();
         int iAllCheck = 0;
-        EdiTextEditor customSQLEditor = null;
-        List<TabItem> selectCustomSQLTabItemList = null;
         XlApp _xls = new XlApp();
         public XlApp xlApp
         {
@@ -189,7 +188,8 @@ namespace DevelopWorkspace.Main.View
         int currentQueryIdx = 0;
         bool isDbReady = false;
         System.Threading.Timer timer = null;
-
+        Func<string> customSQLString = null;
+        List<CustSelectSqlView> custSelectSqlViewList = new List<CustSelectSqlView> { };
         public DataExcelUtilView()
         {
             Base.Services.BusyWorkService(new Action(() =>
@@ -288,7 +288,18 @@ namespace DevelopWorkspace.Main.View
 
                 txtOutput.ContextMenu.ItemsSource = Services.dbsupportSqlContextmenuCommandList;
 
-                selectCustomSQLTabItemList = new List<TabItem>() { null, null, this.txtSelectCustomSQL_TabItem1, this.txtSelectCustomSQL_TabItem2, this.txtSelectCustomSQL_TabItem3, this.txtSelectCustomSQL_TabItem4, this.txtSelectCustomSQL_TabItem5, this.txtSelectCustomSQL_TabItem6, this.txtSelectCustomSQL_TabItem7, this.txtSelectCustomSQL_TabItem8, this.txtSelectCustomSQL_TabItem9, this.txtSelectCustomSQL_TabItem10 };
+                // CustSelectSQL功能定制
+                // 初始绑定列表，在Load后被重新覆盖
+                custSelectSqlViewList = new List<CustSelectSqlView>();
+                // 预留出2个可以追加的位置，最大显示到10个
+                custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlName = "Custom", SqlStatementText = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "" } });
+                custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlName = "Custom", SqlStatementText = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "" } });
+                while (custSelectSqlViewList.Count < 10)
+                {
+                    custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Hidden, IsEditMode = Visibility.Collapsed, CustSelectSqlName = "Custom", SqlStatementText = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "" } });
+                }
+                (this.DataContext as DataExcelUtilModel).custSelectSqlViewList = custSelectSqlViewList;
+
                 timer = new System.Threading.Timer(DoTempSaveJob, this, TimeSpan.Zero, TimeSpan.FromMinutes(10));
                 (this.DataContext as Base.Model.ViewModelBase).clearance = new Func<string, bool>(doClearanceBeforeDepart);
 
@@ -297,28 +308,32 @@ namespace DevelopWorkspace.Main.View
         }
         static void DoTempSaveJob(object state)
         {
-            var view = state as DataExcelUtilView;
+            var view = (state as DataExcelUtilView);
             if (!view.IsDbReady) return;
 
-            var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(custSelectSql => custSelectSql.ConnectionHistoryID == view.xlApp.ConnectionHistory.ConnectionHistoryID);
-            int idx = 2;
             view.Dispatcher.BeginInvoke((Action)delegate ()
             {
+                var context = view.DataContext as DataExcelUtilModel;
+                var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(custSelectSql => custSelectSql.ConnectionHistoryID == view.xlApp.ConnectionHistory.ConnectionHistoryID);
+                int idx = 0;
                 foreach (var custSelectSql in custSelectSqls)
                 {
-                        var ediTextEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(view.selectCustomSQLTabItemList[idx]);
-                        custSelectSql.SqlStatementText = ediTextEditor.Text;
-                        idx++;
+                    custSelectSql.CustSelectSqlName = context.custSelectSqlViewList[idx].CustSelectSqlName;
+                    custSelectSql.SqlStatementText = context.custSelectSqlViewList[idx].SqlStatementText.Text;
+                    idx++;
                 }
-                for (; idx < 12; idx++) {
+                for (; idx < 10; idx++) {
                     //如果不存在则追加
-                    var ediTextEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(view.selectCustomSQLTabItemList[idx]);
-                    if(string.IsNullOrWhiteSpace(ediTextEditor.Text)) continue;
+                    string CustomSelectSQL = context.custSelectSqlViewList[idx].SqlStatementText.Text;
+                    if (string.IsNullOrWhiteSpace(context.custSelectSqlViewList[idx].SqlStatementText.Text)) continue;
+                    MatchCollection matches = Regex.Matches(CustomSelectSQL, @"^\bselect\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                    if (matches.Count == 0) continue;
+
                     view.xlApp.ConnectionHistory.CustSelectSqls.Add(new CustSelectSql()
                     {
                         ConnectionHistoryID = view.xlApp.ConnectionHistory.ConnectionHistoryID,
-                        CustSelectSqlName = "TBD...",
-                        SqlStatementText = ediTextEditor.Text
+                        CustSelectSqlName = context.custSelectSqlViewList[idx].CustSelectSqlName,
+                        SqlStatementText = context.custSelectSqlViewList[idx].SqlStatementText.Text
                     });
                 }
                 DbSettingEngine.GetEngine().SaveChanges();
@@ -865,26 +880,21 @@ namespace DevelopWorkspace.Main.View
                         snapshotGroupBox.Visibility = Visibility.Hidden;
                     }
 
+                    custSelectSqlViewList = new List<CustSelectSqlView>();
                     var custSelectSqls = DbSettingEngine.GetEngine().CustSelectSqls.Where(custSelectSql => custSelectSql.ConnectionHistoryID == xlApp.ConnectionHistory.ConnectionHistoryID);
-                    int idx = 2;
                     foreach (var custSelectSql in custSelectSqls)
                     {
-                        var ediTextEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(selectCustomSQLTabItemList[idx]);
-                        ediTextEditor.Text = custSelectSql.SqlStatementText;
-                        selectCustomSQLTabItemList[idx].Header = custSelectSql.CustSelectSqlName;
-                        selectCustomSQLTabItemList[idx].Visibility = Visibility.Visible;
-                        idx++;
+                        custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlName = custSelectSql.CustSelectSqlName, SqlStatementText = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = custSelectSql.SqlStatementText } });
+
                     }
                     // 预留出2个可以追加的位置，最大显示到10个
-                    if (idx < 12)
-                    {
-                        selectCustomSQLTabItemList[idx].Visibility = Visibility.Visible;
+                    if (custSelectSqlViewList.Count < 10) {
+                        custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Visible, IsEditMode = Visibility.Collapsed, CustSelectSqlName = "custom", SqlStatementText = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "" } });
                     }
-                    idx++;
-                    if (idx < 12)
-                    {
-                        selectCustomSQLTabItemList[idx].Visibility = Visibility.Visible;
+                    while (custSelectSqlViewList.Count < 10) {
+                        custSelectSqlViewList.Add(new CustSelectSqlView { IsVisibleMode = Visibility.Hidden, IsEditMode = Visibility.Collapsed, CustSelectSqlName = "custom", SqlStatementText = new ICSharpCodeX.AvalonEdit.Document.TextDocument { Text = "" } });
                     }
+                    (this.DataContext as DataExcelUtilModel).custSelectSqlViewList = custSelectSqlViewList;
                 }
             }
             catch (Exception ex)
@@ -1230,15 +1240,15 @@ namespace DevelopWorkspace.Main.View
             IEnumerable<TableInfo> selected;
             //todo 根据自定义抽取SQL文抽取数据 
             //customSQLString = "";
-            if (customSQLEditor == null)
+            if (customSQLString == null)
             {
                 selected = from ti in tableList where ti.Selected == true select ti;
                 if (selected.Count() == 0) return;
                 selectedList = selected.ToArray();
             }
             else {
-                if (customSQLEditor.Text.Trim().Length == 0) return;
-                List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLEditor.Text.Trim());
+                if (customSQLString().Trim().Length == 0) return;
+                List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLString().Trim());
                 if (custTableList.Count() == 0) return;
                 selected = custTableList;
                 selectedList = custTableList.ToArray();
@@ -1364,15 +1374,15 @@ namespace DevelopWorkspace.Main.View
                         IEnumerable<TableInfo> selected;
                         //todo 根据自定义抽取SQL文抽取数据 
                         //customSQLString = "";
-                        if (customSQLEditor == null)
+                        if (customSQLString == null)
                         {
                             selected = from ti in tableList join tablename in tableNameList on ti.TableName equals tablename select ti;
                             selectedList = selected.ToArray();
                         }
                         else
                         {
-                            if (customSQLEditor.Text.Trim().Length == 0) return;
-                            List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLEditor.Text.Trim());
+                            if (customSQLString().Trim().Length == 0) return;
+                            List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLString().Trim());
                             if (custTableList.Count() == 0) return;
                             selected = custTableList;
                             selectedList = custTableList.ToArray();
@@ -1912,8 +1922,9 @@ namespace DevelopWorkspace.Main.View
                 if (tc.SelectedIndex != 1)
                 {
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 2;
-                    if (tc.SelectedIndex == 0) {
-                        customSQLEditor = null;
+                    if (tc.SelectedIndex == 0)
+                    {
+                        customSQLString = null;
                         // 恢复现场
                         foreach (TableInfo tableinfo in tableList)
                         {
@@ -1921,7 +1932,7 @@ namespace DevelopWorkspace.Main.View
                         }
                     }
                     else
-                        customSQLEditor = Base.Utils.WPF.FindLogicaChild<EdiTextEditor>(selectCustomSQLTabItemList[tc.SelectedIndex]);
+                        customSQLString = () => custSelectSqlViewList[tc.SelectedIndex - 2].SqlStatementText.Text;
                 }
                 else
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 1;
@@ -1950,6 +1961,17 @@ namespace DevelopWorkspace.Main.View
             var tableinfo = ((ListViewItem)sender).Content as TableInfo;
             tableinfo.Selected = !tableinfo.Selected;
             tableinfo.RaisePropertyChanged("Selected");
+        }
+        private void txtSelectCustomSQL_NameTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox realObj = sender as TextBox;
+            realObj.Visibility = Visibility.Collapsed;
+        }
+
+        private void Tab_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            TabItem realObj = sender as TabItem;
+            realObj.Tag = Visibility.Visible;
         }
 
         private void trvFamilies_LeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -2122,4 +2144,5 @@ namespace DevelopWorkspace.Main.View
             return projectKeywords.FirstOrDefault() == null ? physicalName : projectKeywords.FirstOrDefault().ProjectKeywordRemark;
         }
     }
+
 }
