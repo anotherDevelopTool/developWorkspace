@@ -478,7 +478,16 @@
             get
             {
                 List<List<string>> exportSchemaRegion = new List<List<string>>();
-                for (int iSchemaIdx = 0; iSchemaIdx < Columns[0].Schemas.Count; iSchemaIdx++)
+
+                Func<ColumnInfo,string> getIsKey = (ColumnInfo ci) => ci.IsKey ;
+                Func<ColumnInfo, string> getColumnName = (ColumnInfo ci) => ci.ColumnName;
+                Func<ColumnInfo, string> getColumnRemark = (ColumnInfo ci) => ci.ColumnRemark;
+                Func<ColumnInfo, string> getColomnType = (ColumnInfo ci) => ci.ColumnType;
+                Func<ColumnInfo, string> getColomnSize = (ColumnInfo ci) => ci.ColumnSize;
+
+                List<Func<ColumnInfo, string>> Schemas = new List<Func<ColumnInfo, string>> { getIsKey, getColumnRemark, getColumnName, getColomnSize, getColomnType };
+
+                for (int iSchemaIdx = 0; iSchemaIdx < Schemas.Count; iSchemaIdx++)
                 {
                     List<string> exportSchemaRow = new List<string>();
 
@@ -488,7 +497,7 @@
                         {
                             //toddo
                             if (!Columns[iColumnIdx].IsIncluded) continue;
-                            exportSchemaRow.Add(Columns[iColumnIdx].Schemas[iSchemaIdx]);
+                            exportSchemaRow.Add(Schemas[iSchemaIdx].Invoke(Columns[iColumnIdx]));
                         }
                     }
                     else {
@@ -501,7 +510,7 @@
                             }
                             else
                             {
-                                exportSchemaRow.Add(columnInfo.Schemas[iSchemaIdx]);
+                                exportSchemaRow.Add(Schemas[iSchemaIdx].Invoke(columnInfo));
                             }
                         }
                     }
@@ -563,10 +572,11 @@
 
     public class ColumnInfo : ViewModelBase
     {
-        List<string> _schemas = new List<string>();
+        public string IsKey { get; set; }
         public string ColumnName { get; set; }
+        public string ColumnRemark { get; set; }
         public string ColumnType { get; set; }
-
+        public string ColumnSize { get; set; }
 
         public TableInfo parent { get; set; }
 
@@ -619,7 +629,7 @@
         {
             get
             {
-                return !Schemas[0].Equals("*");
+                return !IsKey.Equals("*");
             }
         }
         bool defaultInclude = true;
@@ -638,19 +648,6 @@
             }
         }
         public int Age { get; set; }
-
-        public List<string> Schemas
-        {
-            get
-            {
-                return _schemas;
-            }
-
-            set
-            {
-                _schemas = value;
-            }
-        }
     }
 
     public class DbApplyWork
@@ -881,43 +878,73 @@
                     DevelopWorkspace.Base.Logger.WriteLine("database transaction begin...",Level.DEBUG);
                 }
                 #region 从EXCEL搜集更新数据并缓存它为后续更新数据使用
-                object[,] value2_copy = targetSheet.Range(targetSheet.Cells(START_ROW, START_COL),
-                                            targetSheet.Cells(targetSheet.UsedRange.Rows.Count + START_ROW,
-                                            targetSheet.UsedRange.Columns.Count + START_COL)).Value2;
+                // 下面的方法不能准确的算出有效数据的范围，改用通过Address字符串手动计算 thank to ChatGPTs response
+                //object[,] value2_copy = targetSheet.Range(targetSheet.Cells(START_ROW, START_COL),
+                //                            targetSheet.Cells(targetSheet.UsedRange.End[XlDirection.xlDown].Row,
+                //                            targetSheet.UsedRange.End[XlDirection.xlToRight].Column)).Value2;
+                //"$B$6:$BS$39"
+                var usedRangePos = ExcelColumnConverter.getUsedRangeAbsolutePostion(targetSheet.UsedRange.Address);
+
+                //有效数据区域被包含在value2_copy内，其中1，1和 FirstRowNumber，LastColumnNumber的区域和1，1和 LastColumnNumber，FirstColumnNumberde区域是无效区跳过扫描
+                object[,] value2_copy = targetSheet.Range(targetSheet.Cells(1, 1), targetSheet.Cells(usedRangePos.LastRowNumber + 1 ,usedRangePos.LastColumnNumber + 1 )).Value2;
+
                 bool bTableTokenHit = false;
                 bool bDbCreateOnOff = false;
-                string strTableName = "";
-
+                string guessedTableName = "";
+                int guessedTableNameColumnOffset = 1;
                 Dictionary<string, List<string>> dicShema = null;
                 List<DataTypeCondition> dataTypeConditionList = null;
                 List<string> lstRowData = null;
+                TableInfo currentTableInfo = null;
+                var searchTableNameListContext = (from tableinfo in tableList select tableinfo.TableName).Aggregate((total, next) => total + "," + next);
+
 
                 //收集表数据处理
-                for (iRow = 1; iRow < value2_copy.GetLength(0); iRow++)
+                for (iRow = usedRangePos.FirstRowNumber; iRow < value2_copy.GetLength(0); iRow++)
                 {
                     //如果整行都是空白那么判定其为表数据的结束
                     if (bTableTokenHit)
                     {
-                        for (iCol = 1; iCol < value2_copy.GetLength(1); iCol++)
+                        for (iCol = guessedTableNameColumnOffset; iCol < dicShema[SCHEMA_COLUMN_NAME].Count + guessedTableNameColumnOffset; iCol++)
                         {
                             if (value2_copy[iRow, iCol] != null)
                                 break;
-                            if (iCol == value2_copy.GetLength(1) - 1)
+                            if (iCol == dicShema[SCHEMA_COLUMN_NAME].Count + guessedTableNameColumnOffset - 1)
+                            {
                                 bTableTokenHit = false;
+                            }
                         }
                     }
-                    //find where table begin
+                    //find where table begin 目标是先查找到表头，如果查到的话，一括取得表头Schema
                     if (bTableTokenHit == false)
                     {
-                        bTableTokenHit = true;
+                        //假定现在行是表开始
+                        //bTableTokenHit = true;
                         //前两个CELL不为空以外有一个为空则认定不是表头的开始
-                        for (iCol = 1 + 2; iCol < value2_copy.GetLength(1); iCol++)
+                        //表头的定义做硬性限制：tablename | table remark ||||||||,为了提高易用性，放松这个限制
+                        //for (iCol = 1 + 2; iCol < value2_copy.GetLength(1); iCol++)
+                        //{
+                        //    if (value2_copy[iRow, iCol] != null)
+                        //        bTableTokenHit = false;
+                        //}
+                        //基于一个表的的字段不可能小于5列的假设
+                        for (iCol = 1; iCol < Math.Max(1,value2_copy.GetLength(1) - 5); iCol++)
                         {
-                            if (value2_copy[iRow, iCol] != null)
-                                bTableTokenHit = false;
+                            if (value2_copy[iRow, iCol] == null) continue;
+                            guessedTableName = value2_copy[iRow, iCol].ToString().Trim();
+                            if (Encoding.Default.GetByteCount(guessedTableName) > 64 ) continue;
+                            if( Regex.Match(guessedTableName, @"^[A-Za-z0-9_-]+$").Success )
+                            {
+                                //注意性能的劣化
+                                if (Regex.Match(searchTableNameListContext, guessedTableName + @"\b", RegexOptions.IgnoreCase).Success)
+                                {
+                                    currentTableInfo = (from tableinfo in tableList where tableinfo.TableName.ToUpper() == guessedTableName.ToUpper() select tableinfo).FirstOrDefault();
+                                    guessedTableNameColumnOffset = iCol;
+                                    bTableTokenHit = true;
+                                    break;
+                                }
+                            }
                         }
-                        if (value2_copy[iRow, 1] == null || value2_copy[iRow, 2] == null)
-                            bTableTokenHit = false;
                         //如果是表头则开始处理表名以及其余属性行信息
                         if (bTableTokenHit)
                         {
@@ -929,21 +956,19 @@
                                 dicShema.Add(keyword, new List<string>());
                             }
 
-                            strTableName = value2_copy[iRow, 1].ToString();
-
-                            Base.Services.BusyWorkIndicatorService($"Collecting:{ strTableName }");
+                            Base.Services.BusyWorkIndicatorService($"Collecting:{ guessedTableName }");
 
                             //缓存数据库操作
-                            workArea.Add(strTableName, new DbApplyWork() { TableName = strTableName });
+                            workArea.Add(guessedTableName, new DbApplyWork() { TableName = guessedTableName });
 
                             if (processType == eProcessType.DB_APPLY)
                             {
-                                fullTableName = string.IsNullOrEmpty(schemaName) ? strTableName : schemaName + "." + strTableName;
-                                TableInfo ti = (from tableinfo in tableList where tableinfo.TableName.ToUpper() == strTableName.ToUpper() select tableinfo).FirstOrDefault();
+                                fullTableName = string.IsNullOrEmpty(schemaName) ? guessedTableName : schemaName + "." + guessedTableName;
+                                //TableInfo ti = (from tableinfo in tableList where tableinfo.TableName.ToUpper() == strTableName.ToUpper() select tableinfo).FirstOrDefault();
                                 string deleteTextSql = "";
-                                if (ti != null && !string.IsNullOrWhiteSpace(ti.DeleteClause))
+                                if (currentTableInfo != null && !string.IsNullOrWhiteSpace(currentTableInfo.DeleteClause))
                                 {
-                                    deleteTextSql = string.Format("delete from {0}", fullTableName + " where " + ti.DeleteClause);
+                                    deleteTextSql = string.Format("delete from {0}", fullTableName + " where " + currentTableInfo.DeleteClause);
                                 }
                                 //else
                                 //{
@@ -951,33 +976,125 @@
                                 //}
 
                                 //缓存数据库操作
-                                workArea[strTableName].DeleteSql = deleteTextSql;
+                                workArea[guessedTableName].DeleteSql = deleteTextSql;
                             }
                             #region 发现表定义后通过表头行区域获取表Schema情报
                             //表属性行定义取得
-                            foreach (string keyword in schemaList)
+                            //Schema区域为了更有弹性，之前固定的key,columnname,columnremark,datatype,datasize的顺序可以只定义columnname，以外的没有定义的话那么使用currentTableInfo的相应内容
+                            //SCHEMA_IS_KEY
+                            //SCHEMA_COLUMN_NAME
+                            //SCHEMA_REMARK
+                            //SCHEMA_DATATYPE_NAME
+                            //SCHEMA_COLUMN_SIZE
+
+                            int guessSCHEMA_COLUMN_NAME_row = 0;
+                            int guessSCHEMA_DATATYPE_NAME_row = 0;
+
+                            int guessStart_row = iRow + 1;
+
+                            //探测guessSCHEMA_COLUMN_NAME_row的位置，如果没有找到的话，则认为是异常情况
+                            //最大测试5行的范围
+                            for (int iGuessRow = guessStart_row; iGuessRow < Math.Min(guessStart_row + 5, value2_copy.GetLength(0)); iGuessRow++) 
                             {
-                                iRow++;
-                                for (iCol = 1; iCol < value2_copy.GetLength(1); iCol++)
+                                int hitCount = 0;
+                                //最大测试5列的范围
+                                for (iCol = guessedTableNameColumnOffset; iCol < Math.Min( guessedTableNameColumnOffset + 5 + 1, value2_copy.GetLength(1)); iCol++)
                                 {
-                                    if (keyword == SCHEMA_COLUMN_NAME || keyword == SCHEMA_DATATYPE_NAME)
+                                    if (value2_copy[iGuessRow, iCol] != null)
                                     {
-                                        if (value2_copy[iRow, iCol] != null)
-                                            dicShema[keyword].Add(value2_copy[iRow, iCol].ToString());
+                                        string guessValueString = value2_copy[iGuessRow, iCol].ToString().ToLower();
+                                        //SCHEMA_IS_KEY
+                                        //int index = currentTableInfo.Columns.Select((columninfo, i) => new { Columninfo = columninfo, Index = i }).FirstOrDefault(item => item.Columninfo.ColumnName.Equals(guessValueString))?.Index ?? -1;
+                                        var hitColumn = (from columninfo in currentTableInfo.Columns where columninfo.ColumnName.ToLower().Equals(guessValueString) select columninfo).FirstOrDefault();
+                                        if (hitColumn != null)
+                                        {
+                                            hitCount++;
+                                            //SCHEMA_COLUMN_NAME
+                                            //guessSCHEMA_COLUMN_NAME_row = iGuessRow;
+                                        }
+                                    }
+                                }
+                                if (hitCount == iCol - guessedTableNameColumnOffset )
+                                {
+                                    guessSCHEMA_COLUMN_NAME_row = iGuessRow;
+                                    break;
+                                }
+                            }
+
+                            //如果没有找到SCHEMA_COLUMN_NAME，那么处理终了
+                            if (guessSCHEMA_COLUMN_NAME_row == 0)
+                            {
+                                throw new Exception($"failed to find the SCHEMA_COLUMN_NAME's row data of {guessedTableName}");
+                            }
+                            //查找是否是ColumnType行
+                            for (int iGuessRow = guessSCHEMA_COLUMN_NAME_row + 1; iGuessRow < Math.Min(guessStart_row + 5, value2_copy.GetLength(0)); iGuessRow++)
+                            {
+                                int hitCount = 0;
+                                //最大测试5列的范围
+                                for (iCol = guessedTableNameColumnOffset; iCol < Math.Min(guessedTableNameColumnOffset + 5 + 1, value2_copy.GetLength(1)); iCol++)
+                                {
+                                    if (value2_copy[iGuessRow, iCol] != null)
+                                    {
+                                        string guessValueString = value2_copy[iGuessRow, iCol].ToString().ToLower();
+                                        //SCHEMA_IS_KEY
+                                        var hitColumn = (from columninfo in currentTableInfo.Columns where columninfo.ColumnType.ToLower().Equals(guessValueString) select columninfo).FirstOrDefault();
+                                        if (hitColumn != null)
+                                        {
+                                            hitCount++;
+                                            //SCHEMA_COLUMN_NAME
+                                            //guessSCHEMA_COLUMN_NAME_row = iGuessRow;
+                                        }
+                                    }
+                                }
+                                if (hitCount == iCol - guessedTableNameColumnOffset)
+                                {
+                                    guessSCHEMA_DATATYPE_NAME_row = iGuessRow;
+                                    break;
+                                }
+                            }
+
+                            iRow = Math.Max(guessSCHEMA_COLUMN_NAME_row, guessSCHEMA_DATATYPE_NAME_row);
+
+                            for (iCol = guessedTableNameColumnOffset; iCol < value2_copy.GetLength(1); iCol++)
+                            {
+                                if (value2_copy[guessSCHEMA_COLUMN_NAME_row, iCol] != null)
+                                {
+                                    string columnNameValueString = value2_copy[guessSCHEMA_COLUMN_NAME_row, iCol].ToString();
+                                    dicShema[SCHEMA_COLUMN_NAME].Add(columnNameValueString);
+                                    var hitColumn = (from columninfo in currentTableInfo.Columns where columninfo.ColumnName.ToLower().Equals(columnNameValueString) select columninfo).FirstOrDefault();
+                                    if (hitColumn != null)
+                                    {
+                                        if (guessSCHEMA_DATATYPE_NAME_row == 0)
+                                        {
+                                            dicShema[SCHEMA_DATATYPE_NAME].Add(hitColumn.ColumnType);
+                                        }
+                                        dicShema[SCHEMA_IS_KEY].Add(hitColumn.IsKey);
+                                        dicShema[SCHEMA_COLUMN_SIZE].Add(hitColumn.ColumnSize);
                                     }
                                     else
                                     {
-                                        dicShema[keyword].Add(value2_copy[iRow, iCol] == null ? "" : value2_copy[iRow, iCol].ToString());
+                                        if (guessSCHEMA_DATATYPE_NAME_row == 0)
+                                        {
+                                            dicShema[SCHEMA_DATATYPE_NAME].Add("string");
+                                        }
+                                        dicShema[SCHEMA_IS_KEY].Add("");
+                                        dicShema[SCHEMA_COLUMN_SIZE].Add("");
                                     }
                                 }
+                                if(guessSCHEMA_DATATYPE_NAME_row > 0)
+                                {
+                                    if (value2_copy[guessSCHEMA_DATATYPE_NAME_row, iCol] != null)
+                                        dicShema[SCHEMA_DATATYPE_NAME].Add(value2_copy[guessSCHEMA_DATATYPE_NAME_row, iCol].ToString());
+                                }
                             }
+
                             //2019/03/11
                             //如果SCHEMA_COLUMN_NAME和SCHEMA_DATATYPE_NAME的长度不一致说明表的属性存在问题，处理终了
                             if (dicShema[SCHEMA_COLUMN_NAME].Count == 0 || dicShema[SCHEMA_COLUMN_NAME].Count != dicShema[SCHEMA_DATATYPE_NAME].Count) {
-                                throw new Exception($"there are inconsistency with columnName and dataTypeName of {strTableName}");
+                                throw new Exception($"there are inconsistency with columnName and dataTypeName of {guessedTableName}");
                             }
                             //缓存数据库操作
-                            workArea[strTableName].Schemas = dicShema;
+                            workArea[guessedTableName].Schemas = dicShema;
 
                             //2019/03/09 一次性取出避免循环内大量调用
                             dataTypeConditionList = new List<DataTypeCondition>() { };
@@ -985,13 +1102,13 @@
                             {
                                 dataTypeConditionList.Add(GetDataTypeCondition(dicShema[SCHEMA_DATATYPE_NAME][iCol]));
                             }
-                            workArea[strTableName].DataTypeConditionList = dataTypeConditionList;
+                            workArea[guessedTableName].DataTypeConditionList = dataTypeConditionList;
 
                             #endregion
                             if (processType == eProcessType.DIFF_USE)
                             {
                                 if (orgDataSet == null) orgDataSet = new DataSet();
-                                System.Data.DataTable table = new System.Data.DataTable(strTableName);
+                                System.Data.DataTable table = new System.Data.DataTable(guessedTableName);
                                 orgDataSet.Tables.Add(table);
 
                                 //20190302为了正确排序
@@ -1092,7 +1209,7 @@
                         //process data region
                         lstRowData = new List<string>();
 
-                        for (iCol = 1; iCol < dicShema[SCHEMA_COLUMN_NAME].Count + 1; iCol++)
+                        for (iCol = guessedTableNameColumnOffset; iCol < guessedTableNameColumnOffset + dicShema[SCHEMA_COLUMN_NAME].Count; iCol++)
                         {
                             if (value2_copy[iRow, iCol] == null)
                             {
@@ -1111,7 +1228,7 @@
                                 //2019/03/02
                                 //无法做到穷举提到配置文件中
                                 //if (DatabaseConfig.isStringLikeColumn(dicShema[SCHEMA_DATATYPE_NAME][iCol - 1]))
-                                if (dataTypeConditionList[iCol - 1].ProcessKbn == (int)ColumnProcessFlg.NUMBER)
+                                if (dataTypeConditionList[iCol - guessedTableNameColumnOffset].ProcessKbn == (int)ColumnProcessFlg.NUMBER)
                                 {
                                     lstRowData.Add(value2_copy[iRow, iCol].ToString());
                                 }
@@ -1129,9 +1246,9 @@
                                         //2019/09/25 日期型为主键时目前的逻辑会导致timestamp的值经过变化后得到的和原值不同导致insert/update的判断有误
                                         //如果日期字段为主键的话例外处理
                                         //if (dicShema[SCHEMA_IS_KEY][iCol - 1] != "*" && !string.IsNullOrEmpty(dataTypeConditionList[iCol - 1].UpdateFormatString))
-                                        if (!string.IsNullOrEmpty(dataTypeConditionList[iCol - 1].UpdateFormatString))
+                                        if (!string.IsNullOrEmpty(dataTypeConditionList[iCol - guessedTableNameColumnOffset].UpdateFormatString))
                                         {
-                                            string updateFormatString = dataTypeConditionList[iCol - 1].UpdateFormatString;
+                                            string updateFormatString = dataTypeConditionList[iCol - guessedTableNameColumnOffset].UpdateFormatString;
                                             
                                             if (Regex.Match(cellString, "^[0-9]{4}").Success)
                                             {
@@ -1197,9 +1314,9 @@
 
                             try
                             {
-                                string dropTableSql = string.Format("DROP TABLE {0};", strTableName);
+                                string dropTableSql = string.Format("DROP TABLE {0};", guessedTableName);
                                 //缓存数据库操作
-                                workArea[strTableName].DropTableSql = dropTableSql;
+                                workArea[guessedTableName].DropTableSql = dropTableSql;
                             }
                             catch (Exception ex)
                             {
@@ -1228,9 +1345,9 @@
                                     innerSql += ",";
                                 }
                             }
-                            string createTableSql = string.Format("CREATE  TABLE {0} ({1});", strTableName, innerSql);
+                            string createTableSql = string.Format("CREATE  TABLE {0} ({1});", guessedTableName, innerSql);
                             //缓存数据库操作
-                            workArea[strTableName].CreateTableSql = createTableSql;
+                            workArea[guessedTableName].CreateTableSql = createTableSql;
 
                         }
                         #endregion 表创建
@@ -1238,8 +1355,8 @@
                         {
                             if (lstRowData.Where(o => o != null).ToList().Count == 0) continue;
                             //没有主键的表不做处理
-                            if(orgDataSet.Tables[strTableName].PrimaryKey.Count() > 0 )
-                                orgDataSet.Tables[strTableName].Rows.Add(lstRowData.Take(dicShema[SCHEMA_COLUMN_NAME].Count).ToArray());
+                            if(orgDataSet.Tables[guessedTableName].PrimaryKey.Count() > 0 )
+                                orgDataSet.Tables[guessedTableName].Rows.Add(lstRowData.Take(dicShema[SCHEMA_COLUMN_NAME].Count).ToArray());
                         }
                         else
                         {
@@ -1249,7 +1366,7 @@
                             //可以一个表的数据缓存之后通过一个结合检索一次性的得到这个结果，问题是数据大的时候需要分割SQL文否则容易过大不能执行
                             if (lstRowData.Where(o => o != "null").ToList().Count == 0) continue;
                             //缓存数据库操作
-                            workArea[strTableName].Rows.Add(new KeyValuePair<int, List<string>>(iRow, lstRowData));
+                            workArea[guessedTableName].Rows.Add(new KeyValuePair<int, List<string>>(iRow, lstRowData));
                         }
                     }
                 }
@@ -1660,13 +1777,9 @@
                     //表头处理
                     for (int idx = 0; idx < table.Columns.Count; idx++)
                     {
-                        value2_copy[iTotalRow, idx + 1] = (from dataColumn in table.PrimaryKey where dataColumn.ColumnName == table.Columns[idx].ColumnName select dataColumn).FirstOrDefault()!=null?"*":"";
-                        value2_copy[iTotalRow+1, idx + 1] = table.Columns[idx].ColumnName;
+                        //value2_copy[iTotalRow, idx + 1] = (from dataColumn in table.PrimaryKey where dataColumn.ColumnName == table.Columns[idx].ColumnName select dataColumn).FirstOrDefault()!=null?"*":"";
+                        value2_copy[iTotalRow, idx + 1] = table.Columns[idx].ColumnName;
                     }
-                    iTotalRow++;
-                    iTotalRow++;
-                    iTotalRow++;
-                    iTotalRow++;
                     iTotalRow++;
 
 
@@ -1759,7 +1872,7 @@
                     }
                     //Table属性定义行区域颜色定制
                     selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
-                        targetSheet.Cells(sartRow + schemaList.GetLength(0) - 1, value2_copy.GetLength(1) + startCol - 2));
+                        targetSheet.Cells(sartRow, value2_copy.GetLength(1) + startCol - 2));
                     selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
                     selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent5;
                     //Data拷贝到指定区域
@@ -2757,4 +2870,6 @@
             }
         }
     }
+
+
 }

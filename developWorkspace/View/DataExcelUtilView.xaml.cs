@@ -768,13 +768,9 @@ namespace DevelopWorkspace.Main.View
                                         ColumnType = rdr[dataTypeNameKey].ToString().ToLower(),
                                         //2019/08/31
                                         parent = currenttable,
-                                        Schemas = new List<string>() {
-                                                                            string.IsNullOrEmpty(rdr[iskeyKey].ToString())?"":"*",
-                                                                            rdr[columnNameKey].ToString(),
-                                                                            rdr[remarkKey].ToString(),
-                                                                            rdr[dataTypeNameKey].ToString().ToLower(),
-                                                                            rdr[dataLengthKey].ToString()
-                                                                       }
+                                        IsKey = string.IsNullOrEmpty(rdr[iskeyKey].ToString())?"":"*",
+                                        ColumnRemark = rdr[remarkKey].ToString(),
+                                        ColumnSize = rdr[dataLengthKey].ToString(),
                                     };
                                     columnInfo.dataTypeCondtion = xlApp.GetDataTypeCondition(rdr[dataTypeNameKey].ToString().ToLower());
                                     columns.Add(columnInfo);
@@ -809,7 +805,7 @@ namespace DevelopWorkspace.Main.View
                                 var remarkList = from columnInfo in allColumns join projectKeyword in projectKeywordsList on columnInfo.ColumnName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { columnInfo, projectKeyword.ProjectKeywordRemark };
                                 foreach (var remark in remarkList)
                                 {
-                                    remark.columnInfo.Schemas[2] = remark.ProjectKeywordRemark;
+                                    remark.columnInfo.ColumnRemark = remark.ProjectKeywordRemark;
                                 }
                             }
                         }
@@ -954,17 +950,17 @@ namespace DevelopWorkspace.Main.View
                             if (keyword == XlApp.SCHEMA_REMARK)
                             {
                                 String columnName = row[XlApp.SCHEMA_COLUMN_NAME].ToString().ToUpper();
-                                columnInfo.Schemas.Add(columnName.GetLogicalName());
+                                columnInfo.ColumnRemark = columnName.GetLogicalName();
                             }
                             else if (keyword == XlApp.SCHEMA_IS_KEY)
                             {
                                 if ("True".Equals(row[keyword].ToString()))
                                 {
-                                    columnInfo.Schemas.Add("*");
+                                    columnInfo.IsKey = "*";
                                 }
                                 else
                                 {
-                                    columnInfo.Schemas.Add("");
+                                    columnInfo.IsKey = "";
 
                                 }
                             }
@@ -988,14 +984,8 @@ namespace DevelopWorkspace.Main.View
                                 }
                                 columnInfo.ColumnType = dataTypeName.ToLower();
                                 columnInfo.dataTypeCondtion = xlApp.GetDataTypeCondition(dataTypeName);
-                                columnInfo.Schemas.Add(dataTypeName.ToLower());
                             }
-                            else
-                            {
-                                columnInfo.Schemas.Add(row[keyword].ToString());
-                            }
-                        }
-                        );
+                        });
                         columns.Add(columnInfo);
                     }
 
@@ -1016,7 +1006,7 @@ namespace DevelopWorkspace.Main.View
                 var remarkList = from columnInfo in columns join projectKeyword in projectKeywordsList on columnInfo.ColumnName.ToLower() equals projectKeyword.ProjectKeywordName.ToLower() select new { columnInfo, projectKeyword.ProjectKeywordRemark };
                 foreach (var remark in remarkList)
                 {
-                    remark.columnInfo.Schemas[2] = remark.ProjectKeywordRemark;
+                    remark.columnInfo.ColumnRemark = remark.ProjectKeywordRemark;
                 }
             }
             return columns;
@@ -1087,7 +1077,7 @@ namespace DevelopWorkspace.Main.View
                         {
                             e.Accepted = false;
                         }
-                        if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.Schemas[2].ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0 select column).FirstOrDefault())
+                        if (!e.Accepted && null != (from column in (e.Item as TableInfo).Columns where column.ColumnRemark.ToLower().IndexOf(tableRemarkFilterString.ToLower()) >= 0 select column).FirstOrDefault())
                         {
                             e.Accepted = true;
                         }
@@ -1197,9 +1187,9 @@ namespace DevelopWorkspace.Main.View
                 
                 if (ci.IsIncluded)
                 {
-                    codeString += "\t" + "\t" + ci.Schemas.GetRange(1,ci.Schemas.Count() -1 ).Aggregate((x, y) => x + "\t" + y);
-                    codeString += "\t" + getCameralVariableString(ci.Schemas[1]) + "\t" + getCameralPropertyString(ci.Schemas[1]);
-                    keyMark = ("*" == ci.Schemas[0]) ? "○" : "";
+                    codeString += "\t" + "\t" + (new List<string> { ci.IsKey,ci.ColumnName,ci.ColumnRemark,ci.ColumnType,ci.ColumnSize}).Aggregate((x, y) => x + "\t" + y);
+                    codeString += "\t" + getCameralVariableString(ci.ColumnName) + "\t" + getCameralPropertyString(ci.ColumnName);
+                    keyMark = ("*" == ci.IsKey) ? "○" : "";
                     codeString += "\t" + keyMark + "\t" + "○" + "\t" + keyMark + "\n";
                 }
             });

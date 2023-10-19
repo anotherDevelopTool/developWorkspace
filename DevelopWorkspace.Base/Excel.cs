@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DevelopWorkspace.Base
@@ -105,7 +106,39 @@ namespace DevelopWorkspace.Base
         public List<KeyValuePair<int, List<string>>> Rows = new List<KeyValuePair<int, List<string>>>();
 
     }
+    public class ExcelRangeAbsolutePostion
+    {
+        public int FirstColumnNumber { set; get; }
+        public int LastColumnNumber { set; get; }
+        public int FirstRowNumber { set; get; }
+        public int LastRowNumber { set; get; }
+    }
 
+    public class ExcelColumnConverter
+    {
+        // $B$6:$BS$39
+        public static ExcelRangeAbsolutePostion getUsedRangeAbsolutePostion(string address)
+        {
+            string pattern = @"\$(?<left>[A-Z]+)\$(?<top>\d+):\$(?<right>[A-Z]+)\$(?<bottom>\d+)";
+            Match match = Regex.Match(address, pattern, RegexOptions.IgnoreCase);
+            var left = match.Groups["left"].Value;
+            var top = match.Groups["top"].Value;
+            var right = match.Groups["right"].Value;
+            var bottom = match.Groups["bottom"].Value;
+
+            return new ExcelRangeAbsolutePostion { FirstColumnNumber = GetColumnNumberFromName(left), FirstRowNumber = Convert.ToInt32(top), LastColumnNumber = GetColumnNumberFromName(right), LastRowNumber = Convert.ToInt32(bottom) };
+        }
+        public static int GetColumnNumberFromName(string columnName)
+        {
+            int result = 0;
+            for (int i = 0; i < columnName.Length; i++)
+            {
+                result *= 26;
+                result += columnName[i] - 'A' + 1;
+            }
+            return result;
+        }
+    }
     public class Excel
     {
         private const int SW_SHOWNORMAL = 1;
