@@ -3,7 +3,7 @@
   "withRemark": true,
   "plainFormatMode": false,
   "plainFormatRoundupSize": 10000,
-  "maxRecordCount": 100,
+  "maxRecordCount": 1000,
   "doRealCount": false,
   "sqlOnly": false,
   "sqlRoundupSize": 100,

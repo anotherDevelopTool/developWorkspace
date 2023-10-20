@@ -105,6 +105,16 @@ namespace DevelopWorkspace.Main
             public int maxRecordCount { get; set; }
             [Category(@"database aquire...")]
             public bool doRealCount { get; set; }
+
+            [Category(@"database aquire...")]
+            public bool headerPrimaryKey { get; set; }
+            [Category(@"database aquire...")]
+            public bool headerRemark { get; set; }
+            [Category(@"database aquire...")]
+            public bool headerDataSize { get; set; }
+            [Category(@"database aquire...")]
+            public bool headerDataType { get; set; }
+
             [Category(@"database apply...")]
             public bool sqlOnly { get; set; }
             [Category(@"database apply...")]
@@ -137,7 +147,7 @@ namespace DevelopWorkspace.Main
             {
                 plainFormatMode = false;
                 plainFormatRoundupSize = 10000;
-                maxRecordCount = 10000;
+                maxRecordCount = 1000;
                 doRealCount = false;
                 backgroundWorkerMode = false;
                 sqlOnly = false;
@@ -162,6 +172,10 @@ namespace DevelopWorkspace.Main
                 exceptZeroDiffRowTable = false;
                 exceptUnchangedRow = false;
                 applyFormatConditionForDiffResult = false;
+                headerPrimaryKey = false;
+                headerRemark = false;
+                headerDataSize = false;
+                headerDataType = false;
                 favoriteSelectClause = new List<selectClause>
                 {
 

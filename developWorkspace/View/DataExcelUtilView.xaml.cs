@@ -985,6 +985,10 @@ namespace DevelopWorkspace.Main.View
                                 columnInfo.ColumnType = dataTypeName.ToLower();
                                 columnInfo.dataTypeCondtion = xlApp.GetDataTypeCondition(dataTypeName);
                             }
+                            else
+                            {
+                                columnInfo.ColumnSize = row[keyword].ToString();
+                            }
                         });
                         columns.Add(columnInfo);
                     }
@@ -995,7 +999,7 @@ namespace DevelopWorkspace.Main.View
             catch (Exception ex)
             {
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
-                throw new Exception($"can't aquire schema infomation from {tableName}");
+                throw new Exception($"failed to aquire schema information from table:{tableName}");
             }
             finally {
                 nestedConn.Close();
@@ -1409,7 +1413,7 @@ namespace DevelopWorkspace.Main.View
                             }
                             if (diffDataSet.Tables.Count == 0)
                             {
-                                DevelopWorkspace.Base.Logger.WriteLine("Diff Result:no any difference between active sheet and DB", Base.Level.WARNING);
+                                DevelopWorkspace.Base.Logger.WriteLine("the comparison result indicates that there are no differences between the active sheet and the database.", Base.Level.WARNING);
                             }
                             else
                             {
@@ -1418,7 +1422,7 @@ namespace DevelopWorkspace.Main.View
                         }
                         else
                         {
-                            DevelopWorkspace.Base.Logger.WriteLine("Please compare active data with same schema of database", Base.Level.WARNING);
+                            DevelopWorkspace.Base.Logger.WriteLine("Please compare the data from the active sheet with the database, ensuring that both have the same schema.", Base.Level.WARNING);
                         }
 
                     }));

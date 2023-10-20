@@ -477,16 +477,33 @@
         {
             get
             {
+                // 为了不对全局影响过大，这块的接口保持不变（影响不外溢），整体上需要可读性优化
                 List<List<string>> exportSchemaRegion = new List<List<string>>();
-
                 Func<ColumnInfo,string> getIsKey = (ColumnInfo ci) => ci.IsKey ;
                 Func<ColumnInfo, string> getColumnName = (ColumnInfo ci) => ci.ColumnName;
                 Func<ColumnInfo, string> getColumnRemark = (ColumnInfo ci) => ci.ColumnRemark;
                 Func<ColumnInfo, string> getColomnType = (ColumnInfo ci) => ci.ColumnType;
                 Func<ColumnInfo, string> getColomnSize = (ColumnInfo ci) => ci.ColumnSize;
 
-                List<Func<ColumnInfo, string>> Schemas = new List<Func<ColumnInfo, string>> { getIsKey, getColumnRemark, getColumnName, getColomnSize, getColomnType };
-
+                List<Func<ColumnInfo, string>> Schemas = new List<Func<ColumnInfo, string>>();
+                if (AppConfig.DatabaseConfig.This.headerPrimaryKey) {
+                    Schemas.Add(getIsKey);
+                }
+                if (AppConfig.DatabaseConfig.This.headerRemark)
+                {
+                    Schemas.Add(getColumnRemark);
+                }
+                Schemas.Add(getColumnName);
+                //因为无法预测ColomnSize时数据还是Schema的Size，所以不能单独控制，必须和DataType同时输出或被抑制
+                //if (AppConfig.DatabaseConfig.This.headerDataSize)
+                //{
+                //    Schemas.Add(getColomnSize);
+                //}
+                if (AppConfig.DatabaseConfig.This.headerDataType)
+                {
+                    Schemas.Add(getColomnSize);
+                    Schemas.Add(getColomnType);
+                }
                 for (int iSchemaIdx = 0; iSchemaIdx < Schemas.Count; iSchemaIdx++)
                 {
                     List<string> exportSchemaRow = new List<string>();
@@ -860,23 +877,19 @@
                 excel = Excel.GetLatestActiveExcelRef();
                 if (excel == null)
                 {
-                    DevelopWorkspace.Base.Logger.WriteLine("open workbook which own a active sheet with same format as exported one,then try again",Level.WARNING);
+                    DevelopWorkspace.Base.Logger.WriteLine("please open the workbook that contains an active sheet with the same format as the exported one, and then try again.", Level.WARNING);
                     return orgDataSet;
                 }
                 var targetSheet = excel.ActiveWorkbook.ActiveSheet;
                 if (targetSheet.UsedRange.Rows.Count < 7)
                 {
-                    DevelopWorkspace.Base.Logger.WriteLine("open workbook which own a active sheet with same format as exported one,then try again", Level.WARNING);
+                    DevelopWorkspace.Base.Logger.WriteLine("please open the workbook that contains an active sheet with the same format as the exported one, and then try again.", Level.WARNING);
                     return new DataSet();
                 }
 
                 Dictionary<string, DbApplyWork> workArea = new Dictionary<string, DbApplyWork>();
 
-                if (processType == eProcessType.DB_APPLY || processType == eProcessType.SQL_ONLY)
-                {
-                    dbTran = cmd.Connection.BeginTransaction();
-                    DevelopWorkspace.Base.Logger.WriteLine("database transaction begin...",Level.DEBUG);
-                }
+
                 #region 从EXCEL搜集更新数据并缓存它为后续更新数据使用
                 // 下面的方法不能准确的算出有效数据的范围，改用通过Address字符串手动计算 thank to ChatGPTs response
                 //object[,] value2_copy = targetSheet.Range(targetSheet.Cells(START_ROW, START_COL),
@@ -1024,7 +1037,7 @@
                             //如果没有找到SCHEMA_COLUMN_NAME，那么处理终了
                             if (guessSCHEMA_COLUMN_NAME_row == 0)
                             {
-                                throw new Exception($"failed to find the SCHEMA_COLUMN_NAME's row data of {guessedTableName}");
+                                throw new Exception($"failed to find the columnname's defination about tablename: {guessedTableName}");
                             }
                             //查找是否是ColumnType行
                             for (int iGuessRow = guessSCHEMA_COLUMN_NAME_row + 1; iGuessRow < Math.Min(guessStart_row + 5, value2_copy.GetLength(0)); iGuessRow++)
@@ -1091,7 +1104,7 @@
                             //2019/03/11
                             //如果SCHEMA_COLUMN_NAME和SCHEMA_DATATYPE_NAME的长度不一致说明表的属性存在问题，处理终了
                             if (dicShema[SCHEMA_COLUMN_NAME].Count == 0 || dicShema[SCHEMA_COLUMN_NAME].Count != dicShema[SCHEMA_DATATYPE_NAME].Count) {
-                                throw new Exception($"there are inconsistency with columnName and dataTypeName of {guessedTableName}");
+                                throw new Exception($"there are inconsistency with columnname's def and datatype's def about tablename: {guessedTableName}");
                             }
                             //缓存数据库操作
                             workArea[guessedTableName].Schemas = dicShema;
@@ -1377,6 +1390,9 @@
                 }
                 #endregion
 
+                dbTran = cmd.Connection.BeginTransaction();
+                DevelopWorkspace.Base.Logger.WriteLine("database transaction begin...", Level.DEBUG);
+
                 //缓存数据库操作
                 //Postsql的时候需要 text类型提示 oracle的时候需要from dual对应
                 //逻辑的组织尽量使用LINQ以缩短代码（使用描述性编程以求达到可维护性）
@@ -1388,6 +1404,7 @@
                     //显示处理进度
                     iProcessCnt++;
                     Base.Services.BusyWorkIndicatorService(string.Format("{0}/{1}:{2}", iProcessCnt, workArea.Keys.Count, tableKEY));
+                    DevelopWorkspace.Base.Logger.WriteLine(string.Format("{0}/{1}:{2}", iProcessCnt, workArea.Keys.Count, tableKEY), Level.DEBUG);
 
                     //2022/3/11 表没有数据的时候也需要有提供清除数据的机会
                     //如果不设定下面这个模式会导致即使字段过长会自动截断而不抛出错误
@@ -1665,15 +1682,15 @@
                         }
                     }
                 }
-                dbTran.Commit();
-                DevelopWorkspace.Base.Logger.WriteLine("database committed",Level.INFO);
 
+                dbTran.Commit();
+                DevelopWorkspace.Base.Logger.WriteLine("database committed", Level.INFO);
             }
             catch (Exception ex)
             {
                 //DevelopWorkspace.Base.Services.ErrorMessage(ex.Message);
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
-                DevelopWorkspace.Base.Logger.WriteLine(string.Format("there are some problem at {0} row {1} column in Activesheet", iRow - iRewindRow, iCol), Base.Level.ERROR);
+                DevelopWorkspace.Base.Logger.WriteLine(string.Format("there are some problem at row:{0} column:{1} in activesheet.fix it, and then try again.", iRow - iRewindRow, iCol), Base.Level.ERROR);
                 if (dbTran != null)
                 {
                     dbTran.Rollback();
@@ -1992,16 +2009,18 @@
 
                             //Table属性定义行区域颜色定制
                             selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
-                                targetSheet.Cells(sartRow + schemaList.GetLength(0) - 1, value2_copy.GetLength(1) + startCol - 1));
+                                targetSheet.Cells(sartRow + tableInfo.ExportSchemaRegion.Count - 1, value2_copy.GetLength(1) + startCol - 1));
                             selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
                             //selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent5;
                             selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(tableInfo.ExcelSchemaHeaderThemeColor);
 
+                            DrawTableSchemaConditionFormat(selected, tableInfo, sartRow);
+
                             //通过SQL文做成数据时第一行为dummy数据，用于提示用户
                             if (tableInfo.WhereCondition != null)
                             {
-                                selected = targetSheet.Range(targetSheet.Cells(sartRow + schemaList.GetLength(0), startCol),
-                                    targetSheet.Cells(sartRow + schemaList.GetLength(0), value2_copy.GetLength(1) + startCol - 1));
+                                selected = targetSheet.Range(targetSheet.Cells(sartRow + tableInfo.ExportSchemaRegion.Count, startCol),
+                                    targetSheet.Cells(sartRow + tableInfo.ExportSchemaRegion.Count, value2_copy.GetLength(1) + startCol - 1));
                                 selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
                                 selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent2;
                             }
@@ -2223,6 +2242,52 @@
 
             interior = fc.Interior;
             interior.Color = System.Drawing.ColorTranslator.ToOle(Color.Azure);
+            fc.StopIfTrue = false;
+            /////
+
+            interior = null;
+            fc = null;
+            fcs = null;
+        }
+
+        static void DrawTableSchemaConditionFormat(Range rangeFormat, TableInfo tableinfo, int startRow)
+        {
+            var fcs = rangeFormat.FormatConditions;
+            //	var fc = fcs.Add
+            //	    (Excel.XlFormatConditionType.xlExpression, Type.Missing, "=IF($F$1) >= 10", Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+
+            //var keyConditionString = (from column in tableinfo.Columns where column.IsKey.Equals("*") select column.ColumnName).Aggregate((total, next) => total + "," + $"B{startRow}=" + '"' + next + '"');
+            var keyList = (from column in tableinfo.Columns where column.IsKey.Equals("*") select column.ColumnName);
+            string keyConditionString = "";
+            foreach (string key in keyList) {
+                if (string.IsNullOrEmpty(keyConditionString))
+                {
+                    keyConditionString += $"B{startRow}=" + '"' + key + '"';
+                }
+                else {
+                    keyConditionString += "," + $"B{startRow}=" + '"' + key + '"';
+                }
+            }
+            var fc = (Microsoft.Office.Interop.Excel.FormatCondition)fcs.Add(
+                Type: Microsoft.Office.Interop.Excel.XlFormatConditionType.xlExpression,
+                Formula1: $"=OR(" + keyConditionString + ")"
+            );
+
+            var interior = fc.Interior;
+            fc.Font.Color = System.Drawing.ColorTranslator.ToOle(Color.Red);
+            //fc.Font.Bold = true;
+
+            // Set the line color of the format condition
+            //Microsoft.Office.Interop.Excel.Borders borders = fc.Borders;
+            //Microsoft.Office.Interop.Excel.Border border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeTop];
+            //border.Color = System.Drawing.Color.Red; // Set the line color to red
+            //border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom];
+            //border.Color = System.Drawing.Color.Red; // Set the line color to red
+            //border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeLeft];
+            //border.Color = System.Drawing.Color.Red; // Set the line color to red
+            //border = borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight];
+            //border.Color = System.Drawing.Color.Red; // Set the line color to red
+
             fc.StopIfTrue = false;
             /////
 
