@@ -188,7 +188,7 @@ namespace DevelopWorkspace.Main.View
         int currentQueryIdx = 0;
         bool isDbReady = false;
         System.Threading.Timer timer = null;
-        Func<string> customSQLString = null;
+        Func<string> getCustomSQLString = null;
         List<CustSelectSqlView> custSelectSqlViewList = new List<CustSelectSqlView> { };
         public DataExcelUtilView()
         {
@@ -1234,15 +1234,15 @@ namespace DevelopWorkspace.Main.View
             IEnumerable<TableInfo> selected;
             //todo 根据自定义抽取SQL文抽取数据 
             //customSQLString = "";
-            if (customSQLString == null)
+            if (getCustomSQLString == null)
             {
                 selected = from ti in tableList where ti.Selected == true select ti;
                 if (selected.Count() == 0) return;
                 selectedList = selected.ToArray();
             }
             else {
-                if (customSQLString().Trim().Length == 0) return;
-                List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLString().Trim());
+                if (getCustomSQLString().Trim().Length == 0) return;
+                List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(getCustomSQLString().Trim());
                 if (custTableList.Count() == 0) return;
                 selected = custTableList;
                 selectedList = custTableList.ToArray();
@@ -1322,8 +1322,15 @@ namespace DevelopWorkspace.Main.View
                 {
                     Base.Services.SimpleAroundCallService(this, "apply", cmbSavedDatabases.SelectedItem, new Action(() => {
                         xlApp.DbConnection.Open();
+                        List<string> updateCommandList = null;
+                        //todo 有时间优化一下，代码可读性
+                        if (getCustomSQLString != null)
+                        {
+                            if (getCustomSQLString().Trim().Length == 0) return;
+                            updateCommandList = getUpdateOrDeleteSqlAccordingCustomSQL(getCustomSQLString().Trim());
+                        }
                         Services.executeWithBackgroundAction(() => {
-                            xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY);
+                            xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY, updateCommandList);
 
                         });
                     }));
@@ -1351,7 +1358,7 @@ namespace DevelopWorkspace.Main.View
                         xlApp.DbConnection.Open();
 
                         //根据sheet的内容做出基础dataset
-                        DataSet diffDataSet = xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DIFF_USE);
+                        DataSet diffDataSet = xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DIFF_USE, null);
                         if (diffDataSet == null) return;
 
                         //2019/03/15
@@ -1368,15 +1375,15 @@ namespace DevelopWorkspace.Main.View
                         IEnumerable<TableInfo> selected;
                         //todo 根据自定义抽取SQL文抽取数据 
                         //customSQLString = "";
-                        if (customSQLString == null)
+                        if (getCustomSQLString == null)
                         {
                             selected = from ti in tableList join tablename in tableNameList on ti.TableName equals tablename select ti;
                             selectedList = selected.ToArray();
                         }
                         else
                         {
-                            if (customSQLString().Trim().Length == 0) return;
-                            List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(customSQLString().Trim());
+                            if (getCustomSQLString().Trim().Length == 0) return;
+                            List<TableInfo> custTableList = getTableInfoAccordingCustomSQL(getCustomSQLString().Trim());
                             if (custTableList.Count() == 0) return;
                             selected = custTableList;
                             selectedList = custTableList.ToArray();
@@ -1445,7 +1452,7 @@ namespace DevelopWorkspace.Main.View
 
             string settingContext = "";
             List<string> skipCommentList = new List<string>();
-            List<string> sqlcommandList = new List<string>();
+            List<string> selectCommandList = new List<string>();
 
             string onerow;
             using (StringReader reader = new StringReader(CustomSelectSQL))
@@ -1462,14 +1469,21 @@ namespace DevelopWorkspace.Main.View
             }
             CustomSelectSQL = string.Join("\n", skipCommentList);
 
-            MatchCollection matches = Regex.Matches(CustomSelectSQL, @"^\bselect\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            MatchCollection matches = Regex.Matches(CustomSelectSQL, @"^\b(?<command>select|update|delete)\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
             if (matches.Count > 0)
             {
                 for (int idx = 0; idx < matches.Count; idx++)
                 {
                     if (idx == 0) settingContext = CustomSelectSQL.Substring(0, matches[idx].Index);
-                    if (idx < matches.Count - 1) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " "));
-                    if (idx == (matches.Count - 1)) sqlcommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
+                    if (idx < matches.Count - 1) {
+                        if( matches[idx].Groups["command"].Value.ToLower().Equals("select") )
+                            selectCommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " ")); 
+                    }
+                    if (idx == (matches.Count - 1))
+                    {
+                        if (matches[idx].Groups["command"].Value.ToLower().Equals("select"))
+                            selectCommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
+                    }
                 }
             }
             Dictionary<string, string> variableMap = new Dictionary<string, string>();
@@ -1499,7 +1513,7 @@ namespace DevelopWorkspace.Main.View
                     }
                 }
             }
-            foreach (string sqlcommand in sqlcommandList)
+            foreach (string sqlcommand in selectCommandList)
             {
                 Match singleSqlMatch = Regex.Match(sqlcommand, @"\bfrom\s+(?<schemaname>[A-Za-z0-9_-]+\.)?(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)", RegexOptions.IgnoreCase);
                 if (singleSqlMatch.Success)
@@ -1575,7 +1589,161 @@ namespace DevelopWorkspace.Main.View
                     }
                 }
             }
+            //这里提供Apply按钮按下时清除数据库的处理（和Schema的DataGrid的Where列类似）
             return custTableList;
+        }
+        private List<String> getUpdateOrDeleteSqlAccordingCustomSQL(string CustomSelectSQL)
+        {
+            string settingContext = "";
+            List<string> skipCommentList = new List<string>();
+            List<string> updateCommandList = new List<string>();
+
+            string onerow;
+            using (StringReader reader = new StringReader(CustomSelectSQL))
+            {
+                while ((onerow = reader.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(onerow, @"^\s*--", RegexOptions.IgnoreCase))
+                    {
+                    }
+                    else
+                    {
+                        skipCommentList.Add(onerow);
+                    }
+                }
+            }
+            CustomSelectSQL = string.Join("\n", skipCommentList);
+
+            MatchCollection matches = Regex.Matches(CustomSelectSQL, @"^\b(?<command>select|update|delete)\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            if (matches.Count > 0)
+            {
+                for (int idx = 0; idx < matches.Count; idx++)
+                {
+                    if (idx == 0) settingContext = CustomSelectSQL.Substring(0, matches[idx].Index);
+                    if (idx < matches.Count - 1)
+                    {
+                        if (!matches[idx].Groups["command"].Value.ToLower().Equals("select"))
+                            updateCommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " "));
+                    }
+                    if (idx == (matches.Count - 1))
+                    {
+                        if (!matches[idx].Groups["command"].Value.ToLower().Equals("select"))
+                            updateCommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index), "\r?\n", " "));
+                    }
+                }
+            }
+            Dictionary<string, string> variableMap = new Dictionary<string, string>();
+            // 值设定上下文存在的时候解析
+            if (!string.IsNullOrWhiteSpace(settingContext.Trim()))
+            {
+                string line;
+                using (StringReader reader = new StringReader(settingContext))
+                {
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        matches = Regex.Matches(line, @"(?<columnName>[',A-Za-z0-9_-]+)", RegexOptions.IgnoreCase);
+                        if (matches.Count > 1)
+                        {
+                            // 最后一个默认为是值
+                            string columnValue = matches[matches.Count - 1].Groups["columnName"].Value;
+                            for (int idx = 0; idx < matches.Count - 1; idx++)
+                            {
+                                string columnName = matches[idx].Groups["columnName"].Value;
+                                if (variableMap.ContainsKey(columnName))
+                                {
+                                    variableMap[columnName] = columnValue;
+                                }
+                                else
+                                    variableMap.Add(columnName, columnValue);
+                            }
+                        }
+                    }
+                }
+            }
+            //这里提供Apply按钮按下时清除数据库的处理（和Schema的DataGrid的Where列类似）
+            List<string> rewrittenUpdateCommandList = new List<string>();
+            foreach (string rawUpdateCommand in updateCommandList)
+            {
+                string rewrittenUpdateCommand = rawUpdateCommand;
+                // 尝试替换值
+                if (variableMap.Count > 0)
+                {
+                    rewrittenUpdateCommand = Regex.Replace(rewrittenUpdateCommand, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(=|<>|>|<|between\b){1,}\s*)(?<columnValue>([0-9]+|'[^']*'))\s?", match =>
+                    {
+                        string columnName = match.Groups["columnName"].Value;
+                        string columnValue = match.Groups["columnValue"].Value;
+                        if (variableMap.ContainsKey(columnName))
+                        {
+
+                            return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + " ";
+                        }
+                        return match.Groups[0].Value;
+                    }, RegexOptions.IgnoreCase);
+                    // todo 置换：in ( value1,valuie2 ) pattern如果出现嵌套的情况可能会导致死循环
+                    // 文字的情况
+                    rewrittenUpdateCommand = Regex.Replace(rewrittenUpdateCommand, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>('[',A-Za-z0-9_-]+\s*){1,}\))", match =>
+                    {
+                        string columnName = match.Groups["columnName"].Value;
+                        string columnValue = match.Groups["columnValue"].Value;
+                        if (variableMap.ContainsKey(columnName))
+                        {
+                            return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
+                        }
+                        return match.Groups[0].Value;
+                    }, RegexOptions.IgnoreCase);
+                    // 数字的情况
+                    rewrittenUpdateCommand = Regex.Replace(rewrittenUpdateCommand, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>([0-9,]+\s*){1,}\))", match =>
+                    {
+                        string columnName = match.Groups["columnName"].Value;
+                        string columnValue = match.Groups["columnValue"].Value;
+                        if (variableMap.ContainsKey(columnName))
+                        {
+                            return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
+                        }
+                        return match.Groups[0].Value;
+                    }, RegexOptions.IgnoreCase);
+                }
+                // 表的Schema调整
+                rewrittenUpdateCommandList.Add(getRewrittenSqlWithSchemaEncode(rewrittenUpdateCommand, this.xlApp.SchemaName));
+            }
+            return rewrittenUpdateCommandList;
+        }
+        private string getRewrittenSqlWithSchemaEncode(string rawUpdateOrDeleteClause,string SchemaName) {
+            string rewrittenWhereOrDeleteClause = "";
+            if (string.IsNullOrWhiteSpace(SchemaName))
+            {
+                rewrittenWhereOrDeleteClause = rawUpdateOrDeleteClause;
+            }
+            else
+            {
+                string pattern = @"\b(?<opeName>join|from)\s+(?<schemaname>[A-Za-z0-9_-]+\.)?(?<tablename>[A-Za-z0-9_-]+)\b";
+                MatchCollection matches = Regex.Matches(rawUpdateOrDeleteClause, pattern, RegexOptions.IgnoreCase);
+                int cursor = 0;
+                if (matches.Count > 0)
+                {
+                    for (int idx = 0; idx < matches.Count; idx++)
+                    {
+                        rewrittenWhereOrDeleteClause += rawUpdateOrDeleteClause.Substring(cursor, matches[idx].Index - cursor);
+                        // 如果SQL内没有定义Schema那么使用系统设定的Schema否则不进行替换
+                        if (string.IsNullOrWhiteSpace(matches[idx].Groups["schemaname"].Value))
+                        {
+                            rewrittenWhereOrDeleteClause += matches[idx].Groups["opeName"].Value + " " + SchemaName + "." + matches[idx].Groups["tablename"].Value + " " + matches[idx].Groups["tablename"].Value + " ";
+                        }
+                        else
+                        {
+                            rewrittenWhereOrDeleteClause += matches[idx].Value + " ";
+                        }
+                        cursor = matches[idx].Index + matches[idx].Length;
+                    }
+                    // last one?
+                    rewrittenWhereOrDeleteClause += rawUpdateOrDeleteClause.Substring(cursor, rawUpdateOrDeleteClause.Length - cursor);
+                }
+                else
+                {
+                    rewrittenWhereOrDeleteClause = rawUpdateOrDeleteClause;
+                }
+            }
+            return rewrittenWhereOrDeleteClause;
         }
         private void cmbSavedDatabases_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -1918,7 +2086,7 @@ namespace DevelopWorkspace.Main.View
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 2;
                     if (tc.SelectedIndex == 0)
                     {
-                        customSQLString = null;
+                        getCustomSQLString = null;
                         // 恢复现场
                         foreach (TableInfo tableinfo in tableList)
                         {
@@ -1926,7 +2094,7 @@ namespace DevelopWorkspace.Main.View
                         }
                     }
                     else
-                        customSQLString = () => custSelectSqlViewList[tc.SelectedIndex - 2].SqlStatementText.Text;
+                        getCustomSQLString = () => custSelectSqlViewList[tc.SelectedIndex - 2].SqlStatementText.Text;
                 }
                 else
                     ribbon.SelectedTabIndex = ribbon.Tabs.Count - 1;

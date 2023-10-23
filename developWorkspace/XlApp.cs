@@ -715,6 +715,8 @@
                 _schemaList = value;
             }
         }
+
+
         //2019/03/08 抛弃.net数据类型，严格按照数据库本身类型来处理数据
         DataTypeCondition defaultDataTypeCondition = new DataTypeCondition()
         {
@@ -857,7 +859,7 @@
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="bDbCreate">对目标DB进行表DROP及CREATE，INSERT数据的操作，否则只进行INSERT数据</param>
-        public DataSet DoAccordingActivedSheet(Provider provider, string schemaName,List<TableInfo> tableList, DbCommand cmd, eProcessType processType, bool bDbCreate = false)
+        public DataSet DoAccordingActivedSheet(Provider provider, string schemaName,List<TableInfo> tableList, DbCommand cmd, eProcessType processType, List<string> initializeCommandList, bool bDbCreate = false)
         {
             //目前这个版本针对blob，clob类型没有做对应，将来是否有需要？只有到那时候才知道
             //http://stackoverflow.com/questions/5371222/getting-binary-data-using-sqldatareader
@@ -880,15 +882,9 @@
                     DevelopWorkspace.Base.Logger.WriteLine("please open the workbook that contains an active sheet with the same format as the exported one, and then try again.", Level.WARNING);
                     return orgDataSet;
                 }
+
                 var targetSheet = excel.ActiveWorkbook.ActiveSheet;
-                if (targetSheet.UsedRange.Rows.Count < 7)
-                {
-                    DevelopWorkspace.Base.Logger.WriteLine("please open the workbook that contains an active sheet with the same format as the exported one, and then try again.", Level.WARNING);
-                    return new DataSet();
-                }
-
                 Dictionary<string, DbApplyWork> workArea = new Dictionary<string, DbApplyWork>();
-
 
                 #region 从EXCEL搜集更新数据并缓存它为后续更新数据使用
                 // 下面的方法不能准确的算出有效数据的范围，改用通过Address字符串手动计算 thank to ChatGPTs response
@@ -940,8 +936,8 @@
                         //    if (value2_copy[iRow, iCol] != null)
                         //        bTableTokenHit = false;
                         //}
-                        //基于一个表的的字段不可能小于5列的假设
-                        for (iCol = 1; iCol < Math.Max(1,value2_copy.GetLength(1) - 5); iCol++)
+                        //基于一个表的的字段不可能小于3列的假设
+                        for (iCol = 1; iCol < Math.Max(1,value2_copy.GetLength(1) - 3); iCol++)
                         {
                             if (value2_copy[iRow, iCol] == null) continue;
                             guessedTableName = value2_copy[iRow, iCol].ToString().Trim();
@@ -1011,7 +1007,7 @@
                             {
                                 int hitCount = 0;
                                 //最大测试5列的范围
-                                for (iCol = guessedTableNameColumnOffset; iCol < Math.Min( guessedTableNameColumnOffset + 5 + 1, value2_copy.GetLength(1)); iCol++)
+                                for (iCol = guessedTableNameColumnOffset; iCol < Math.Min(Math.Min(guessedTableNameColumnOffset + 5 + 1,currentTableInfo.Columns.Count), value2_copy.GetLength(1)); iCol++)
                                 {
                                     if (value2_copy[iGuessRow, iCol] != null)
                                     {
@@ -1044,7 +1040,7 @@
                             {
                                 int hitCount = 0;
                                 //最大测试5列的范围
-                                for (iCol = guessedTableNameColumnOffset; iCol < Math.Min(guessedTableNameColumnOffset + 5 + 1, value2_copy.GetLength(1)); iCol++)
+                                for (iCol = guessedTableNameColumnOffset; iCol < Math.Min(Math.Min(guessedTableNameColumnOffset + 5 + 1, currentTableInfo.Columns.Count), value2_copy.GetLength(1)); iCol++)
                                 {
                                     if (value2_copy[iGuessRow, iCol] != null)
                                     {
@@ -1072,7 +1068,7 @@
                             {
                                 if (value2_copy[guessSCHEMA_COLUMN_NAME_row, iCol] != null)
                                 {
-                                    string columnNameValueString = value2_copy[guessSCHEMA_COLUMN_NAME_row, iCol].ToString();
+                                    string columnNameValueString = value2_copy[guessSCHEMA_COLUMN_NAME_row, iCol].ToString().ToLower();
                                     dicShema[SCHEMA_COLUMN_NAME].Add(columnNameValueString);
                                     var hitColumn = (from columninfo in currentTableInfo.Columns where columninfo.ColumnName.ToLower().Equals(columnNameValueString) select columninfo).FirstOrDefault();
                                     if (hitColumn != null)
@@ -1093,6 +1089,11 @@
                                         dicShema[SCHEMA_IS_KEY].Add("");
                                         dicShema[SCHEMA_COLUMN_SIZE].Add("");
                                     }
+                                }
+                                else
+                                {
+                                    //列名应该需要时连续的，如果中间出现空白Cell，则认为列名的定义结束
+                                    break;
                                 }
                                 if(guessSCHEMA_DATATYPE_NAME_row > 0)
                                 {
@@ -1390,9 +1391,27 @@
                 }
                 #endregion
 
+                // 如果没有找到表的信息的话
+                if (workArea.Count == 0)
+                {
+                    DevelopWorkspace.Base.Logger.WriteLine("please open the workbook that contains an active sheet with the same format as the exported one, and then try again.", Level.WARNING);
+                    return new DataSet();
+                }
+
+
                 dbTran = cmd.Connection.BeginTransaction();
                 DevelopWorkspace.Base.Logger.WriteLine("database transaction begin...", Level.DEBUG);
-
+                if (initializeCommandList != null)
+                {
+                    if (initializeCommandList.Count > 0) 
+                        DevelopWorkspace.Base.Logger.WriteLine("###################### clear garbage data accrording to sql statements as followed", Level.DEBUG);
+                    foreach (string commandSqlString in initializeCommandList)
+                    {
+                        cmd.CommandText = commandSqlString;
+                        DevelopWorkspace.Base.Logger.WriteLine(commandSqlString, Level.DEBUG);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
                 //缓存数据库操作
                 //Postsql的时候需要 text类型提示 oracle的时候需要from dual对应
                 //逻辑的组织尽量使用LINQ以缩短代码（使用描述性编程以求达到可维护性）
@@ -1404,7 +1423,7 @@
                     //显示处理进度
                     iProcessCnt++;
                     Base.Services.BusyWorkIndicatorService(string.Format("{0}/{1}:{2}", iProcessCnt, workArea.Keys.Count, tableKEY));
-                    DevelopWorkspace.Base.Logger.WriteLine(string.Format("{0}/{1}:{2}", iProcessCnt, workArea.Keys.Count, tableKEY), Level.DEBUG);
+                    DevelopWorkspace.Base.Logger.WriteLine(string.Format("###################### {0}/{1}:{2}", iProcessCnt, workArea.Keys.Count, tableKEY), Level.DEBUG);
 
                     //2022/3/11 表没有数据的时候也需要有提供清除数据的机会
                     //如果不设定下面这个模式会导致即使字段过长会自动截断而不抛出错误
@@ -1413,24 +1432,27 @@
                         cmd.CommandText = "SET SESSION sql_mode = 'STRICT_TRANS_TABLES'";
                         cmd.ExecuteNonQuery();
                     }
-
-                    if (!string.IsNullOrEmpty(workArea[tableKEY].DeleteSql))
+                    //initializeCommandList如果没有定义的话，那么使用Schema列表Where条件列的内容
+                    if (initializeCommandList == null)
                     {
-                        cmd.CommandText = workArea[tableKEY].DeleteSql;
-                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DeleteSql, Level.DEBUG);
-                        cmd.ExecuteNonQuery();
-                    }
-                    if (!string.IsNullOrEmpty(workArea[tableKEY].DropTableSql))
-                    {
-                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DropTableSql, Level.DEBUG);
-                        cmd.CommandText = workArea[tableKEY].DropTableSql;
-                        cmd.ExecuteNonQuery();
-                    }
-                    if (!string.IsNullOrEmpty(workArea[tableKEY].CreateTableSql))
-                    {
-                        DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].CreateTableSql, Level.DEBUG);
-                        cmd.CommandText = workArea[tableKEY].CreateTableSql;
-                        cmd.ExecuteNonQuery();
+                        if (!string.IsNullOrEmpty(workArea[tableKEY].DeleteSql))
+                        {
+                            cmd.CommandText = workArea[tableKEY].DeleteSql;
+                            DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DeleteSql, Level.DEBUG);
+                            cmd.ExecuteNonQuery();
+                        }
+                        if (!string.IsNullOrEmpty(workArea[tableKEY].DropTableSql))
+                        {
+                            DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].DropTableSql, Level.DEBUG);
+                            cmd.CommandText = workArea[tableKEY].DropTableSql;
+                            cmd.ExecuteNonQuery();
+                        }
+                        if (!string.IsNullOrEmpty(workArea[tableKEY].CreateTableSql))
+                        {
+                            DevelopWorkspace.Base.Logger.WriteLine(workArea[tableKEY].CreateTableSql, Level.DEBUG);
+                            cmd.CommandText = workArea[tableKEY].CreateTableSql;
+                            cmd.ExecuteNonQuery();
+                        }
                     }
 
                     //没有数据是那么进行下一个表的处理
@@ -1571,7 +1593,7 @@
                         {
                             string selectUionSql = eachSql;
                             selectUionSql += joinOnConditionSql;
-                            DevelopWorkspace.Base.Logger.WriteLine(selectUionSql, Level.DEBUG);
+                            DevelopWorkspace.Base.Logger.WriteLine(selectUionSql, Level.TRACE);
                             cmd.CommandText = selectUionSql;
                             using (DbDataReader rdr = cmd.ExecuteReader())
                             {
