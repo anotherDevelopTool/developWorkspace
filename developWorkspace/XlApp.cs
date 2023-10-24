@@ -1026,6 +1026,25 @@
                                 if (hitCount == iCol - guessedTableNameColumnOffset )
                                 {
                                     guessSCHEMA_COLUMN_NAME_row = iGuessRow;
+                                    //如果remark的内容正好和字段名一致的話，需要檢查下一行是否才是真正的ColumnName定義
+                                    bool guessNextRowIsColumnNameRow = true;
+                                    if (iGuessRow + 1 < Math.Min(guessStart_row + 5, value2_copy.GetLength(0)))
+                                    {
+                                        for (iCol = guessedTableNameColumnOffset; iCol < Math.Min(Math.Min(guessedTableNameColumnOffset + 5 + 1, currentTableInfo.Columns.Count), value2_copy.GetLength(1)); iCol++)
+                                        {
+                                            if (!(value2_copy[iGuessRow, iCol]?.ToString() ?? "").ToLower().Equals((value2_copy[iGuessRow + 1, iCol]?.ToString() ?? "").ToLower()))
+                                            {
+                                                guessNextRowIsColumnNameRow = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        guessNextRowIsColumnNameRow = false;
+                                    }
+                                    if(guessNextRowIsColumnNameRow)
+                                        guessSCHEMA_COLUMN_NAME_row = iGuessRow + 1;
+
                                     break;
                                 }
                             }
