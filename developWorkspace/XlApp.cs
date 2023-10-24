@@ -2036,7 +2036,8 @@
                             //selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent5;
                             selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(tableInfo.ExcelSchemaHeaderThemeColor);
 
-                            DrawTableSchemaConditionFormat(selected, tableInfo, sartRow);
+                            if((from column in tableInfo.Columns where column.IsKey.Equals("*") select column).Count () > 0 )
+                                DrawPrimaryKeyConditionFormat(selected, tableInfo, sartRow);
 
                             //通过SQL文做成数据时第一行为dummy数据，用于提示用户
                             if (tableInfo.WhereCondition != null)
@@ -2272,7 +2273,7 @@
             fcs = null;
         }
 
-        static void DrawTableSchemaConditionFormat(Range rangeFormat, TableInfo tableinfo, int startRow)
+        static void DrawPrimaryKeyConditionFormat(Range rangeFormat, TableInfo tableinfo, int startRow)
         {
             var fcs = rangeFormat.FormatConditions;
             //	var fc = fcs.Add
