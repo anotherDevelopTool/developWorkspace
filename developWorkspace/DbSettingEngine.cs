@@ -111,6 +111,7 @@
         public string ExcelHeaderThemeColor { get; set; }
         public string ExcelSchemaThemeColor { get; set; }
         public string ExcelSupportDataThemeColor { get; set; }
+        public string SshClient { get; set; }
 
         public virtual ICollection<WhereClauseHistory> WhereClauseHistories { get; set; }
         public virtual ICollection<CustSelectSql> CustSelectSqls { get; set; }

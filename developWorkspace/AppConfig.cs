@@ -21,6 +21,12 @@ namespace DevelopWorkspace.Main
             public int green { get; set; }
             public int blue { get; set; }
         }
+        public class SshClientSetting
+        {
+            public string SshHost { get; set; }
+            public string SshUsername { get; set; }
+            public string SshPrivateKeyPath { get; set; }
+        }
 
         public class ScriptConfig : ConfigBase
         {

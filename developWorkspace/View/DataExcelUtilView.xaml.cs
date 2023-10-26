@@ -43,6 +43,9 @@ using static System.Windows.Forms.LinkLabel;
 using System.Timers;
 using Newtonsoft.Json.Linq;
 using System.Configuration;
+using Renci.SshNet;
+using System.Data.Entity.Infrastructure;
+using static Microsoft.Isam.Esent.Interop.EnumeratedColumn;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -190,6 +193,11 @@ namespace DevelopWorkspace.Main.View
         System.Threading.Timer timer = null;
         Func<string> getCustomSQLString = null;
         List<CustSelectSqlView> custSelectSqlViewList = new List<CustSelectSqlView> { };
+
+        SshClient sshClient = null;
+        // Create a forwarded port to establish an SSH tunnel
+        ForwardedPortLocal forwardedPortLocal = null;
+
         public DataExcelUtilView()
         {
             Base.Services.BusyWorkService(new Action(() =>
@@ -342,7 +350,10 @@ namespace DevelopWorkspace.Main.View
         }
         public bool doClearanceBeforeDepart(string bookName)
         {
-            timer.Dispose();
+            timer?.Dispose();
+            forwardedPortLocal?.Stop();
+            sshClient?.Disconnect();
+
             return true;
         }
         private void GallerySampleInRibbonGallery_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -497,10 +508,49 @@ namespace DevelopWorkspace.Main.View
             xlApp.Provider = iProvider;
             xlApp.ConnectionHistory = cmbSavedDatabases.SelectedItem as ConnectionHistory;
             xlApp.DbConnection = ctorViewModel.Invoke(new Object[] { }) as System.Data.Common.DbConnection;
-            xlApp.DbConnection.ConnectionString = (cmbSavedDatabases.SelectedItem as ConnectionHistory).ConnectionString;
-            xlApp.ConnectionString = (cmbSavedDatabases.SelectedItem as ConnectionHistory).ConnectionString;
-            DevelopWorkspace.Base.Logger.WriteLine($"ConnectionString:{xlApp.ConnectionString}", Base.Level.DEBUG);
 
+
+
+            // SSH connection info
+            var connectionHistory = cmbSavedDatabases.SelectedItem as ConnectionHistory;
+            string rewritteernConnectionString = connectionHistory.ConnectionString;
+            if (!string.IsNullOrEmpty(connectionHistory.SshClient))
+            {
+
+                AppConfig.SshClientSetting sshClientSetting = (AppConfig.SshClientSetting)JsonConvert.DeserializeObject(connectionHistory.SshClient, typeof(AppConfig.SshClientSetting));
+                // Load the private key file
+                var privateKeyFile = new PrivateKeyFile(sshClientSetting.SshPrivateKeyPath);
+
+                // Create an SSH connection info object with the private key
+                var connectionInfo = new ConnectionInfo(sshClientSetting.SshHost, sshClientSetting.SshUsername, new PrivateKeyAuthenticationMethod(sshClientSetting.SshUsername, new PrivateKeyFile[] { privateKeyFile }));
+                sshClient = new SshClient(connectionInfo);
+                sshClient.Connect();
+
+                //server=127.0.0.1;Port=3306;User Id=admin;password=Xswuuo87se;Database=mysql;Convert Zero Datetime=True;Connection Timeout=120
+                Match match = Regex.Match(connectionHistory.ConnectionString, @"(?<=(server|host)\s*=\s*)(?<host>[^;]+);.*Port\s*=\s*(?<port>[^;]+);", RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    string host = match.Groups["host"].Value;
+                    uint port = Convert.ToUInt32(match.Groups["port"].Value);
+                    uint randomPort = Convert.ToUInt32(new Random().Next(1024, 65535));
+
+                    forwardedPortLocal = new ForwardedPortLocal("127.0.0.1", randomPort, host, port);
+                    sshClient.AddForwardedPort(forwardedPortLocal);
+                    forwardedPortLocal.Start();
+
+                    rewritteernConnectionString = Regex.Replace(connectionHistory.ConnectionString, @"(?<=(server|host)\s*=\s*)(?<host>[^;]+);.*Port\s*=\s*(?<port>[^;]+);", m =>
+                    {
+                        string rewrittenhost = m.Groups["host"].Value;
+                        string rewrittenport = m.Groups["port"].Value;
+                        return $"127.0.0.1;Port={randomPort};";
+                    }, RegexOptions.IgnoreCase);
+                }
+            }
+
+            xlApp.DbConnection.ConnectionString = rewritteernConnectionString;
+            xlApp.ConnectionString = rewritteernConnectionString;
+
+            DevelopWorkspace.Base.Logger.WriteLine($"ConnectionString:{xlApp.ConnectionString}", Base.Level.DEBUG);
 
             AppConfig.JsonArgb headerColorArgbRaw = (AppConfig.JsonArgb)JsonConvert.DeserializeObject(xlApp.ConnectionHistory.ExcelHeaderThemeColor, typeof(AppConfig.JsonArgb));
             AppConfig.JsonArgb schemaColorArgbRaw = (AppConfig.JsonArgb)JsonConvert.DeserializeObject(xlApp.ConnectionHistory.ExcelSchemaThemeColor, typeof(AppConfig.JsonArgb));

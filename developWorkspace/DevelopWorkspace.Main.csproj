@@ -153,6 +153,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\lib\Renci.SshNet.dll</HintPath>
+    </Reference>
     <Reference Include="RoslynPad.Editor.Windows, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RoslynPad.Editor.Windows.1.0.4\lib\net46\RoslynPad.Editor.Windows.dll</HintPath>
     </Reference>
@@ -161,6 +164,9 @@
     </Reference>
     <Reference Include="RoslynPad.Roslyn.Windows, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RoslynPad.Roslyn.Windows.2.4.0\lib\net46\RoslynPad.Roslyn.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="SshNet.Security.Cryptography">
+      <HintPath>..\lib\SshNet.Security.Cryptography.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
