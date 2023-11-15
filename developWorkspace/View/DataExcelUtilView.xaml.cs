@@ -197,7 +197,7 @@ namespace DevelopWorkspace.Main.View
         SshClient sshClient = null;
         // Create a forwarded port to establish an SSH tunnel
         ForwardedPortLocal forwardedPortLocal = null;
-
+        string connectionHistoryName = "";
         public DataExcelUtilView()
         {
             Base.Services.BusyWorkService(new Action(() =>
@@ -513,6 +513,7 @@ namespace DevelopWorkspace.Main.View
 
             // SSH connection info
             var connectionHistory = cmbSavedDatabases.SelectedItem as ConnectionHistory;
+            connectionHistoryName = connectionHistory.ConnectionHistoryName;
             string rewritteernConnectionString = connectionHistory.ConnectionString;
             if (!string.IsNullOrEmpty(connectionHistory.SshClient))
             {
@@ -1365,6 +1366,12 @@ namespace DevelopWorkspace.Main.View
 
         private void btnApplyExcelToDb_Click(object sender, RoutedEventArgs e)
         {
+            if (connectionHistoryName.IndexOf("prod") > 0) {
+                CriticalMessageBox confirmDialog = new CriticalMessageBox("现在更新本番数据，注意保证没有想定外的数据反映到本番数据库！");
+                confirmDialog.Owner = DevelopWorkspace.Base.Utils.WPF.GetTopWindow(this);
+                confirmDialog.ShowDialog();
+                if (confirmDialog.ConfirmResult == eConfirmResult.CANCEL) return;
+            }
             SetViewActionState(ViewActionState.do_start);
             Base.Services.BusyWorkService(new Action(() =>
             {
@@ -1545,7 +1552,7 @@ namespace DevelopWorkspace.Main.View
                 {
                     while ((line = reader.ReadLine()) != null)
                     {
-                        matches = Regex.Matches(line, @"(?<columnName>[',A-Za-z0-9_-]+)", RegexOptions.IgnoreCase);
+                        matches = Regex.Matches(line, @"(?<columnName>(('.+')|([A-Za-z0-9_-]+)))", RegexOptions.IgnoreCase);
                         if (matches.Count > 1)
                         {
                             // 最后一个默认为是值
@@ -1691,7 +1698,7 @@ namespace DevelopWorkspace.Main.View
                 {
                     while ((line = reader.ReadLine()) != null)
                     {
-                        matches = Regex.Matches(line, @"(?<columnName>[',A-Za-z0-9_-]+)", RegexOptions.IgnoreCase);
+                        matches = Regex.Matches(line, @"(?<columnName>(('.+')|([A-Za-z0-9_-]+)))", RegexOptions.IgnoreCase);
                         if (matches.Count > 1)
                         {
                             // 最后一个默认为是值
@@ -1879,8 +1886,13 @@ namespace DevelopWorkspace.Main.View
         private void btnExecuteQuery_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText) && string.IsNullOrWhiteSpace(this.txtOutput.Text)) return;
-            DevelopWorkspace.Base.Logger.WriteLine(this.txtOutput.SelectedText);
-
+            if (connectionHistoryName.IndexOf("prod") > 0)
+            {
+                CriticalMessageBox confirmDialog = new CriticalMessageBox("现在更新本番数据，注意保证没有想定外的数据反映到本番数据库！");
+                confirmDialog.Owner = DevelopWorkspace.Base.Utils.WPF.GetTopWindow(this);
+                confirmDialog.ShowDialog();
+                if (confirmDialog.ConfirmResult == eConfirmResult.CANCEL) return;
+            }
             SetViewActionState(ViewActionState.do_start);
             DbTransaction dbTran = null;
             bool hasSomethingApplyToDb = false;

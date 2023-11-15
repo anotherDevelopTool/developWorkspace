@@ -1,0 +1,33 @@
+﻿<Window x:Class="DevelopWorkspace.Base.Utils.CriticalMessageBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DevelopWorkspace.Base.Utils"
+        mc:Ignorable="d"
+        Title="クリティカルメッセージ" Height="300" Width="600">
+    <Window.Resources>
+        <DataTemplate x:Key="ItemDisplayTemplate">
+            <Border>
+                <TextBlock Text="{Binding}" />
+            </Border>
+        </DataTemplate >
+    </Window.Resources>
+    <Grid HorizontalAlignment="Left" Width="600" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="220"/>
+            <!-- 第一行的高度自适应内容 -->
+            <RowDefinition Height="20"/>
+            <!-- 第二行的高度占据剩余空间 -->
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="message"  Grid.Row="1" Grid.Column="0" Width="600" FontSize="50" TextWrapping="Wrap"  Foreground="Red">现在更新本番数据，注意保证没有想定外的数据反映到本番数据库！</TextBox>
+        <Button x:Name="button" Content="OK" HorizontalAlignment="Left" Height="20" Margin="275,0,0,0" VerticalAlignment="Center" Width="156" Background="Red" Click="button_Click" Grid.Row="2" Grid.Column="0"/>
+        <Button x:Name="button1" Content="Cancel" HorizontalAlignment="Left" Height="20" Margin="436,0,0,0" VerticalAlignment="Center" Width="159" Click="button1_Click" Grid.Row="2" Grid.Column="0"/>
+
+    </Grid>
+</Window>
+

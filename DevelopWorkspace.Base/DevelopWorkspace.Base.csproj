@@ -112,6 +112,9 @@
     <Compile Include="Utils\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\CriticalMessageBox.xaml.cs">
+      <DependentUpon>CriticalMessageBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\SimpleListView.xaml.cs">
       <DependentUpon>SimpleListView.xaml</DependentUpon>
     </Compile>
@@ -139,6 +142,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Utils\AboutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Utils\CriticalMessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
