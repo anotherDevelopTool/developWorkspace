@@ -24,7 +24,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="message"  Grid.Row="1" Grid.Column="0" Width="600" FontSize="50" TextWrapping="Wrap"  Foreground="Red">现在更新本番数据，注意保证没有想定外的数据反映到本番数据库！</TextBox>
+        <TextBlock x:Name="message" Grid.Row="1" Grid.Column="0" Width="600" FontSize="50" TextWrapping="Wrap"  Foreground="Red">现在更新本番数据，注意保证没有想定外的数据反映到本番数据库！</TextBlock>
         <Button x:Name="button" Content="OK" HorizontalAlignment="Left" Height="20" Margin="275,0,0,0" VerticalAlignment="Center" Width="156" Background="Red" Click="button_Click" Grid.Row="2" Grid.Column="0"/>
         <Button x:Name="button1" Content="Cancel" HorizontalAlignment="Left" Height="20" Margin="436,0,0,0" VerticalAlignment="Center" Width="159" Click="button1_Click" Grid.Row="2" Grid.Column="0"/>
 

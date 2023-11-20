@@ -46,6 +46,8 @@ using System.Configuration;
 using Renci.SshNet;
 using System.Data.Entity.Infrastructure;
 using static Microsoft.Isam.Esent.Interop.EnumeratedColumn;
+using System.Reflection;
+using Microsoft.CodeAnalysis.Differencing;
 
 namespace DevelopWorkspace.Main.View
 {
@@ -198,6 +200,9 @@ namespace DevelopWorkspace.Main.View
         // Create a forwarded port to establish an SSH tunnel
         ForwardedPortLocal forwardedPortLocal = null;
         string connectionHistoryName = "";
+
+        eDatabaseTranOperation databaseTranOperation = eDatabaseTranOperation.COMMIT;
+
         public DataExcelUtilView()
         {
             Base.Services.BusyWorkService(new Action(() =>
@@ -1348,6 +1353,8 @@ namespace DevelopWorkspace.Main.View
         }
         private void btnDrawDataToExcel_Click(object sender, RoutedEventArgs e)
         {
+            databaseTranOperation = eDatabaseTranOperation.COMMIT;
+
             SetViewActionState(ViewActionState.do_start);
             Base.Services.BusyWorkService(new Action(() =>
             {
@@ -1371,6 +1378,14 @@ namespace DevelopWorkspace.Main.View
                 confirmDialog.Owner = DevelopWorkspace.Base.Utils.WPF.GetTopWindow(this);
                 confirmDialog.ShowDialog();
                 if (confirmDialog.ConfirmResult == eConfirmResult.CANCEL) return;
+                if(databaseTranOperation == eDatabaseTranOperation.COMMIT)
+                {
+                    databaseTranOperation = eDatabaseTranOperation.ROLLBACK;
+                }
+                else
+                {
+                    databaseTranOperation = eDatabaseTranOperation.COMMIT;
+                }
             }
             SetViewActionState(ViewActionState.do_start);
             Base.Services.BusyWorkService(new Action(() =>
@@ -1379,15 +1394,16 @@ namespace DevelopWorkspace.Main.View
                 {
                     Base.Services.SimpleAroundCallService(this, "apply", cmbSavedDatabases.SelectedItem, new Action(() => {
                         xlApp.DbConnection.Open();
-                        List<string> updateCommandList = null;
+                        //本番时禁止手动删除或者更新数据，只允许通过excel插入或者更新数据
+                        List<string> updateCommandList = new List<string>();
                         //todo 有时间优化一下，代码可读性
-                        if (getCustomSQLString != null)
+                        if (getCustomSQLString != null && connectionHistoryName.IndexOf("prod") > 0)
                         {
                             if (getCustomSQLString().Trim().Length == 0) return;
                             updateCommandList = getUpdateOrDeleteSqlAccordingCustomSQL(getCustomSQLString().Trim());
                         }
                         Services.executeWithBackgroundAction(() => {
-                            xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY, updateCommandList);
+                            xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY, updateCommandList, ref databaseTranOperation);
 
                         });
                     }));
@@ -1403,6 +1419,8 @@ namespace DevelopWorkspace.Main.View
         //指定导出格式sheet的内容和最新DB比较
         private void btnMakeDiff_Click(object sender, RoutedEventArgs e)
         {
+            databaseTranOperation = eDatabaseTranOperation.COMMIT;
+
             SetViewActionState(ViewActionState.do_start);
             Base.Services.BusyWorkService(new Action(() =>
             {
@@ -1414,8 +1432,8 @@ namespace DevelopWorkspace.Main.View
 
                         xlApp.DbConnection.Open();
 
-                        //根据sheet的内容做出基础dataset
-                        DataSet diffDataSet = xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DIFF_USE, null);
+                        //根据sheet的内容做出基础dataset(防止意外删除数据)
+                        DataSet diffDataSet = xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DIFF_USE, new List<string>(), ref databaseTranOperation);
                         if (diffDataSet == null) return;
 
                         //2019/03/15
@@ -1502,6 +1520,19 @@ namespace DevelopWorkspace.Main.View
             }));
         }
 
+        public static T DeepCopy<T>(T obj)
+        {
+            T newObj = (T)Activator.CreateInstance(obj.GetType());
+            foreach (PropertyInfo prop in obj.GetType().GetProperties())
+            {
+                if (prop.CanRead && prop.CanWrite)
+                {
+                    prop.SetValue(newObj, prop.GetValue(obj, null), null);
+                }
+            }
+            return newObj;
+        }
+
         private List<TableInfo> getTableInfoAccordingCustomSQL(string CustomSelectSQL)
         {
             List<TableInfo> custTableList = new List<TableInfo>();
@@ -1519,7 +1550,8 @@ namespace DevelopWorkspace.Main.View
                     if (Regex.IsMatch(onerow, @"^\s*--", RegexOptions.IgnoreCase))
                     {
                     }
-                    else {
+                    else
+                    {
                         skipCommentList.Add(onerow);
                     }
                 }
@@ -1532,9 +1564,10 @@ namespace DevelopWorkspace.Main.View
                 for (int idx = 0; idx < matches.Count; idx++)
                 {
                     if (idx == 0) settingContext = CustomSelectSQL.Substring(0, matches[idx].Index);
-                    if (idx < matches.Count - 1) {
-                        if( matches[idx].Groups["command"].Value.ToLower().Equals("select") )
-                            selectCommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " ")); 
+                    if (idx < matches.Count - 1)
+                    {
+                        if (matches[idx].Groups["command"].Value.ToLower().Equals("select"))
+                            selectCommandList.Add(Regex.Replace(CustomSelectSQL.Substring(matches[idx].Index, matches[idx + 1].Index - matches[idx].Index), "\r?\n", " "));
                     }
                     if (idx == (matches.Count - 1))
                     {
@@ -1560,7 +1593,8 @@ namespace DevelopWorkspace.Main.View
                             for (int idx = 0; idx < matches.Count - 1; idx++)
                             {
                                 string columnName = matches[idx].Groups["columnName"].Value;
-                                if (variableMap.ContainsKey(columnName)) {
+                                if (variableMap.ContainsKey(columnName))
+                                {
                                     variableMap[columnName] = columnValue;
                                 }
                                 else
@@ -1572,77 +1606,137 @@ namespace DevelopWorkspace.Main.View
             }
             foreach (string sqlcommand in selectCommandList)
             {
-                Match singleSqlMatch = Regex.Match(sqlcommand, @"\bfrom\s+(?<schemaname>[A-Za-z0-9_-]+\.)?(?<tablename>[A-Za-z0-9_-]+)\s*(?<where>.*)", RegexOptions.IgnoreCase);
-                if (singleSqlMatch.Success)
+                var preproccessedSelectString = sqlcommand;
+                // 变量的简易替换
+                if (variableMap.Count > 0)
                 {
-                    string tableName = singleSqlMatch.Groups["tablename"].Value;
-                    string selectClause = sqlcommand.Substring(0,singleSqlMatch.Index);
-                    string whereClause = singleSqlMatch.Groups["where"].Value;
-                    // 尝试替换值
-                    if (variableMap.Count > 0)
+                    preproccessedSelectString = Regex.Replace(preproccessedSelectString, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(=|<>|>|<|between\b){1,}\s*)(?<columnValue>([0-9]+|'[^']*'))\s?", match =>
                     {
-                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(=|<>|>|<|between\b){1,}\s*)(?<columnValue>([0-9]+|'[^']*'))\s?", match =>
+                        string columnName = match.Groups["columnName"].Value;
+                        string columnValue = match.Groups["columnValue"].Value;
+                        if (variableMap.ContainsKey(columnName))
                         {
-                            string columnName = match.Groups["columnName"].Value;
-                            string columnValue = match.Groups["columnValue"].Value;
-                            if (variableMap.ContainsKey(columnName))
-                            {
 
-                                return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + " ";
-                            }
-                            return match.Groups[0].Value;
-                        }, RegexOptions.IgnoreCase);
-                        // todo 置换：in ( value1,valuie2 ) pattern如果出现嵌套的情况可能会导致死循环
-                        // 文字的情况
-                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>('[',A-Za-z0-9_-]+\s*){1,}\))", match =>
-                        {
-                            string columnName = match.Groups["columnName"].Value;
-                            string columnValue = match.Groups["columnValue"].Value;
-                            if (variableMap.ContainsKey(columnName))
-                            {
-                                return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
-                            }
-                            return match.Groups[0].Value;
-                        }, RegexOptions.IgnoreCase);
-                        // 数字的情况
-                        whereClause = Regex.Replace(whereClause, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>([0-9,]+\s*){1,}\))", match =>
-                        {
-                            string columnName = match.Groups["columnName"].Value;
-                            string columnValue = match.Groups["columnValue"].Value;
-                            if (variableMap.ContainsKey(columnName))
-                            {
-                                return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
-                            }
-                            return match.Groups[0].Value;
-                        }, RegexOptions.IgnoreCase);
-                    }
-                    findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(tableName.ToLower()));
-                    if (findTableInfo != null)
+                            return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + " ";
+                        }
+                        return match.Groups[0].Value;
+                    }, RegexOptions.IgnoreCase);
+                    // todo 置换：in ( value1,valuie2 ) pattern如果出现嵌套的情况可能会导致死循环
+                    // 文字的情况
+                    preproccessedSelectString = Regex.Replace(preproccessedSelectString, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>('[',A-Za-z0-9_-]+\s*){1,}\))", match =>
                     {
-                        findTableInfo.CustomWhereClause = whereClause;
-                        // SELECT项目的自定义，如果是select *则使用默认表结构的定义以及顺序
-                        List<string> selectColumnList = new List<string>();
-                        foreach ( string columnString in selectClause.Split(','))
+                        string columnName = match.Groups["columnName"].Value;
+                        string columnValue = match.Groups["columnValue"].Value;
+                        if (variableMap.ContainsKey(columnName))
                         {
-                            MatchCollection selectMatch = Regex.Matches(columnString, @"\b(?<columnName>[A-Za-z0-9_-]+)\b", RegexOptions.IgnoreCase);
+                            return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
+                        }
+                        return match.Groups[0].Value;
+                    }, RegexOptions.IgnoreCase);
+                    // 数字的情况
+                    preproccessedSelectString = Regex.Replace(preproccessedSelectString, @"\b(?<columnName>[A-Za-z0-9_-]+)(?<columnOpe>\s*(in\s*\(){1,}\s*)(?<columnValue>([0-9,]+\s*){1,}\))", match =>
+                    {
+                        string columnName = match.Groups["columnName"].Value;
+                        string columnValue = match.Groups["columnValue"].Value;
+                        if (variableMap.ContainsKey(columnName))
+                        {
+                            return columnName + match.Groups["columnOpe"].Value + variableMap[columnName] + ") ";
+                        }
+                        return match.Groups[0].Value;
+                    }, RegexOptions.IgnoreCase);
+                }
 
-                            if (selectMatch.Count > 0)
+                //schema如果无需定义的话，那么跳过改写逻辑
+                string rewrittenWhereClause = "";
+                if (string.IsNullOrWhiteSpace(tableList[0].SchemaName))
+                {
+                    rewrittenWhereClause = preproccessedSelectString;
+                }
+                else
+                {
+                    //string pattern = @"\b(?<opeName>join|from)\s+(?<schemaname>[A-Za-z0-9_-]+\.)?(?<tablename>[A-Za-z0-9_-]+)\b";
+                    string pattern = @"\b(?<opeName>join|from)\s+((?<schemaname>[A-Za-z0-9_-]+)\.)?(?<tablename>[A-Za-z0-9_-]+)\s*((?!where|left|inner|right)(?<aliasname>[A-Za-z0-9_-]+)\s*)?";
+                    MatchCollection rewrittenSchemaMatches = Regex.Matches(preproccessedSelectString, pattern, RegexOptions.IgnoreCase);
+                    int cursor = 0;
+                    if (matches.Count > 0)
+                    {
+                        for (int idx = 0; idx < rewrittenSchemaMatches.Count; idx++)
+                        {
+                            rewrittenWhereClause += preproccessedSelectString.Substring(cursor, rewrittenSchemaMatches[idx].Index - cursor);
+                            // 如果SQL内没有定义Schema那么使用系统设定的Schema否则不进行替换
+                            if (string.IsNullOrWhiteSpace(rewrittenSchemaMatches[idx].Groups["schemaname"].Value))
                             {
-                                if (selectMatch[selectMatch.Count -1].Value.ToLower().Equals("select")) continue;
-                                // 最后一个match值作为项目名
-                                // 这里的正则对一些特殊的Case有瑕疵,这里稍微补救一下
-                                string possibleColumnName = selectMatch[selectMatch.Count - 1].Value.ToLower();
-                                if (!selectColumnList.Contains(possibleColumnName)) {
-                                    if (findTableInfo.Columns.FindIndex( column => column.ColumnName.ToLower().Equals(possibleColumnName)) == -1 )
-                                        DevelopWorkspace.Base.Logger.WriteLine($"{possibleColumnName} does not exists in {tableName}", Base.Level.WARNING);
-                                    else
-                                        selectColumnList.Add(possibleColumnName);
+                                rewrittenWhereClause += rewrittenSchemaMatches[idx].Groups["opeName"].Value + " " + tableList[0].SchemaName + "." + rewrittenSchemaMatches[idx].Groups["tablename"].Value + " ";
+                                if (string.IsNullOrWhiteSpace(rewrittenSchemaMatches[idx].Groups["aliasname"].Value))
+                                {
+                                    rewrittenWhereClause += rewrittenSchemaMatches[idx].Groups["tablename"].Value + " ";
+                                }
+                                else
+                                {
+                                    rewrittenWhereClause += rewrittenSchemaMatches[idx].Groups["aliasname"].Value + " ";
                                 }
                             }
+                            else
+                            {
+                                rewrittenWhereClause += rewrittenSchemaMatches[idx].Value + " ";
+                            }
+                            cursor = rewrittenSchemaMatches[idx].Index + rewrittenSchemaMatches[idx].Length;
                         }
-                        findTableInfo.CustomSelectClause = selectColumnList;
-                        findTableInfo.CustomSelectString = selectClause;
-                        custTableList.Add(findTableInfo);
+                        // last one?
+                        rewrittenWhereClause += preproccessedSelectString.Substring(cursor, preproccessedSelectString.Length - cursor);
+                    }
+                    else
+                    {
+                        rewrittenWhereClause = preproccessedSelectString;
+                    }
+                }
+
+
+                preproccessedSelectString = rewrittenWhereClause;
+                //表有别名的情况是的需要收集用到的别名，后面提取实际表时需要使用
+                List<Tuple<string, string>> aliasTablenameList = new List<Tuple<string, string>>();
+                MatchCollection matchTables = Regex.Matches(preproccessedSelectString, @"\b(?<opeName>join|from)\s+((?<schemaname>[A-Za-z0-9_-]+)\.)?(?<tablename>[A-Za-z0-9_-]+)\s*((?!where|left|inner|right)(?<aliasname>[A-Za-z0-9_-]+)\s*)?", RegexOptions.IgnoreCase);
+                if (matchTables.Count > 0)
+                {
+                    for (int idx = 0; idx < matchTables.Count; idx++)
+                    {
+                        if (string.IsNullOrWhiteSpace(matchTables[idx].Groups["aliasname"].Value))
+                        {
+                            aliasTablenameList.Add(new Tuple<string, string>(matchTables[idx].Groups["tablename"].Value, matchTables[idx].Groups["tablename"].Value));
+                        }
+                        else
+                        {
+                            aliasTablenameList.Add(new Tuple<string, string>(matchTables[idx].Groups["aliasname"].Value, matchTables[idx].Groups["tablename"].Value));
+                        }
+                    }
+                }
+
+                MatchCollection matchSelectedTables = Regex.Matches(preproccessedSelectString, @"((?<aliasname>[A-Za-z0-9_-]+)\.)?\*", RegexOptions.IgnoreCase);
+                if (matchSelectedTables.Count > 0)
+                {
+                    for (int idx = 0; idx < matchSelectedTables.Count; idx++)
+                    {
+                        string processTableName = "";
+                        string aliasname = matchSelectedTables[idx].Groups["aliasname"].Value;
+                        if (string.IsNullOrWhiteSpace(aliasname))
+                        {
+                            // 作为第一个主表处理
+                            processTableName = aliasTablenameList[0].Item2;
+                        }
+                        else
+                        {
+                            processTableName = aliasTablenameList.FirstOrDefault(item => item.Item1.ToLower().Equals(aliasname.ToLower()))?.Item2;
+                        }
+                        if (!string.IsNullOrWhiteSpace(processTableName))
+                        {
+                            findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(processTableName.ToLower()));
+                            if (findTableInfo != null)
+                            {
+                                var deepCopiedTableInfo = DeepCopy(findTableInfo);
+                                deepCopiedTableInfo.CustomSelectClause = deepCopiedTableInfo.getSelectColomnString(string.IsNullOrWhiteSpace(aliasname)? processTableName : aliasname) + preproccessedSelectString.Substring(preproccessedSelectString.IndexOf("from", StringComparison.OrdinalIgnoreCase));
+                                custTableList.Add(deepCopiedTableInfo);
+                            }
+                        }
                     }
                 }
             }
@@ -1885,6 +1979,8 @@ namespace DevelopWorkspace.Main.View
 
         private void btnExecuteQuery_Click(object sender, RoutedEventArgs e)
         {
+            databaseTranOperation = eDatabaseTranOperation.COMMIT;
+
             if (string.IsNullOrWhiteSpace(this.txtOutput.SelectedText) && string.IsNullOrWhiteSpace(this.txtOutput.Text)) return;
             if (connectionHistoryName.IndexOf("prod") > 0)
             {
@@ -2152,7 +2248,7 @@ namespace DevelopWorkspace.Main.View
                         // 恢复现场
                         foreach (TableInfo tableinfo in tableList)
                         {
-                            tableinfo.CustomWhereClause = null;
+                            tableinfo.CustomSelectClause = null;
                         }
                     }
                     else

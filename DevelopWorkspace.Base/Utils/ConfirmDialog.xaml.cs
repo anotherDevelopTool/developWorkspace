@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 
 namespace DevelopWorkspace.Base.Utils
 {
+
     public enum eConfirmResult
     {
         OK,

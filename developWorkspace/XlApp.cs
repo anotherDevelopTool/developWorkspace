@@ -161,49 +161,20 @@
         }
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
-        private string _customwhereClause;
-        public string CustomWhereClause
+        private string _customselectClause;
+        public string CustomSelectClause
         {
             set
             {
-                _customwhereClause = value;
-                RaisePropertyChanged("CustomWhereClause");
-            }
-            get
-            {
-                return _customwhereClause;
-            }
-        }
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        private List<string> _customSelectColumnName = new List<string>() ;
-        public List<string> CustomSelectClause
-        {
-            set
-            {
-                _customSelectColumnName = value;
+                _customselectClause = value;
                 RaisePropertyChanged("CustomSelectClause");
             }
             get
             {
-                return _customSelectColumnName;
+                return _customselectClause;
             }
         }
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        private string _customSelectString = "";
-        public string CustomSelectString
-        {
-            set
-            {
-                _customSelectString = value;
-                RaisePropertyChanged("CustomSelectString");
-            }
-            get
-            {
-                return _customSelectString;
-            }
-        }
+
         public string getClauseString(bool isSelectClause = true)
         {
             string retClauseString = "";
@@ -289,6 +260,60 @@
                 return _deleteClause;
             }
         }
+
+        public string getSelectColomnString(string aliasTableName)
+        {
+            //2019/8/24 可以定制字段可选，暂且每次发行SQL文时都重新组装，也许会带来些许性能劣化 
+            //if (string.IsNullOrEmpty(_selectDataSql))
+            {
+                //2019/03/08 performance tunning
+                //DevelopWorkspace.Base.Logger.WriteLine("SelectDataSQL.get", Level.DEBUG);
+
+                StringBuilder selectDataSqlBuilder = new StringBuilder("select ", 250);
+                bool isFirtIncluded = true;
+                for (int idx = 0; idx < Columns.Count; idx++)
+                {
+                    //todo exclude some column 
+                    if (!Columns[idx].IsIncluded) continue;
+
+                    ColumnInfo ci = Columns[idx];
+                    //日期类型经常会导致例外发生，索性在取得数据是利用各个数据库自身的功能把日期型转换成字符串型
+                    //除了日期型以后还会出现其他类型需要类似处理，或许
+                    //另外在这里的FormatWith是扩展了系统类的一个实践
+                    //http://james.newtonking.com/archive/2008/03/29/formatwith-2-0-string-formatting-with-named-variables
+                    //可以通过这个方式缩短代码量
+                    //目前这个版本针对blob，clob类型没有做对应，将来是否有需要？只有到那时候才知道
+                    //http://stackoverflow.com/questions/5371222/getting-binary-data-using-sqldatareader
+                    //if (ci.ColumnType.Equals("System.DateTime"))
+                    if (isFirtIncluded)
+                    {
+                        isFirtIncluded = false;
+                    }
+                    else
+                    {
+                        selectDataSqlBuilder.Append(",");
+                    }
+                    ;
+                    if (!string.IsNullOrEmpty(ci.dataTypeCondtion.ExcelFormatString))
+                    {
+                        selectDataSqlBuilder.Append(ci.dataTypeCondtion.ExcelFormatString.FormatWith(new
+                        {
+                            ColumnName = aliasTableName + "." + ci.ColumnName,
+                            AliasColumnName = ci.ColumnName
+                        }));
+
+                    }
+                    else
+                    {
+                        selectDataSqlBuilder.Append(aliasTableName + "." + ci.ColumnName);
+                    }
+                }
+                selectDataSqlBuilder.Append(" ");
+                return selectDataSqlBuilder.ToString();
+            }
+
+        }
+
         [Newtonsoft.Json.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         string _selectDataSql = null;
@@ -298,64 +323,18 @@
         {
             get
             {
-                //2019/8/24 可以定制字段可选，暂且每次发行SQL文时都重新组装，也许会带来些许性能劣化 
-                //if (string.IsNullOrEmpty(_selectDataSql))
-                {
-                    //2019/03/08 performance tunning
-                    DevelopWorkspace.Base.Logger.WriteLine("SelectDataSQL.get", Level.DEBUG);
 
-                    StringBuilder selectDataSqlBuilder = new StringBuilder("select ", 250);
-                    bool isFirtIncluded = true;
-                    for (int idx = 0; idx < Columns.Count; idx++)
-                    {
-                        //todo exclude some column 
-                        if (!Columns[idx].IsIncluded) continue;
-
-                        ColumnInfo ci = Columns[idx];
-                        //日期类型经常会导致例外发生，索性在取得数据是利用各个数据库自身的功能把日期型转换成字符串型
-                        //除了日期型以后还会出现其他类型需要类似处理，或许
-                        //另外在这里的FormatWith是扩展了系统类的一个实践
-                        //http://james.newtonking.com/archive/2008/03/29/formatwith-2-0-string-formatting-with-named-variables
-                        //可以通过这个方式缩短代码量
-                        //目前这个版本针对blob，clob类型没有做对应，将来是否有需要？只有到那时候才知道
-                        //http://stackoverflow.com/questions/5371222/getting-binary-data-using-sqldatareader
-                        //if (ci.ColumnType.Equals("System.DateTime"))
-                        if (isFirtIncluded)
-                        {
-                            isFirtIncluded = false;
-                        }
-                        else {
-                            selectDataSqlBuilder.Append(",");
-                        }
-                        ;
-                        if (!string.IsNullOrEmpty(ci.dataTypeCondtion.ExcelFormatString))
-                        {
-                            selectDataSqlBuilder.Append(ci.dataTypeCondtion.ExcelFormatString.FormatWith(new
-                            {
-                                ColumnName = TableName + "." + ci.ColumnName,
-                                AliasColumnName = ci.ColumnName
-                            }));
-
-                        }
-                        else
-                        {
-                            selectDataSqlBuilder.Append(TableName + "." + ci.ColumnName);
-                        }
-                    }
-                    string fullTableName = string.IsNullOrEmpty(SchemaName) ? TableName : SchemaName + "." + TableName + " " + TableName;
-                    selectDataSqlBuilder.Append(" from " + fullTableName);
-                    _selectDataSql = selectDataSqlBuilder.ToString();
-                }
-
-
+                _selectDataSql = getSelectColomnString(TableName);
                 // where内容整理，除了where的过滤条件，对order by以及限制取得件数做简单调整
                 // 对限制件数目前支持 oracle的rownum方式以及 limit 的方式
                 string analyzedWhereString = "";
                 string analyzedOrderString = "";
                 string analyzedLimitString = "";
                 string modifiedSql = "";
-                if (CustomWhereClause == null)
+                if (CustomSelectClause == null)
                 {
+                    string fullTableName = string.IsNullOrEmpty(SchemaName) ? TableName : SchemaName + "." + TableName + " " + TableName;
+                    _selectDataSql += " from " + fullTableName;
 
                     if (!string.IsNullOrEmpty(WhereClause))
                     {
@@ -418,50 +397,8 @@
                 }
                 else
                 {
-                    //如果是自定义的SQL,那么无需进行加工，直接附加
-                    //schema如果无需定义的话，那么跳过改写逻辑
-                    string rewrittenWhereClause = "";
-                    if (string.IsNullOrWhiteSpace(this.SchemaName))
-                    {
-                        rewrittenWhereClause = CustomWhereClause;
-                    }
-                    else
-                    {
-                        string pattern = @"\b(?<opeName>join|from)\s+(?<schemaname>[A-Za-z0-9_-]+\.)?(?<tablename>[A-Za-z0-9_-]+)\b";
-                        MatchCollection matches = Regex.Matches(CustomWhereClause, pattern, RegexOptions.IgnoreCase);
-                        int cursor = 0;
-                        if (matches.Count > 0)
-                        {
-                            for (int idx = 0; idx < matches.Count; idx++)
-                            {
-                                rewrittenWhereClause += CustomWhereClause.Substring(cursor, matches[idx].Index - cursor);
-                                // 如果SQL内没有定义Schema那么使用系统设定的Schema否则不进行替换
-                                if (string.IsNullOrWhiteSpace(matches[idx].Groups["schemaname"].Value))
-                                {
-                                    rewrittenWhereClause += matches[idx].Groups["opeName"].Value + " " + this.SchemaName + "." + matches[idx].Groups["tablename"].Value + " " + matches[idx].Groups["tablename"].Value + " ";
-                                }
-                                else {
-                                    rewrittenWhereClause += matches[idx].Value + " ";
-                                }
-                                cursor = matches[idx].Index + matches[idx].Length;
-                            }
-                            // last one?
-                            rewrittenWhereClause += CustomWhereClause.Substring(cursor, CustomWhereClause.Length - cursor);
-                        }
-                        else
-                        {
-                            rewrittenWhereClause = CustomWhereClause;
-                        }
-                    }
                     // 默认的抽取项目是表的定义结构，项目的顺序也是按照它的物理顺序，这里提供自定义的途径
-                    if (CustomSelectClause.Count == 0 )
-                        modifiedSql += _selectDataSql + " " + rewrittenWhereClause;
-                    else
-                    {
-                        string fullTableName = string.IsNullOrEmpty(SchemaName) ? TableName : SchemaName + "." + TableName + " " + TableName;
-                        modifiedSql += CustomSelectString + " from " + fullTableName + " " + rewrittenWhereClause;
-
-                    }
+                    modifiedSql = CustomSelectClause;
                 }
                 if (!string.IsNullOrWhiteSpace(analyzedLimitString))
                 {
@@ -508,28 +445,11 @@
                 {
                     List<string> exportSchemaRow = new List<string>();
 
-                    if (CustomWhereClause == null || CustomSelectClause.Count == 0)
+                    for (int iColumnIdx = 0; iColumnIdx < Columns.Count; iColumnIdx++)
                     {
-                        for (int iColumnIdx = 0; iColumnIdx < Columns.Count; iColumnIdx++)
-                        {
-                            //toddo
-                            if (!Columns[iColumnIdx].IsIncluded) continue;
-                            exportSchemaRow.Add(Schemas[iSchemaIdx].Invoke(Columns[iColumnIdx]));
-                        }
-                    }
-                    else {
-                        foreach (string columnName in CustomSelectClause)
-                        {
-                            //toddo
-                            var columnInfo = Columns.FirstOrDefault(item => item.ColumnName.ToLower().Equals(columnName.ToLower()));
-                            if (columnInfo == null) { 
-                                // todo:warning
-                            }
-                            else
-                            {
-                                exportSchemaRow.Add(Schemas[iSchemaIdx].Invoke(columnInfo));
-                            }
-                        }
+                        //toddo
+                        if (!Columns[iColumnIdx].IsIncluded) continue;
+                        exportSchemaRow.Add(Schemas[iSchemaIdx].Invoke(Columns[iColumnIdx]));
                     }
                     exportSchemaRegion.Add(exportSchemaRow);
                 }
@@ -859,7 +779,7 @@
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="bDbCreate">对目标DB进行表DROP及CREATE，INSERT数据的操作，否则只进行INSERT数据</param>
-        public DataSet DoAccordingActivedSheet(Provider provider, string schemaName,List<TableInfo> tableList, DbCommand cmd, eProcessType processType, List<string> initializeCommandList, bool bDbCreate = false)
+        public DataSet DoAccordingActivedSheet(Provider provider, string schemaName,List<TableInfo> tableList, DbCommand cmd, eProcessType processType, List<string> initializeCommandList, ref eDatabaseTranOperation databaseTranOperation, bool bDbCreate = false)
         {
             //目前这个版本针对blob，clob类型没有做对应，将来是否有需要？只有到那时候才知道
             //http://stackoverflow.com/questions/5371222/getting-binary-data-using-sqldatareader
@@ -945,7 +865,7 @@
                             if( Regex.Match(guessedTableName, @"^[A-Za-z0-9_-]+$").Success )
                             {
                                 //注意性能的劣化
-                                if (Regex.Match(searchTableNameListContext, guessedTableName + @"\b", RegexOptions.IgnoreCase).Success)
+                                if (Regex.Match(searchTableNameListContext, @"\b" + guessedTableName + @"\b", RegexOptions.IgnoreCase).Success)
                                 {
                                     currentTableInfo = (from tableinfo in tableList where tableinfo.TableName.ToUpper() == guessedTableName.ToUpper() select tableinfo).FirstOrDefault();
                                     guessedTableNameColumnOffset = iCol;
@@ -1724,17 +1644,30 @@
                     }
                 }
 
-                dbTran.Commit();
-                DevelopWorkspace.Base.Logger.WriteLine("database committed", Level.INFO);
+                if (databaseTranOperation == eDatabaseTranOperation.COMMIT)
+                {
+                    dbTran.Commit();
+                    DevelopWorkspace.Base.Logger.WriteLine("###################### database committed", Level.DEBUG);
+                    DevelopWorkspace.Base.Logger.WriteLine("database committed", Level.INFO);
+                }
+                else {
+                    dbTran.Rollback();
+                    DevelopWorkspace.Base.Logger.WriteLine("###################### database rollbacked", Level.DEBUG);
+                    DevelopWorkspace.Base.Logger.WriteLine("###################### 请确认所有的更新的SQL文是否妥当，没有问题的话请再执行一下反映", Level.DEBUG);
+                    DevelopWorkspace.Base.Logger.WriteLine("database rollbacked");
+                }
             }
             catch (Exception ex)
             {
+                databaseTranOperation = eDatabaseTranOperation.COMMIT;
+
                 //DevelopWorkspace.Base.Services.ErrorMessage(ex.Message);
                 DevelopWorkspace.Base.Logger.WriteLine(ex.Message, Base.Level.ERROR);
                 DevelopWorkspace.Base.Logger.WriteLine(string.Format("there are some problem at row:{0} column:{1} in activesheet.fix it, and then try again.", iRow - iRewindRow, iCol), Base.Level.ERROR);
                 if (dbTran != null)
                 {
                     dbTran.Rollback();
+                    DevelopWorkspace.Base.Logger.WriteLine("###################### database rollbacked", Level.DEBUG);
                     DevelopWorkspace.Base.Logger.WriteLine("database rollbacked");
                 }
 
@@ -2452,13 +2385,7 @@
             {
                 List<string> rowData = new List<string>();
                 List<string> columnNameList = null;
-                if (tableInfo.CustomWhereClause == null || tableInfo.CustomSelectClause.Count == 0)
-                    columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
-                else
-                {
-                    columnNameList = tableInfo.CustomSelectClause;
-                }
-
+                columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
                 foreach (string columnName in columnNameList)
                 {
                     string dummyValue = "";
@@ -2498,11 +2425,7 @@
             {
                 List<string> rowData = null;
                 List<string> columnNameList = null;
-                if (tableInfo.CustomWhereClause == null || tableInfo.CustomSelectClause.Count == 0)
-                    columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
-                else {
-                    columnNameList = tableInfo.CustomSelectClause;
-                }
+                columnNameList = (from column in tableInfo.Columns where column.IsIncluded select column.ColumnName).ToList();
                 //deleted with refactor:2016/02/06
                 //List<string> dataTypeList = (from column in tableInfo.Columns select column.ColumnType).ToList();
                 // 防止取得数据过大，这里需要限制一下不超过：AppConfig.DatabaseConfig.This.maxRecordCount

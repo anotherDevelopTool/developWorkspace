@@ -15,6 +15,12 @@ using static DevelopWorkspace.Base.Services;
 
 namespace DevelopWorkspace.Base
 {
+    public enum eDatabaseTranOperation
+    {
+        ROLLBACK,
+        COMMIT
+    }
+
     public class license {
         public static bool IsTrialLicense { get; set; }
         public static string DaysToEnd { get; set; }
