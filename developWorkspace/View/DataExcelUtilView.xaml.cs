@@ -1733,7 +1733,8 @@ namespace DevelopWorkspace.Main.View
                             if (findTableInfo != null)
                             {
                                 var deepCopiedTableInfo = DeepCopy(findTableInfo);
-                                deepCopiedTableInfo.CustomSelectClause = deepCopiedTableInfo.getSelectColomnString(string.IsNullOrWhiteSpace(aliasname)? processTableName : aliasname) + preproccessedSelectString.Substring(preproccessedSelectString.IndexOf("from", StringComparison.OrdinalIgnoreCase));
+                                var selectSqlString = deepCopiedTableInfo.getSelectColomnString(string.IsNullOrWhiteSpace(aliasname) ? processTableName : aliasname) + preproccessedSelectString.Substring(preproccessedSelectString.IndexOf("from", StringComparison.OrdinalIgnoreCase));
+                                deepCopiedTableInfo.CustomSelectClause = "select distinct" + selectSqlString.Substring("select".Length);
                                 custTableList.Add(deepCopiedTableInfo);
                             }
                         }
