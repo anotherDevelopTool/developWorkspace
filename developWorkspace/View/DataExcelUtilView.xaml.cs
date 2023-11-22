@@ -1695,7 +1695,7 @@ namespace DevelopWorkspace.Main.View
                 preproccessedSelectString = rewrittenWhereClause;
                 //表有别名的情况是的需要收集用到的别名，后面提取实际表时需要使用
                 List<Tuple<string, string>> aliasTablenameList = new List<Tuple<string, string>>();
-                MatchCollection matchTables = Regex.Matches(preproccessedSelectString, @"\b(?<opeName>join|from)\s+((?<schemaname>[A-Za-z0-9_-]+)\.)?(?<tablename>[A-Za-z0-9_-]+)\s*((?!where|left|inner|right)(?<aliasname>[A-Za-z0-9_-]+)\s*)?", RegexOptions.IgnoreCase);
+                MatchCollection matchTables = Regex.Matches(preproccessedSelectString, @"\b(?<opeName>join|from)\s+((?<schemaname>[A-Za-z0-9_-]+)\.)?(?<tablename>[A-Za-z0-9_-]+)\s*((?!where|left|inner|right|on)(?<aliasname>[A-Za-z0-9_-]+)\s*)?", RegexOptions.IgnoreCase);
                 if (matchTables.Count > 0)
                 {
                     for (int idx = 0; idx < matchTables.Count; idx++)
