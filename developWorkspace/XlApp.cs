@@ -174,7 +174,7 @@
                 return _customselectClause;
             }
         }
-
+        public bool IsCustomSchema { get; set; }
         public string getClauseString(bool isSelectClause = true)
         {
             string retClauseString = "";
@@ -414,8 +414,15 @@
         {
             get
             {
+
                 // 为了不对全局影响过大，这块的接口保持不变（影响不外溢），整体上需要可读性优化
                 List<List<string>> exportSchemaRegion = new List<List<string>>();
+                if (IsCustomSchema)
+                {
+                    exportSchemaRegion.Add(new List<string>());
+                    return exportSchemaRegion;
+                }
+
                 Func<ColumnInfo,string> getIsKey = (ColumnInfo ci) => ci.IsKey ;
                 Func<ColumnInfo, string> getColumnName = (ColumnInfo ci) => ci.ColumnName;
                 Func<ColumnInfo, string> getColumnRemark = (ColumnInfo ci) => ci.ColumnRemark;
@@ -1969,8 +1976,10 @@
                             selected.Interior.Pattern = Microsoft.Office.Interop.Excel.Constants.xlSolid;
                             //selected.Interior.ThemeColor = Microsoft.Office.Interop.Excel.XlThemeColor.xlThemeColorAccent4;
                             selected.Interior.Color = System.Drawing.ColorTranslator.ToOle(tableInfo.ExcelTableHeaderThemeColor);
-
-                            selected.Value2 = new string[] { tableInfo.TableName, tableInfo.Remark };
+                            if (tableInfo.IsCustomSchema)
+                                selected.Value2 = new string[] { tableInfo.TableName + "‗クエリ", "" };
+                            else
+                                selected.Value2 = new string[] { tableInfo.TableName, tableInfo.Remark };
                             XlApp.DrawBorder(selected);
                             sartRow++;
 
@@ -1979,7 +1988,13 @@
                             if (DatabaseConfig.This.backgroundWorkerMode)
                                 value2_copy = GetTableDataWithSchemaFromCache(tableInfo, cmd);
                             else
-                                value2_copy = GetTableDataWithSchema(tableInfo, cmd);
+                            {
+                                if (tableInfo.IsCustomSchema)
+                                    value2_copy = GetTableDataWithoutSchema(tableInfo, cmd);
+                                else
+                                    value2_copy = GetTableDataWithSchema(tableInfo, cmd);
+                            }
+                          
 
                             //Table属性定义行区域颜色定制
                             selected = targetSheet.Range(targetSheet.Cells(sartRow, startCol),
@@ -2379,7 +2394,6 @@
             {
                 linked.Add(schemaPrint);
             }
-
             //2016/06/03 辅助数据做成
             if (tableInfo.WhereCondition != null)
             {
@@ -2547,6 +2561,65 @@
                    
             }
 
+            return ret;
+        }
+
+        public string[,] GetTableDataWithoutSchema(TableInfo tableInfo, DbCommand cmd, DataSet orgDataset = null)
+        {
+            List<List<string>> linked = new List<List<string>>();
+            string[,] ret = null;
+            cmd.CommandText = tableInfo.CustomSelectClause;
+            DevelopWorkspace.Base.Logger.WriteLine(cmd.CommandText, Base.Level.DEBUG);
+
+            //if (!tableInfo.IsCustomSchema)
+            //{
+            //    foreach (List<string> schemaPrint in tableInfo.ExportSchemaRegion)
+            //    {
+            //        linked.Add(schemaPrint);
+            //    }
+            //}
+
+            using (DbDataReader rdr = cmd.ExecuteReader())
+            {
+                List<string> rowData = null;
+                int iCnt = 1;
+                List<string> titleList = new List<string>();
+                bool titleInitial = false;
+                int columnCount = 0;
+
+                while (rdr.Read())
+                {
+                    rowData = new List<string>();
+                    if (iCnt > AppConfig.DatabaseConfig.This.maxRecordCount) break;
+                    if (!titleInitial)
+                    {
+                        titleInitial = true;
+                        columnCount = rdr.FieldCount;
+                        for (int idx = 0; idx < rdr.FieldCount; idx++)
+                        {
+                            titleList.Add(rdr.GetName(idx).ToString());
+                        }
+                        linked.Add(titleList);
+                    }
+                    for (int idx = 0; idx < rdr.FieldCount; idx++)
+                    {
+                        string data = rdr[idx] == null ? "" : rdr[idx].ToString();
+                        rowData.Add(data);
+                    }
+                    linked.Add(rowData);
+                    iCnt++;
+
+                }
+                //List内容转换成二维数组
+                ret = new string[linked.Count, columnCount];
+                for (int row = 0; row < linked.Count; row++)
+                {
+                    for (int col = 0; col < columnCount; col++)
+                    {
+                        ret[row, col] = linked[row][col];
+                    }
+                }
+            }
             return ret;
         }
 

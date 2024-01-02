@@ -1710,7 +1710,7 @@ namespace DevelopWorkspace.Main.View
                         }
                     }
                 }
-
+                // 通常*,tablename.*这样的方式指定整张表，如果个别指定字段的话，那么不允许和*共存（如果有*关键字的话，则忽略个别字段）
                 MatchCollection matchSelectedTables = Regex.Matches(preproccessedSelectString, @"((?<aliasname>[A-Za-z0-9_-]+)\.)?\*", RegexOptions.IgnoreCase);
                 if (matchSelectedTables.Count > 0)
                 {
@@ -1739,6 +1739,23 @@ namespace DevelopWorkspace.Main.View
                             }
                         }
                     }
+                }
+                //如果个别指定字段的话，那么不允许和*共存（如果有*关键字的话，则忽略个别字段）
+                else
+                {
+                    string processTableName = aliasTablenameList[0].Item2;
+                    if (!string.IsNullOrWhiteSpace(processTableName))
+                    {
+                        findTableInfo = tableList.FirstOrDefault(item => item.TableName.ToLower().Equals(processTableName.ToLower()));
+                        if (findTableInfo != null)
+                        {
+                            var deepCopiedTableInfo = DeepCopy(findTableInfo);
+                            deepCopiedTableInfo.CustomSelectClause = preproccessedSelectString;
+                            deepCopiedTableInfo.IsCustomSchema = true;
+                            custTableList.Add(deepCopiedTableInfo);
+                        }
+                    }
+
                 }
             }
             //这里提供Apply按钮按下时清除数据库的处理（和Schema的DataGrid的Where列类似）
