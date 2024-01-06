@@ -1373,7 +1373,7 @@ namespace DevelopWorkspace.Main.View
 
         private void btnApplyExcelToDb_Click(object sender, RoutedEventArgs e)
         {
-            if (connectionHistoryName.IndexOf("prod") > 0) {
+            if (connectionHistoryName.EndsWith("_prod")) {
                 CriticalMessageBox confirmDialog = new CriticalMessageBox("现在更新本番数据，注意保证没有想定外的数据反映到本番数据库！");
                 confirmDialog.Owner = DevelopWorkspace.Base.Utils.WPF.GetTopWindow(this);
                 confirmDialog.ShowDialog();
@@ -1394,13 +1394,17 @@ namespace DevelopWorkspace.Main.View
                 {
                     Base.Services.SimpleAroundCallService(this, "apply", cmbSavedDatabases.SelectedItem, new Action(() => {
                         xlApp.DbConnection.Open();
+                        List<string> updateCommandList = null;
                         //本番时禁止手动删除或者更新数据，只允许通过excel插入或者更新数据
-                        List<string> updateCommandList = new List<string>();
-                        //todo 有时间优化一下，代码可读性
-                        if (getCustomSQLString != null && connectionHistoryName.IndexOf("prod") > 0)
+                        if (connectionHistoryName.EndsWith("_prod"))
                         {
-                            if (getCustomSQLString().Trim().Length == 0) return;
-                            updateCommandList = getUpdateOrDeleteSqlAccordingCustomSQL(getCustomSQLString().Trim());
+                            updateCommandList = new List<string>();
+                        }
+                        else {
+                            if (getCustomSQLString != null)
+                            {
+                                updateCommandList = getUpdateOrDeleteSqlAccordingCustomSQL(getCustomSQLString().Trim());
+                            }
                         }
                         Services.executeWithBackgroundAction(() => {
                             xlApp.DoAccordingActivedSheet(xlApp.Provider, xlApp.SchemaName, tableList, xlApp.DbConnection.CreateCommand(), eProcessType.DB_APPLY, updateCommandList, ref databaseTranOperation);
